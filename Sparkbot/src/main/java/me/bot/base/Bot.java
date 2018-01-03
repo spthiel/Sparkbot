@@ -1,5 +1,6 @@
 package me.bot.base;
 
+import me.bot.base.configs.ResourceManager;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -37,6 +38,8 @@ public class Bot {
         this.name = name;
         this.streaming = true;
         this.url = streamingurl;
+
+        this.resourceManager = new ResourceManager(basefolder);
 
         client = createClient(token, true);
         EventDispatcher dispatcher = client.getDispatcher();

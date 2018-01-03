@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="BotBase" />
+        <module name="Sparkbot" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="BotBase" target="1.8" />
+      <module name="Sparkbot" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
