@@ -1,6 +1,7 @@
 package me.bot.base;
 
 import me.bot.base.configs.ResourceManager;
+import me.main.Main;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -18,6 +19,7 @@ public class Bot {
     private String url;
     private boolean streaming;
     private ResourceManager resourceManager;
+    private DiscordUtils utils;
 
     public Bot(String token, String name, String basefolder) {
 
@@ -25,6 +27,7 @@ public class Bot {
         this.streaming = false;
 
         this.resourceManager = new ResourceManager(basefolder);
+        this.utils = new DiscordUtils(this);
 
         client = createClient(token, true);
         EventDispatcher dispatcher = client.getDispatcher();
@@ -40,6 +43,7 @@ public class Bot {
         this.url = streamingurl;
 
         this.resourceManager = new ResourceManager(basefolder);
+	    this.utils = new DiscordUtils(this);
 
         client = createClient(token, true);
         EventDispatcher dispatcher = client.getDispatcher();
@@ -56,7 +60,11 @@ public class Bot {
         return resourceManager;
     }
 
-    public String getUrl() {
+	public DiscordUtils getUtils() {
+		return utils;
+	}
+
+	public String getUrl() {
         return url;
     }
 
@@ -81,6 +89,7 @@ public class Bot {
         LOGGER.info("Disabling");
         if (client != null && client.isLoggedIn())
             client.logout();
+	    Main.exit();
     }
     
     private IDiscordClient createClient(String token, boolean login) {

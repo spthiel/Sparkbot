@@ -1,9 +1,6 @@
 package me.bot.base.configs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,11 +10,15 @@ public class Config {
 
 	public Config() {
 
+		config = new HashMap<>();
+
 	}
 
 	public Config(List<String> file) {
 
-		Pattern p = Pattern.compile("(.+?):(.+?)");
+		config = new HashMap<>();
+
+		Pattern p = Pattern.compile("^(.+?):(.+?)$");
 
 		for (String s : file) {
 			Matcher m = p.matcher(s);
@@ -27,13 +28,17 @@ public class Config {
 				String value = m.group(2);
 
 				value = value.replace("%pp", ":");
-
+				System.out.println("Key: " + key + " Value: " + value);
 				config.put(key,getObject(value));
 
 			}
 
 		}
 
+	}
+
+	public boolean hasKey(String key) {
+		return config.containsKey(key);
 	}
 
 	public Object getValue(String key) {
@@ -46,6 +51,10 @@ public class Config {
 
 	public void removeKey(String key) {
 		config.remove(key);
+	}
+
+	public Set<String> getKeySet() {
+		return config.keySet();
 	}
 
 	private Object getObject(String value) {
@@ -100,11 +109,13 @@ public class Config {
 	public List<String> toFileFormat() {
 		ArrayList<String> out = new ArrayList<>();
 		ArrayList<String> toSort = new ArrayList<>(config.keySet());
+		toSort.sort(String.CASE_INSENSITIVE_ORDER);
 		for (String key : toSort) {
 			String toAdd = key.replace("%", "%esc").replace(":", "%pp");
 			Object store = config.get(key);
-			if (!(store instanceof String[]))
-				toAdd += ":" + stringify(config.get(key));
+			toAdd += ":" + stringify(config.get(key));
+			out.add(toAdd);
+
 		}
 
 		return out;

@@ -52,17 +52,28 @@ public class Delete implements ICommand {
         }
 
         if (args.length > 1) {
-            try {
-                int num = Integer.parseInt(args[1]);
-                if (num > 999)
-                    num = 999;
-                final int amount = num;
-                RequestBuffer.request(() -> {
-                    message.getChannel().getMessageHistory(amount+1).bulkDelete();
-                }).get();
-                MessageAPI.sendAndDeleteMessageLater(message.getChannel(), ":white_check_mark: **| Successfully deleted " + amount + " messages from <#" + message.getChannel().getLongID() + "> **", 10000L);
-            } catch (Exception e) {
-                MessageAPI.sendAndDeleteMessageLater(message.getChannel(), "<:red_cross:398120014974287873> **|" + args[1] + " is not a valid number.**", 5000L);
+            if(args[1].equalsIgnoreCase("channel")) {
+
+
+	            List<IMessage> deletedMessages = RequestBuffer.request(() -> {
+		            return message.getChannel().bulkDelete();
+	            }).get();
+	            MessageAPI.sendAndDeleteMessageLater(message.getChannel(), ":white_check_mark: **| Successfully deleted " + (deletedMessages.size()-1) + " messages from <#" + message.getChannel().getLongID() + "> **", 10000L);
+
+            } else {
+
+	            try {
+		            int num = Integer.parseInt(args[1]);
+		            if (num > 99)
+			            num = 99;
+		            final int amount = num;
+		            List<IMessage> deletedMessages = RequestBuffer.request(() -> {
+			            return message.getChannel().getMessageHistory(amount + 1).bulkDelete();
+		            }).get();
+		            MessageAPI.sendAndDeleteMessageLater(message.getChannel(), ":white_check_mark: **| Successfully deleted " + (deletedMessages.size()-1) + " messages from <#" + message.getChannel().getLongID() + "> **", 10000L);
+	            } catch (Exception e) {
+		            MessageAPI.sendAndDeleteMessageLater(message.getChannel(), "<:red_cross:398120014974287873> **|" + args[1] + " is not a valid number.**", 5000L);
+	            }
             }
         } else {
             MessageAPI.sendAndDeleteMessageLater(message.getChannel(), "<:red_cross:398120014974287873> **| Please enter the amount of messages you want to delete.**\nExample: `" + Prefixes.getAdminPrefixFor(message.getGuild()) + "clear 10`", 5000L);

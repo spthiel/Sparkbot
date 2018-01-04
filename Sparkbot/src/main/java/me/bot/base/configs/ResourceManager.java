@@ -17,7 +17,6 @@ public class ResourceManager {
 
 		HashMap<String, Object> toEdit = new HashMap<>();
 		toEdit.put(key, value);
-
 		editKey(dir, filename, toEdit);
 
 	}
@@ -36,6 +35,36 @@ public class ResourceManager {
 			return null;
 
 		return new Config(readFile(fileToEdit)).getValue(key);
+
+	}
+
+	public Config getConfig(String dir, String filename) {
+		File folder = new File(BASE_FOLDER + dir);
+		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+		if (!folder.exists())
+			return new Config();
+
+		if (!fileToEdit.exists())
+			return new Config();
+
+		return new Config(readFile(fileToEdit));
+	}
+
+	public void writeConfig(String dir, String filename, Config config) {
+
+		File folder = new File(BASE_FOLDER + dir);
+		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+		if (!folder.exists())
+			folder.mkdirs();
+
+		if (!fileToEdit.exists()) {
+			try {
+				fileToEdit.createNewFile();
+			} catch (IOException e) {
+			}
+		}
+
+		writeFile(config.toFileFormat(),fileToEdit);
 
 	}
 
@@ -61,8 +90,9 @@ public class ResourceManager {
 
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
 
-			for (String line : toWrite)
+			for (String line : toWrite) {
 				out.write(line + "\n");
+			}
 
 		} catch (IOException e) {
 
@@ -81,23 +111,19 @@ public class ResourceManager {
 			} catch (IOException e) {
 			}
 
-			try (BufferedWriter out = new BufferedWriter(new FileWriter(fileToEdit))) {
-
-				Config c = new Config();
-				for (String key : toEdit.keySet())
-					c.addOrResetKey(key, toEdit.get(key));
-				for (String line : c.toFileFormat())
-					out.write(line + "\n");
-			} catch (IOException e) {
-
+			Config c = new Config();
+			for (String key : toEdit.keySet()) {
+				c.addOrResetKey(key, toEdit.get(key));
 			}
+			writeFile(c.toFileFormat(),fileToEdit);
 
 		} else {
 
 			Config c = new Config(readFile(fileToEdit));
 
-			for (String key : toEdit.keySet())
+			for (String key : toEdit.keySet()) {
 				c.addOrResetKey(key, toEdit.get(key));
+			}
 
 			writeFile(c.toFileFormat(), fileToEdit);
 

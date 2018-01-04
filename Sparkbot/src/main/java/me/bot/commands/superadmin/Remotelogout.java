@@ -2,6 +2,7 @@ package me.bot.commands.superadmin;
 
 import me.bot.base.Bot;
 import me.bot.base.ICommand;
+import me.main.PermissionManager;
 import me.main.Prefixes;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -32,7 +33,7 @@ public class Remotelogout implements ICommand{
 
     @Override
     public boolean hasPermissions(IGuild guild, IUser user) {
-        return false;
+        return PermissionManager.isBotAdmin(user);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class Remotelogout implements ICommand{
 
     @Override
     public void run(Bot bot, IUser author, IMessage message, String[] args) {
-
+        bot.disable();
     }
 
     @Override

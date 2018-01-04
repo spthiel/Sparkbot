@@ -98,7 +98,7 @@ public class CommandListener {
                             return;
                         } else if(args[0].equalsIgnoreCase(name)) {
                             bot.LOGGER.info(event.getAuthor().getName() + " failed to issue " + event.getMessage().getContent());
-                            MessageAPI.sendAndDeleteMessageLater(event.getChannel(),"<:no:364443305582526474> **| <@" + event.getAuthor().getLongID() + "> You don't have enough permissions to perform that command",5000L);
+                            MessageAPI.sendAndDeleteMessageLater(event.getChannel(),"<:red_cross:398120014974287873> **| <@" + event.getAuthor().getLongID() + "> You don't have enough permissions to perform that command",5000L);
                             break;
                         }
                     }
