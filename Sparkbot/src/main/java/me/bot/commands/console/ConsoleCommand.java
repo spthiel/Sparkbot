@@ -1,10 +1,9 @@
 package me.bot.commands.console;
 
-
 public interface ConsoleCommand {
-	public String getName();
-
-	public String getHelp();
-
-	public void onLoad(String[] args);
+	String getName();
+	String getName2();
+	String getName3();
+	String getHelp();
+	void onLoad(String[] args);
 }
