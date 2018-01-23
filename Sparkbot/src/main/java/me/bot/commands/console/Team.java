@@ -18,18 +18,9 @@ public class Team implements ConsoleCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "team";
-	}
-
-	@Override
-	public String getName2() {
-		return "Team";
-	}
-
-	@Override
-	public String getName3() {
-		return "BotTeam";
+	public String[] getNames() {
+		String[] out = {"team","botteam"};
+		return out;
 	}
 
 	public void run(Bot bot, IUser author, IMessage message, String[] args) {

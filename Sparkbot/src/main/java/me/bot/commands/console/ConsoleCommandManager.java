@@ -34,19 +34,15 @@ public class ConsoleCommandManager implements Runnable{
             String[] args = scanner.nextLine().split(" ");
             boolean worked = false;
             for (ConsoleCommand command : commands) {
-                if (args[0].equals(command.getName())) {
-                    worked = true;
-                    command.onLoad(args);
-                    System.out.println("");
-                }
-                else
-                if (args[0].equals(command.getName2())) {
-                    worked = true;
-                    command.onLoad(args);
-                    System.out.println("");
-                }
-                else
-                if (args[0].equals(command.getName3())) {
+
+                boolean bool = false;
+                for(String name : command.getNames())
+                    if(name.equalsIgnoreCase(args[1])) {
+                        bool = true;
+                        break;
+                    }
+
+                if (bool) {
                     worked = true;
                     command.onLoad(args);
                     System.out.println("");

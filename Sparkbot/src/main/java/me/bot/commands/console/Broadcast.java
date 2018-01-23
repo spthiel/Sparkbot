@@ -19,18 +19,9 @@ public class Broadcast implements ConsoleCommand{
 	}
 
 	@Override
-	public String getName() {
-		return "broadcast";
-	}
-
-	@Override
-	public String getName2() {
-		return "bc";
-	}
-
-	@Override
-	public String getName3() {
-		return "Broadcast";
+	public String[] getNames() {
+		String[] out = {"broadcast","bc"};
+		return out;
 	}
 
 	public void onLoad(String[] args) {

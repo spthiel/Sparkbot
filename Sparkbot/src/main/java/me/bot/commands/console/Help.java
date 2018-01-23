@@ -1,13 +1,6 @@
 package me.bot.commands.console;
 
 import me.main.Main;
-import me.main.PermissionManager;
-import me.main.Prefixes;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
-
-import java.util.List;
 
 public class Help implements ConsoleCommand {
 
@@ -16,18 +9,9 @@ public class Help implements ConsoleCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "Help";
-	}
-
-	@Override
-	public String getName2() {
-		return "help";
-	}
-
-	@Override
-	public String getName3() {
-		return "?";
+	public String[] getNames() {
+		String[] out = {"help","?"};
+		return out;
 	}
 
 	@Override
@@ -35,10 +19,18 @@ public class Help implements ConsoleCommand {
 		if (args.length == 2) {
 			boolean worked = false;
 			for (ConsoleCommand command : Main.getCommandManager().getCommands()) {
-				if (command.getName().equals(args[1])) {
+
+				boolean bool = false;
+				for(String name : command.getNames())
+					if(name.equalsIgnoreCase(args[1])) {
+						bool = true;
+						break;
+					}
+
+				if (bool) {
 					worked = true;
 					System.out.println(" - Help - ");
-					System.out.println("Command: " + command.getName());
+					System.out.println("Command: " + command.getNames()[0]);
 					System.out.println(" - Description: " + command.getHelp());
 				}
 			}
@@ -48,7 +40,7 @@ public class Help implements ConsoleCommand {
 		} else {
 			System.out.println(" - Help - ");
 			for (ConsoleCommand command : Main.getCommandManager().getCommands()) {
-				System.out.println("Command: " + command.getName());
+				System.out.println("Command: " + command.getNames()[0]);
 				System.out.println(" - Description: " + command.getHelp());
 			}
 		}

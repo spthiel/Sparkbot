@@ -1,6 +1,6 @@
 package me.main;
 
-import me.bot.base.configs.Config;
+import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.ArrayList;
@@ -10,16 +10,18 @@ public class PermissionManager {
 
 	private static final String
 			directory = "configs/main",
-			filename = "botowner.txt"
+			filename = "botowner.json"
 	;
 
-	private static Config config;
+	private static JSONObject config;
 
 	public static List<Long> getBotAdmins() {
 
-		List<Long> out = new ArrayList<>();
+		final List<Long> out = new ArrayList<>();
 
-		config.getKeySet().forEach(key -> out.add(Long.parseLong(key)));
+
+		config.getJSONArray("Owners").forEach(object -> out.add((Long)object));
+		config.getJSONArray("Admins").forEach(object -> out.add((Long)object));
 
 		return out;
 
@@ -35,10 +37,9 @@ public class PermissionManager {
 
 	public static boolean isBotAdmin(final long id) {
 
-		if(updateConfigIfUnset()) {
+		if(updateConfigIfUnset() && config.has("Admins")) {
 
-			return config.hasKey(id + "");
-
+			return config.getJSONArray("Admins").toList().contains(id) || isBotOwner(id);
 		} else {
 			return false;
 		}
@@ -56,7 +57,7 @@ public class PermissionManager {
 	public static boolean addBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
-			config.addOrResetKey(id + "",false);
+			config.getJSONArray("Admins").put(id);
 			updateConfig();
 			return true;
 		} else {
@@ -75,7 +76,14 @@ public class PermissionManager {
 	public static boolean removeBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
-			config.removeKey(id + "");
+			List<Object> toPut = config.getJSONArray("Admins").toList();
+			for (int i = 0; i < toPut.size(); i++) {
+				Object object = toPut.get(i);
+				if (id == (Long) object) {
+					toPut.remove(i);
+				}
+
+			}
 			updateConfig();
 			return true;
 		} else {
@@ -93,9 +101,8 @@ public class PermissionManager {
 
 	public static boolean isBotOwner(final long id) {
 
-		if(updateConfigIfUnset()) {
-			return config.hasKey(id + "") && (boolean)config.getValue(id + "");
-
+		if(updateConfigIfUnset() && config.has("Owners")) {
+			return config.getJSONArray("Owners").toList().contains(id);
 		} else {
 			return false;
 		}
@@ -113,7 +120,7 @@ public class PermissionManager {
 	public static boolean addBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			config.addOrResetKey(id + "",true);
+			config.getJSONArray("Owners").put(id);
 			updateConfig();
 			return true;
 		} else {
@@ -132,7 +139,14 @@ public class PermissionManager {
 	public static boolean removeBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			config.removeKey(id + "");
+			List<Object> toPut = config.getJSONArray("Owners").toList();
+			for (int i = 0; i < toPut.size(); i++) {
+				Object object = toPut.get(i);
+				if (id == (Long) object) {
+					toPut.remove(i);
+				}
+
+			}
 			updateConfig();
 			return true;
 		} else {
