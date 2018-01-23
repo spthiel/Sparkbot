@@ -1,6 +1,7 @@
 package me.bot.commands.superadmin;
 
 import me.bot.base.Bot;
+import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.PermissionManager;
 import me.main.Prefixes;
@@ -11,8 +12,13 @@ import sx.blah.discord.handle.obj.Permissions;
 
 import java.util.List;
 
-public class Remotelogout implements ICommand{
+public class Remotelogout implements ICommand {
 
+
+    @Override
+    public CommandType getType() {
+        return CommandType.ADMIN;
+    }
 
     @Override
     public String getHelp() {

@@ -1,10 +1,13 @@
 package me.bot.base;
 
+import me.main.PermissionManager;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageDeleteEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Permissions;
 
 import java.util.ArrayList;
@@ -30,6 +33,15 @@ public class CommandListener {
             command.onLoad();
             commands.add(command);
         });
+    }
+
+    @EventSubscriber
+    public void onDelete(MessageDeleteEvent e) {
+    	/*if (e.getAuthor().isBot()) {
+    		long guild = e.getGuild().getLongID();
+    		//bot.getResourceManager().isSet("configs")
+			//if()
+	    }*/
     }
     
     @EventSubscriber
@@ -83,7 +95,7 @@ public class CommandListener {
 
                     for (String name : command.getNames()) {
 
-                        if (args[0].equalsIgnoreCase(name) && command.hasPermissions(event.getGuild(), event.getAuthor())) {
+                        if (args[0].equalsIgnoreCase(name) && hasPermission(command,event.getGuild(),event.getAuthor())) {
 
                             if(command.requiredBotPermissions() != null) {
                                 List<Permissions> required = requiredPermissions(event.getGuild(),command.requiredBotPermissions());
@@ -105,6 +117,13 @@ public class CommandListener {
                 }
             }
         }
+    }
+
+    private boolean hasPermission(ICommand command, IGuild guild, IUser author) {
+    	if(PermissionManager.isBotAdmin(author))
+    		return true;
+    	else
+    	    return command.hasPermissions(guild,author);
     }
 
     private List<Permissions> requiredPermissions(IGuild guild, List<Permissions> perms){

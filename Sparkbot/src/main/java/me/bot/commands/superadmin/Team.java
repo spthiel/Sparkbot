@@ -1,8 +1,8 @@
 package me.bot.commands.superadmin;
 
 import me.bot.base.Bot;
+import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.main.Main;
 import me.main.PermissionManager;
 import me.main.Prefixes;
 import sx.blah.discord.handle.obj.*;
@@ -11,10 +11,14 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-public class Team implements ICommand{
+public class Team implements ICommand {
+	@Override
+	public CommandType getType() {
+		return CommandType.ADMIN;
+	}
+
 	@Override
 	public String getHelp() {
 		return "Modifys team";
@@ -116,7 +120,7 @@ public class Team implements ICommand{
 
 	}
 
-	public void logGet(Bot bot,IChannel channel, IGuild guild) {
+	public void logGet(Bot bot, IChannel channel, IGuild guild) {
 		List<IUser> owner = new ArrayList<>();
 		List<IUser> admins = new ArrayList<>();
 		PermissionManager.getBotAdmins().forEach(m -> {

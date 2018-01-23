@@ -1,6 +1,7 @@
 package me.bot.commands.admin;
 
 import me.bot.base.Bot;
+import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageAPI;
 import me.main.Prefixes;
@@ -10,10 +11,17 @@ import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class Delete implements ICommand {
-    @Override
+	@Override
+	public CommandType getType() {
+		return CommandType.MOD;
+	}
+
+	@Override
     public String getHelp() {
         return "Deletes messages in bulk";
     }
@@ -64,13 +72,16 @@ public class Delete implements ICommand {
 
 	            try {
 		            int num = Integer.parseInt(args[1]);
-		            if (num > 99)
-			            num = 99;
+		            if (num > 100)
+			            num = 100;
 		            final int amount = num;
+		            RequestBuffer.request(() -> {
+			            message.delete();
+		            });
 		            List<IMessage> deletedMessages = RequestBuffer.request(() -> {
-			            return message.getChannel().getMessageHistory(amount + 1).bulkDelete();
+			            return message.getChannel().getMessageHistory(amount).bulkDelete();
 		            }).get();
-		            MessageAPI.sendAndDeleteMessageLater(message.getChannel(), ":white_check_mark: **| Successfully deleted " + (deletedMessages.size()-1) + " messages from <#" + message.getChannel().getLongID() + "> **", 10000L);
+		            MessageAPI.sendAndDeleteMessageLater(message.getChannel(), ":white_check_mark: **| Successfully deleted " + (deletedMessages.size()) + " messages from <#" + message.getChannel().getLongID() + "> **", 10000L);
 	            } catch (Exception e) {
 		            MessageAPI.sendAndDeleteMessageLater(message.getChannel(), "<:red_cross:398120014974287873> **|" + args[1] + " is not a valid number.**", 5000L);
 	            }

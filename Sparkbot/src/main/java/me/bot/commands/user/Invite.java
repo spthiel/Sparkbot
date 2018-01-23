@@ -1,6 +1,7 @@
 package me.bot.commands.user;
 
 import me.bot.base.Bot;
+import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 import sx.blah.discord.handle.obj.IGuild;
@@ -11,7 +12,12 @@ import sx.blah.discord.util.RequestBuffer;
 
 import java.util.List;
 
-public class Invite implements ICommand{
+public class Invite implements ICommand {
+
+    @Override
+    public CommandType getType() {
+        return CommandType.PUBLIC;
+    }
 
     @Override
     public String getHelp() {

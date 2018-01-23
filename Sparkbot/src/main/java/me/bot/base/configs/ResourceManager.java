@@ -1,5 +1,7 @@
 package me.bot.base.configs;
 
+import org.json.JSONObject;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +28,8 @@ public class ResourceManager {
 	}
 
 	public Object getValue(String dir, String filename, String key) {
+
+
 		File folder = new File(BASE_FOLDER + dir);
 		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
 		if (!folder.exists())
@@ -34,23 +38,37 @@ public class ResourceManager {
 		if (!fileToEdit.exists())
 			return null;
 
-		return new Config(readFile(fileToEdit)).getValue(key);
+		JSONObject object = new JSONObject(readFileAsString(fileToEdit));
+
+
+		return object.get(key);
 
 	}
 
-	public Config getConfig(String dir, String filename) {
+	public boolean isSet(String dir, String filename, String key) {
+
+		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+
+		if (!fileToEdit.exists())
+			return false;
+
+		return new JSONObject(readFileAsString(fileToEdit)).has(key);
+
+	}
+
+	public JSONObject getConfig(String dir, String filename) {
 		File folder = new File(BASE_FOLDER + dir);
 		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
 		if (!folder.exists())
-			return new Config();
+			return new JSONObject();
 
 		if (!fileToEdit.exists())
-			return new Config();
+			return new JSONObject();
 
-		return new Config(readFile(fileToEdit));
+		return new JSONObject(readFileAsString(fileToEdit));
 	}
 
-	public void writeConfig(String dir, String filename, Config config) {
+	public void writeConfig(String dir, String filename, JSONObject config) {
 
 		File folder = new File(BASE_FOLDER + dir);
 		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
@@ -64,11 +82,10 @@ public class ResourceManager {
 			}
 		}
 
-		writeFile(config.toFileFormat(),fileToEdit);
-
+		writeFile(config.toString(),fileToEdit);
 	}
 
-	private List<String> readFile(File file) {
+	private List<String> readFileAsList(File file) {
 		List<String> out = new ArrayList<>();
 
 		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
@@ -86,6 +103,24 @@ public class ResourceManager {
 
 	}
 
+	private String readFileAsString(File file) {
+		StringBuilder out = new StringBuilder();
+
+		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
+
+			String line;
+
+			while ((line = in.readLine()) != null)
+				out.append(line + " ");
+
+		} catch (Exception ex) {
+
+		}
+
+		return out.toString();
+
+	}
+
 	private void writeFile(List<String> toWrite, File file) {
 
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
@@ -93,6 +128,17 @@ public class ResourceManager {
 			for (String line : toWrite) {
 				out.write(line + "\n");
 			}
+
+		} catch (IOException e) {
+
+		}
+	}
+
+	private void writeFile(String toWrite, File file) {
+
+		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
+
+			out.write(toWrite);
 
 		} catch (IOException e) {
 
@@ -111,21 +157,21 @@ public class ResourceManager {
 			} catch (IOException e) {
 			}
 
-			Config c = new Config();
+			JSONObject c = new JSONObject();
 			for (String key : toEdit.keySet()) {
-				c.addOrResetKey(key, toEdit.get(key));
+				c.put(key, toEdit.get(key));
 			}
-			writeFile(c.toFileFormat(),fileToEdit);
+			writeFile(c.toString(),fileToEdit);
 
 		} else {
 
-			Config c = new Config(readFile(fileToEdit));
+			JSONObject c = new JSONObject(readFileAsString(fileToEdit));
 
 			for (String key : toEdit.keySet()) {
-				c.addOrResetKey(key, toEdit.get(key));
+				c.put(key, toEdit.get(key));
 			}
 
-			writeFile(c.toFileFormat(), fileToEdit);
+			writeFile(c.toString(), fileToEdit);
 
 		}
 
