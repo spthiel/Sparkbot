@@ -1,7 +1,7 @@
-package me.console;
+package me.console.commands;
 
 import me.bot.base.Bot;
-import me.main.ConsoleCommand;
+import me.console.ConsoleCommand;
 import me.main.PermissionManager;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.EmbedBuilder;

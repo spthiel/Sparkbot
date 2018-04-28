@@ -1,5 +1,6 @@
-package me.console;
+package me.console.commands;
 
+import me.console.ConsoleCommand;
 import me.main.Main;
 
 public class Help implements ConsoleCommand {

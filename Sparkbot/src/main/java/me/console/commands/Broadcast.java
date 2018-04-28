@@ -1,13 +1,13 @@
-package me.console;
+package me.console.commands;
 
 
 import me.bot.base.MessageAPI;
-import me.main.ConsoleCommand;
+import me.console.ConsoleCommand;
 import me.main.Main;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.MessageBuilder;
 
-public class Broadcast implements ConsoleCommand{
+public class Broadcast implements ConsoleCommand {
 
 	@Override
 	public String getHelp() {
@@ -26,7 +26,7 @@ public class Broadcast implements ConsoleCommand{
 
 
 		for (String str : args) {
-			stringBuilder.append(str + " ");
+			stringBuilder.append(str).append(" ");
 		}
 		String message = stringBuilder.toString().trim();
 

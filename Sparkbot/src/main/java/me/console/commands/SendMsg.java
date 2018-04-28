@@ -1,6 +1,7 @@
-package me.console;
+package me.console.commands;
 
 import me.main.Main;
+import me.console.ConsoleCommand;
 
 public class SendMsg implements ConsoleCommand {
 	@Override
