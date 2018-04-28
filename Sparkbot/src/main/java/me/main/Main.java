@@ -45,6 +45,29 @@ public class Main {
 		        new SuperAdminHelp(),
                 new Macro());
 
+        commands = new ConsoleCommandManager();
+        commands.addCommand(new Help());
+        commands.addCommand(new Broadcast());
+        commands.addCommand(new Team());
+        commands.addCommand(new Chatlog());
+        commands.addCommand(new SendMsg());
+
+        bot = new Bot(Constants.TOKEN,"Sparkbot","./resources/", "https://www.twitch.tv/discordsparkbot");
+
+        bot.addCommands(
+                new Ping(),
+                new Delete(),
+                new Invite(),
+                new me.bot.commands.superadmin.Team(),
+                new Remotelogout(),
+                new Avatar(),
+                new Test(),
+                new Chars(),
+		        new UserHelp(),
+		        new ModHelp(),
+		        new SuperAdminHelp(),
+                new Macro());
+
     }
 
     public static void exit() {
