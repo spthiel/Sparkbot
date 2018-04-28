@@ -1,6 +1,7 @@
 package me.bot.base;
 
 import me.bot.base.configs.ResourceManager;
+import me.bot.base.polls.Poll;
 import me.main.Main;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
@@ -70,6 +71,11 @@ public class Bot {
 
     public void addCommands(ICommand... commands){
         listener.addCommands(commands);
+    }
+
+    public Poll addPoll(Poll poll){
+        listener.addPoll(poll);
+        return poll;
     }
 
     public List<ICommand> getCommands(){

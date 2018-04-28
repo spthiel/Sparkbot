@@ -130,4 +130,11 @@ public class MessageAPI {
 
     }
 
+    public static void deleteMessage(IMessage message) {
+        RequestBuffer.request(() -> {
+            message.delete();
+        });
+
+    }
+
 }

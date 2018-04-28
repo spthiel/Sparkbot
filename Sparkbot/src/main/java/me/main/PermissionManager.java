@@ -1,5 +1,6 @@
 package me.main;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
 
@@ -14,6 +15,22 @@ public class PermissionManager {
 	;
 
 	private static JSONObject config;
+
+	public static void setupPermfile() {
+
+		if(updateConfigIfUnset()) {
+
+			if (!config.has("Admins")) {
+				config.put("Admins",new JSONArray());
+			}
+
+			if (!config.has("Owners")) {
+				config.put("Owners",new JSONArray());
+			}
+
+			updateConfig();
+		}
+	}
 
 	public static List<Long> getBotAdmins() {
 
@@ -38,7 +55,6 @@ public class PermissionManager {
 	public static boolean isBotAdmin(final long id) {
 
 		if(updateConfigIfUnset() && config.has("Admins")) {
-
 			return config.getJSONArray("Admins").toList().contains(id) || isBotOwner(id);
 		} else {
 			return false;

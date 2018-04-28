@@ -1,10 +1,8 @@
-package me.bot.commands.superadmin;
+package me.console;
 
 import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.ICommand;
+import me.main.ConsoleCommand;
 import me.main.PermissionManager;
-import me.main.Prefixes;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.RequestBuffer;
@@ -13,40 +11,30 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Team implements ICommand {
-	@Override
-	public CommandType getType() {
-		return CommandType.ADMIN;
+public class Team implements ConsoleCommand {
+
+	public String getHelp() {
+		return "Modifies Team.";
 	}
 
 	@Override
-	public String getHelp() {
-		return "Modifys team";
+	public void run(String... args) {
+
+
+
+	}
+
+	@Override
+	public void onLoad() {
+
 	}
 
 	@Override
 	public String[] getNames() {
-		String[] names = {"team","botteam"};
-		return names;
+		String[] out = {"team","botteam"};
+		return out;
 	}
 
-	@Override
-	public String[] getPrefixes(IGuild guild) {
-		String[] prefixes = {Prefixes.getSuperAdminPrefix()};
-		return prefixes;
-	}
-
-	@Override
-	public boolean hasPermissions(IGuild guild, IUser user) {
-		return PermissionManager.isBotAdmin(user);
-	}
-
-	@Override
-	public List<Permissions> requiredBotPermissions() {
-		return null;
-	}
-
-	@Override
 	public void run(Bot bot, IUser author, IMessage message, String[] args) {
 		if(args.length < 2) {
 			return;
@@ -120,7 +108,7 @@ public class Team implements ICommand {
 
 	}
 
-	public void logGet(Bot bot, IChannel channel, IGuild guild) {
+	public void logGet(Bot bot,IChannel channel, IGuild guild) {
 		List<IUser> owner = new ArrayList<>();
 		List<IUser> admins = new ArrayList<>();
 		PermissionManager.getBotAdmins().forEach(m -> {
@@ -137,16 +125,8 @@ public class Team implements ICommand {
 		StringBuilder adminsBuilder = new StringBuilder();
 		StringBuilder ownerBuilder = new StringBuilder();
 
-		if(admins.size() != 0)
-			admins.forEach(user -> adminsBuilder.append("<@" + user.getLongID() + ">\n"));
-		else
-			adminsBuilder.append("-- None --");
-
-		if(owner.size() != 0)
-			owner.forEach(user -> ownerBuilder.append("<@" + user.getLongID() + ">\n"));
-		else
-			ownerBuilder.append("-- None --");
-
+		admins.forEach(user -> adminsBuilder.append("<@" + user.getLongID() + ">\n"));
+		owner.forEach(user -> ownerBuilder.append("<@" + user.getLongID() + ">\n"));
 
 
 		EmbedBuilder embed = new EmbedBuilder()
@@ -160,14 +140,4 @@ public class Team implements ICommand {
 			channel.sendMessage(embed.build());
 		});
 	}
-
-	@Override
-	public void onLoad() {
-		PermissionManager.setupPermfile();
-		if(!PermissionManager.isBotOwner(261538420952662016L)) {
-			PermissionManager.addBotOwner(261538420952662016L);
-		}
-
-	}
-
 }
