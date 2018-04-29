@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.spthiel</groupId>
-    <artifactId>BotBase</artifactId>
+    <artifactId>Sparkbot</artifactId>
     <version>1.0-SNAPSHOT</version>
 
 
@@ -19,7 +19,13 @@
         <dependency>
             <groupId>com.github.discord4J</groupId>
             <artifactId>Discord4J</artifactId>
-            <version>2.10.1</version>
+            <classifier>core</classifier>
+            <version>4c82069</version>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
         </dependency>
     </dependencies>
 
