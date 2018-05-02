@@ -1,17 +1,16 @@
 package me.bot.commands.user;
 
+import discord4j.core.object.entity.*;
+import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.bot.base.MessageAPI;
-import me.bot.base.polls.Input;
-import me.bot.base.polls.Option;
 import me.main.Prefixes;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import sx.blah.discord.handle.obj.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Chars implements ICommand {
 	@Override
@@ -26,37 +25,31 @@ public class Chars implements ICommand {
 
 	@Override
 	public String[] getNames() {
-		String[] names = {"character","char"};
-		return names;
+		return new String[]{"character","char"};
 	}
 
 	@Override
-	public String[] getPrefixes(IGuild guild) {
+	public String[] getPrefixes(Guild guild) {
 		return Prefixes.getNormalPrefixesFor(guild);
 	}
 
 	@Override
-	public boolean hasPermissions(IGuild guild, IUser user) {
+	public boolean hasPermissions(User user, Guild guild) {
 		return false;
 	}
 
 	@Override
-	public List<Permissions> requiredBotPermissions() {
+	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, IUser author, IMessage message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
 		if(args.length > 1) {
 			switch(args[1]) {
 				case "new":
 				case "create":
-					Thread t = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							createCharacter(bot,author,message.getChannel());
-						}
-					});
+					Thread t = new Thread(() -> createCharacter(bot, author, channel, guild));
 					t.run();
 					break;
 				case "delete":
@@ -77,21 +70,21 @@ public class Chars implements ICommand {
 
 	}
 
-	private int createCharacter(Bot bot, IUser user,IChannel channel) {
+	private int createCharacter(Bot bot, User user,Channel channel, Guild guild) {
 
-		JSONObject object = bot.getResourceManager().getConfig("configs/rp/" + channel.getGuild().getLongID(), "settings.json");
-		if (object.has("questions")) {
-			JSONArray questions = object.getJSONArray("questions");
-			JSONObject character = new JSONObject();
-			JSONObject author = new JSONObject();
-			author.put("name",user.getName());
-			author.put("id",user.getLongID());
+		Map<String,Object> object = bot.getResourceManager().getConfig("configs/rp/" + guild.getId().asLong(), "settings.json");
+		if (object.containsKey("questions")) {
+			ArrayList<Object> questions = (ArrayList)object.get("questions");
+			Map<String,Object> character = new HashMap<>();
+			Map<String,Object> author = new HashMap<>();
+			author.put("name",user.getUsername());
+			author.put("id",user.getId().asLong());
 
 			character.put("author",user);
 
 			for (Object q : questions) {
-				String question = ((JSONObject) q).getString("q");
-				boolean skipable = ((JSONObject) q).getBoolean("s");
+				String question = (String)((Map<String,Object>) q).get("q");
+				boolean skipable = (boolean)((Map<String,Object>) q).get("s");
 				//Input input = new Input(bot, user, channel, question, "Use `exit` to leave the Menu " + (), "", false, -1);
 				//bot.addPoll(input);
 			}

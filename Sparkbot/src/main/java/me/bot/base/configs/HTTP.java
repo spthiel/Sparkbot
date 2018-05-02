@@ -8,6 +8,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class HTTP {
 
 	public static String getAsString(String urlToRead) throws Exception {

@@ -1,29 +1,27 @@
 package me.bot.base.polls;
 
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
+import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
-import me.bot.base.MessageAPI;
-import me.main.Entry;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.MessageBuilder;
-import sx.blah.discord.util.RequestBuffer;
+import me.bot.base.MessageBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class Option implements Poll<Integer>{
 
-	private IUser user;
-	private IChannel channel;
+	private User user;
+	private MessageChannel channel;
 	private Bot bot;
 
 	private ArrayList<String> executions;
 	private String leaveMessage;
 	private boolean skipable;
-	private IMessage lastMessage;
+	private Message lastMessage;
 	private String
 			head,
 			tail;
@@ -34,7 +32,7 @@ public class Option implements Poll<Integer>{
 
 	private boolean end = false;
 
-	public Option (Bot bot, IUser user, IChannel channel, String head, String tail, String leaveMessage, boolean skipable, long timeUntilInactive) {
+	public Option (Bot bot, User user, MessageChannel channel, String head, String tail, String leaveMessage, boolean skipable, long timeUntilInactive) {
 		this.head = head.replace("```\\w+|`","");
 		this.tail = tail;
 		this.leaveMessage = leaveMessage;
@@ -49,9 +47,9 @@ public class Option implements Poll<Integer>{
 	}
 
 	@Override
-	public boolean onTrigger(IMessage message) {
+	public boolean onTrigger(Message message) {
 
-		String input = message.getContent().trim().replaceAll("```\\w*|`|\\*|~|_","");
+		String input = message.getContent().orElse("").trim().replaceAll("```\\w*|`|\\*|~|_","");
 
 		if(!input.matches("\\d+"))
 			return false;
@@ -77,10 +75,9 @@ public class Option implements Poll<Integer>{
 			nextPage();
 		} else {
 
-			int absoluteoption = page * 7 + option - 1;
-			ret = absoluteoption;
+			ret = page * 7 + option - 1;
 
-			MessageAPI.deleteMessage(lastMessage);
+			lastMessage.delete();
 		}
 
 
@@ -90,10 +87,12 @@ public class Option implements Poll<Integer>{
 	@Override
 	public void sendMessage() {
 
-		if(lastMessage != null && !lastMessage.isDeleted())
-			MessageAPI.deleteMessage(lastMessage);
+		if(lastMessage != null)
+			lastMessage.delete();
 
 		start = System.currentTimeMillis();
+
+		MessageCreateSpec spec = new MessageCreateSpec();
 
 		MessageBuilder builder = new MessageBuilder(bot.getClient())
 				.withChannel(channel)
@@ -123,19 +122,19 @@ public class Option implements Poll<Integer>{
 		builder.appendContent("```\n\n");
 		builder.appendContent(tail);
 
-		lastMessage = MessageAPI.sendMessage(builder);
+		lastMessage = builder.send().block();
 	}
 
 	@Override
 	public void onExit() {
-		if(lastMessage != null && !lastMessage.isDeleted())
-			MessageAPI.deleteMessage(lastMessage);
+		if(lastMessage != null)
+			lastMessage.delete();
 		end = true;
 	}
 
 	@Override
 	public long getUserID() {
-		return user.getLongID();
+		return user.getId().asLong();
 	}
 
 	@Override
@@ -156,8 +155,8 @@ public class Option implements Poll<Integer>{
 
 	@Override
 	public void onStop() {
-		if(lastMessage != null && !lastMessage.isDeleted())
-			MessageAPI.deleteMessage(lastMessage);
+		if(lastMessage != null)
+			lastMessage.delete();
 		end = true;
 	}
 

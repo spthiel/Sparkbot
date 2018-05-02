@@ -1,17 +1,15 @@
 package me.bot.commands.superadmin;
 
-import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.ICommand;
-import me.bot.base.MessageAPI;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Permission;
+import me.bot.base.*;
 import me.main.PermissionManager;
 import me.main.Prefixes;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
-import sx.blah.discord.util.MessageBuilder;
 
+import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,44 +26,41 @@ public class Nick implements ICommand {
 
 	@Override
 	public String[] getNames() {
-		String[] names = {"nick"};
-		return names;
+		return new String[]{"nick"};
 	}
 
 	@Override
-	public String[] getPrefixes(IGuild guild) {
-		String[] prefixes = {Prefixes.getSuperAdminPrefix()};
-		return prefixes;
+	public String[] getPrefixes(Guild guild) {
+		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
 	@Override
-	public boolean hasPermissions(IGuild guild, IUser user) {
+	public boolean hasPermissions(User user, Guild guild) {
 		return PermissionManager.isBotAdmin(user);
 	}
 
 	@Override
-	public List<Permissions> requiredBotPermissions() {
-		List<Permissions> out = new ArrayList<Permissions>();
-		out.add(Permissions.MANAGE_NICKNAMES);
+	public List<Permission> requiredBotPermissions() {
+		List<Permission> out = new ArrayList<>();
+		out.add(Permission.MANAGE_NICKNAMES);
 		return out;
 	}
 
 	@Override
-	public void run(Bot bot, IUser author, IMessage message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
 		if(args.length > 1) {
 			StringBuilder newname = new StringBuilder();
 			for(int i = 1; i < args.length; i++)
 				newname.append(args[i] + " ");
 
 			String name = newname.toString().trim();
-			message.getGuild().setUserNickname(author,name);
+//			message.getGuild().setUserNickname(author,name);
 			MessageBuilder builder = new MessageBuilder(bot.getClient());
 
-
 			builder
-					.withChannel(message.getChannel())
-					.appendContent("Look " + author.getName() + " you have a new Name! Hi, " + name +" :wave:");
-			MessageAPI.sendMessage(builder);
+					.withChannel(channel)
+					.appendContent("Look " + author.getUsername() + " you have a new Name! Hi, " + name +" :wave:");
+			builder.send();
 
 		}
 	}

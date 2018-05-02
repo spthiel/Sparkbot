@@ -1,21 +1,27 @@
 package me.bot.base;
 
+import discord4j.common.json.payload.dispatch.MessageCreate;
+import discord4j.core.ClientBuilder;
+import discord4j.core.DiscordClient;
+import discord4j.core.event.EventDispatcher;
+import discord4j.core.event.domain.guild.GuildCreateEvent;
+import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.event.domain.message.MessageDeleteEvent;
+import discord4j.core.object.entity.User;
 import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
 import me.main.Main;
-import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.events.EventDispatcher;
-import sx.blah.discord.util.DiscordException;
 
+import java.time.Duration;
 import java.util.List;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class Bot {
     
-    private IDiscordClient client;
-    public Discord4J.Discord4JLogger LOGGER = (Discord4J.Discord4JLogger) Discord4J.LOGGER;
-    private CommandListener listener;
+    private DiscordClient client;
+    private User botuser;
+    private Listener listener;
     private String name;
     private String url;
     private boolean streaming;
@@ -24,33 +30,62 @@ public class Bot {
 
     public Bot(String token, String name, String basefolder) {
 
-        this.name = name;
         this.streaming = false;
 
-        this.resourceManager = new ResourceManager(basefolder);
-        this.utils = new DiscordUtils(this);
-
-        client = createClient(token, true);
-        EventDispatcher dispatcher = client.getDispatcher();
-        listener = new CommandListener(this);
-        dispatcher.registerListener(listener);
+	    createBot(token, name, basefolder);
 
     }
 
     public Bot(String token, String name, String basefolder, String streamingurl) {
 
-        this.name = name;
         this.streaming = true;
         this.url = streamingurl;
 
-        this.resourceManager = new ResourceManager(basefolder);
+        createBot(token, name, basefolder);
+
+    }
+
+    private void createBot(String token, String name, String basefolder) {
+
+	    this.name = name;
+
+	    this.resourceManager = new ResourceManager(basefolder);
 	    this.utils = new DiscordUtils(this);
 
-        client = createClient(token, true);
-        EventDispatcher dispatcher = client.getDispatcher();
-        listener = new CommandListener(this);
-        dispatcher.registerListener(listener);
+	    client = createClient(token);
+	    initListeners();
+	    client.getApplicationInfo().subscribe(
+	    		value -> client.getUserById(value.getId()).subscribe(
+					    v -> {
+						    botuser = v;
+						    System.out.println("Successfully got the botuser: " + botuser.getUsername());
+					    },
+					    Throwable::printStackTrace,
+					    () -> System.out.println("Something went wrong whilst getting botuser")
+			    ),
+			    Throwable::printStackTrace,
+	        () -> System.out.println("Something went wrong whilst getting bot id")
+	    );
+	    try {
+		    client.login().block(Duration.ofSeconds(3));
+	    } catch(IllegalStateException ignore){
 
+	    }
+    }
+
+    private void initListeners() {
+
+	    EventDispatcher dispatcher = client.getEventDispatcher();
+	    listener = new Listener(this);
+	    dispatcher.on(MessageDeleteEvent.class).subscribe(listener::onDelete);
+	    dispatcher.on(ReadyEvent.class).subscribe(listener::onReadyEvent);
+	    dispatcher.on(GuildCreateEvent.class).subscribe(listener::onJoinServer);
+	    dispatcher.on(MessageCreateEvent.class).subscribe(listener::onMessageReceivedEvent);
+
+    }
+
+    public User getBotuser() {
+    	return botuser;
     }
 
     public boolean isStreaming() {
@@ -69,8 +104,8 @@ public class Bot {
         return url;
     }
 
-    public void addCommands(ICommand... commands){
-        listener.addCommands(commands);
+    public void addCommands(ICommand... ICommands){
+        listener.addCommands(ICommands);
     }
 
     public Poll addPoll(Poll poll){
@@ -86,31 +121,19 @@ public class Bot {
         return name;
     }
     
-    public IDiscordClient getClient() {
+    public DiscordClient getClient() {
         return client;
     }
     
     public void disable() {
-        LOGGER.setLevel(Discord4J.Discord4JLogger.Level.INFO);
-        LOGGER.info("Disabling");
-        if (client != null && client.isLoggedIn())
+        System.out.println("Disabling");
+        if (client != null)
             client.logout();
 	    Main.exit();
     }
     
-    private IDiscordClient createClient(String token, boolean login) {
-        ClientBuilder clientBuilder = new ClientBuilder();
-        clientBuilder.withToken(token)
-                .withRecommendedShardCount();
-        try {
-            if (login) {
-                return clientBuilder.login();
-            } else {
-                return clientBuilder.build();
-            }
-        } catch (DiscordException e) {
-            e.printStackTrace();
-            return null;
-        }
+    private DiscordClient createClient(String token) {
+        ClientBuilder clientBuilder = new ClientBuilder(token);
+        return clientBuilder.build();
     }
 }

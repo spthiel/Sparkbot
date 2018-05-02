@@ -1,14 +1,16 @@
 package me.bot.commands.user;
 
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Permission;
+import discord4j.core.spec.MessageCreateSpec;
+import discord4j.core.spec.MessageEditSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
-import sx.blah.discord.util.RequestBuffer;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -27,38 +29,33 @@ public class Ping implements ICommand {
 
     @Override
     public String[] getNames() {
-        String[] names = {"ping"};
-        return names;
+	    return new String[]{"ping"};
     }
 
     @Override
-    public String[] getPrefixes(IGuild guild) {
+    public String[] getPrefixes(Guild guild) {
         return Prefixes.getNormalPrefixesFor(guild);
     }
 
     @Override
-    public boolean hasPermissions(IGuild guild, IUser user) {
+    public boolean hasPermissions(User user, Guild guild) {
         return true;
     }
 
     @Override
-    public List<Permissions> requiredBotPermissions() {
+    public List<Permission> requiredBotPermissions() {
         return null;
     }
 
     @Override
-    public void run(Bot bot, IUser author, IMessage message, String[] args) {
+    public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
         ZonedDateTime zdt = message.getTimestamp().atZone(ZoneOffset.UTC);
-        IMessage message1 = RequestBuffer.request(() -> {
-           return message.getChannel().sendMessage("**Ping!**");
-        }).get();
+        Message message1 = channel.createMessage(new MessageCreateSpec().setContent("**Ping!**")).block();
 
         ZonedDateTime now = message1.getTimestamp().atZone(ZoneOffset.UTC);
         long delay = now.toInstant().toEpochMilli()-zdt.toInstant().toEpochMilli();
 
-        RequestBuffer.request(() -> {
-            message1.edit("**Ping!** Hey <@" + author.getLongID() + "> it took me " + delay + "ms to read your message.");
-        });
+        message1.edit(new MessageEditSpec().setContent("**Ping!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message."));
     }
 
     @Override

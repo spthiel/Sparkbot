@@ -1,11 +1,14 @@
 package me.console.commands;
 
 
+import discord4j.core.object.entity.Channel;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.TextChannel;
 import me.bot.base.MessageAPI;
+import me.bot.base.MessageBuilder;
 import me.console.ConsoleCommand;
 import me.main.Main;
-import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.MessageBuilder;
 
 public class Broadcast implements ConsoleCommand {
 
@@ -30,17 +33,19 @@ public class Broadcast implements ConsoleCommand {
 		}
 		String message = stringBuilder.toString().trim();
 
-		for (IGuild guild : Main.getBot().getClient().getGuilds()) {
-			IChannel broadcastChannel = getBraodcastChannel(guild);
+		for (Guild guild : Main.getBot().getClient().getGuilds().toIterable()) {
+			MessageChannel broadcastChannel = getBraodcastChannel(guild);
 			if(broadcastChannel != null)
-				MessageAPI.sendMessage(new MessageBuilder(Main.getBot().getClient()).withChannel(broadcastChannel).appendContent(message));
+				new MessageBuilder(Main.getBot().getClient()).withChannel(broadcastChannel).appendContent(message).send();
 		}
 	}
 
-	private IChannel getBraodcastChannel(IGuild guild) {
-		for(IChannel channel : guild.getChannels()) {
-			if(channel.getName().equalsIgnoreCase("bot-testing"))
-				return channel;
+	private MessageChannel getBraodcastChannel(Guild guild) {
+		for(Channel channel : guild.getChannels().toIterable()) {
+			if(channel.getType().equals(Channel.Type.GUILD_TEXT)) {
+				if (((TextChannel) channel).getName().equalsIgnoreCase("spark-announcements"))
+					return (MessageChannel) channel;
+			}
 		}
 		return null;
 	}
@@ -52,8 +57,7 @@ public class Broadcast implements ConsoleCommand {
 
 	@Override
 	public String[] getNames() {
-		String[] out = {"broadcast","bc"};
-		return out;
+		return new String[]{"broadcast","bc"};
 	}
 
 }

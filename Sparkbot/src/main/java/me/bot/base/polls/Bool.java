@@ -1,23 +1,23 @@
 package me.bot.base.polls;
 
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
 import me.bot.base.Bot;
 import me.bot.base.MessageAPI;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.MessageBuilder;
+import me.bot.base.MessageBuilder;
 
 public class Bool implements Poll<Boolean> {
 
 	private Bot bot;
-	private IUser user;
-	private IChannel channel;
+	private User user;
+	private MessageChannel channel;
 	private String leaveMessage;
 	private String question;
 	private String tail;
 	private boolean skipable;
 
-	private IMessage lastMessage;
+	private Message lastMessage;
 
 	private long inactiveTime;
 	private long lastStart;
@@ -26,7 +26,7 @@ public class Bool implements Poll<Boolean> {
 
 	private boolean ret;
 
-	public Bool(Bot bot, IUser user, IChannel channel,String question, String tail, String leaveMessage, boolean skipable, long inactiveTime) {
+	public Bool(Bot bot, User user, MessageChannel channel,String question, String tail, String leaveMessage, boolean skipable, long inactiveTime) {
 		this.bot = bot;
 		this.user = user;
 		this.channel = channel;
@@ -42,9 +42,9 @@ public class Bool implements Poll<Boolean> {
 	private final String FALSE_REGEX = "0|no|false|n";
 
 	@Override
-	public boolean onTrigger(IMessage message) {
+	public boolean onTrigger(Message message) {
 
-		String content = message.getContent();
+		String content = message.getContent().orElse("");
 		String lcase = content.toLowerCase();
 
 		if(!lcase.matches(TRUE_REGEX) && !lcase.matches(FALSE_REGEX)) {
@@ -72,7 +72,7 @@ public class Bool implements Poll<Boolean> {
 				.appendContent(tail)
 		;
 
-		lastMessage = MessageAPI.sendMessage(builder);
+		lastMessage = builder.send().block();
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class Bool implements Poll<Boolean> {
 
 	@Override
 	public long getUserID() {
-		return user.getLongID();
+		return user.getId().asLong();
 	}
 
 
@@ -131,8 +131,8 @@ public class Bool implements Poll<Boolean> {
 	}
 
 	private void removeLastMessage() {
-		if(lastMessage != null && !lastMessage.isDeleted()) {
-			MessageAPI.deleteMessage(lastMessage);
+		if(lastMessage != null) {
+			lastMessage.delete();
 		}
 	}
 }

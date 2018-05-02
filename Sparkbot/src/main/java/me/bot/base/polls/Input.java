@@ -1,24 +1,23 @@
 package me.bot.base.polls;
 
 
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
 import me.bot.base.Bot;
-import me.bot.base.MessageAPI;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.MessageBuilder;
+import me.bot.base.MessageBuilder;
 
 public class Input implements Poll<String> {
 
 	private Bot bot;
-	private IUser user;
-	private IChannel channel;
+	private User user;
+	private MessageChannel channel;
 	private String leaveMessage;
 	private String question;
 	private String tail;
 	private boolean skipable;
 
-	private IMessage lastMessage;
+	private Message lastMessage;
 
 	private long inactiveTime;
 	private long lastStart;
@@ -27,7 +26,7 @@ public class Input implements Poll<String> {
 
 	private String ret;
 
-	public Input(Bot bot, IUser user, IChannel channel,String question, String tail, String leaveMessage, boolean skipable, long inactiveTime) {
+	public Input(Bot bot, User user, MessageChannel channel,String question, String tail, String leaveMessage, boolean skipable, long inactiveTime) {
 		this.bot = bot;
 		this.user = user;
 		this.channel = channel;
@@ -40,8 +39,8 @@ public class Input implements Poll<String> {
 	}
 
 	@Override
-	public boolean onTrigger(IMessage message) {
-		ret = message.getContent();
+	public boolean onTrigger(Message message) {
+		ret = message.getContent().orElse("");
 		removeLastMessage();
 		return true;
 	}
@@ -61,7 +60,7 @@ public class Input implements Poll<String> {
 				.appendContent(tail)
 				;
 
-		lastMessage = MessageAPI.sendMessage(builder);
+		lastMessage = builder.send().block();
 	}
 
 	@Override
@@ -72,7 +71,7 @@ public class Input implements Poll<String> {
 
 	@Override
 	public long getUserID() {
-		return user.getLongID();
+		return user.getId().asLong();
 	}
 
 
@@ -122,8 +121,8 @@ public class Input implements Poll<String> {
 	}
 
 	private void removeLastMessage() {
-		if(lastMessage != null && !lastMessage.isDeleted()) {
-			MessageAPI.deleteMessage(lastMessage);
+		if(lastMessage != null) {
+			lastMessage.delete();
 		}
 	}
 }

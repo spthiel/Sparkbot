@@ -1,11 +1,10 @@
 package me.console.commands;
 
+import discord4j.core.object.entity.*;
+import discord4j.core.object.util.Snowflake;
+import me.bot.base.DiscordUtils;
 import me.console.ConsoleCommand;
 import me.main.Main;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.util.RequestBuffer;
 
 import java.util.List;
 
@@ -34,30 +33,41 @@ public class Chatlog implements ConsoleCommand {
 				}
 				final long guildID = Long.parseLong(args[0]);
 
-				IChannel channel = RequestBuffer.request(() -> {
-					IGuild guild = Main.getBot().getClient().getGuildByID(guildID);
-					for(IChannel c : guild.getChannels())
-						if(c.getName().equalsIgnoreCase(args[1]))
-							return c;
-					return null;
-				}).get();
+				MessageChannel channel = getChannel(guildID,args[1]);
 
 				if(channel == null) {
 					System.err.println("Couldn't find that channel");
 					return;
 				}
 
-				List<IMessage> messageList = RequestBuffer.request(() -> {
-					return channel.getMessageHistory(amount);
-				}).get();
+				//TODO: Fix stuff
 
-				System.out.println("Messages of #" + channel.getName() + " in " + channel.getGuild().getName());
-				messageList.forEach(message -> System.out.println("\t" + message.getAuthor().getName() + ": " + message.getContent().replace("\n","\n\t\t")));
+//				List<IMessage> messageList = channel.getLastMessage(amount);
+
+//				System.out.println("Messages of #" + channel.getName() + " in " + channel.getGuild().getName());
+//				messageList.forEach(message -> System.out.println("\t" + message.getAuthor().getName() + ": " + message.getContent().replace("\n","\n\t\t")));
 			} catch(NumberFormatException e) {
-				System.err.println("Please enter valid ids.");
+				System.err.println("Please enter valid numbers.");
 			}
 		else
 			System.err.println(getHelp());
+	}
+
+	private MessageChannel getChannel(long guildID, String channelName) {
+		Guild guild = Main.getBot().getClient().getGuildById(Snowflake.of(guildID)).block();
+		for(Channel c : guild.getChannels().toIterable()) {
+			if(c.getType().equals(Channel.Type.GUILD_TEXT)) {
+				TextChannel channel = DiscordUtils.getTextChannelOfChannel(c);
+				if (channel.getName().equalsIgnoreCase(channelName))
+					return channel;
+			}
+		}
+
+		return null;
+	}
+
+	private MessageChannel getChannel(long channelid) {
+		return DiscordUtils.getMessageChannelOfChannel(Main.getBot().getClient().getChannelById(Snowflake.of(channelid)).block());
 	}
 
 	@Override

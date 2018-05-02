@@ -1,6 +1,7 @@
 package me.main;
 
-import sx.blah.discord.handle.obj.IGuild;
+
+import discord4j.core.object.entity.Guild;
 
 public class Prefixes {
 
@@ -9,7 +10,7 @@ public class Prefixes {
             ADMIN_PREFIX = "s&",
             SUPERADMIN_PREFIX = "s$";
 
-    public static String[] getNormalPrefixesFor(IGuild guild) {
+    public static String[] getNormalPrefixesFor(Guild guild) {
 
         String sprefix = getNormalPrefixFor(guild);
         String prefix = getNormalPrefix();
@@ -25,7 +26,7 @@ public class Prefixes {
         return out;
     }
 
-    public static String[] getAdminPrefixesFor(IGuild guild) {
+    public static String[] getAdminPrefixesFor(Guild guild) {
 
         String sprefix = getAdminPrefixFor(guild);
         String prefix = getAdminPrefix();
@@ -41,11 +42,11 @@ public class Prefixes {
         return out;
     }
 
-    public static String getNormalPrefixFor(IGuild guild) {
+    public static String getNormalPrefixFor(Guild guild) {
         return getNormalPrefix();
     }
 
-    public static String getAdminPrefixFor(IGuild guild) {
+    public static String getAdminPrefixFor(Guild guild) {
         return getAdminPrefix();
     }
 

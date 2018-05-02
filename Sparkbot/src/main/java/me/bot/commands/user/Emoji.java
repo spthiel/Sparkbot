@@ -5,14 +5,21 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Permission;
-import me.bot.base.*;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.MessageCreateSpec;
+import me.bot.base.Bot;
+import me.bot.base.CommandType;
+import me.bot.base.ICommand;
 import me.main.Prefixes;
 
-import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class UserHelp implements ICommand {
+public class Emoji implements ICommand {
 	@Override
 	public CommandType getType() {
 		return CommandType.PUBLIC;
@@ -20,12 +27,12 @@ public class UserHelp implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Lists the Helppage";
+		return "Enlarges an emoji";
 	}
 
 	@Override
 	public String[] getNames() {
-		return new String[]{"help","h"};
+		return new String[]{"emoji","enlarge"};
 	}
 
 	@Override
@@ -43,23 +50,18 @@ public class UserHelp implements ICommand {
 		return null;
 	}
 
+	//https://cdn.discordapp.com/emojis/<id>.png?v=1
+
 	@Override
 	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-		ArrayList<String> out = new ArrayList<>();
-		final String serverprefix = Prefixes.getNormalPrefixFor(guild);
-		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.PUBLIC)).collect(Collectors.toList()).forEach(iCommand -> {
-			out.add("`" + serverprefix + "" + iCommand.getNames()[0] + "` ");
-		});
-
-		System.out.println(out);
-		MessageBuilder builder = new MessageBuilder(bot.getClient());
-
-		builder.withChannel(channel);
-		builder.appendContent("Public Commands:\n");
-		out.forEach(msg -> builder.appendContent(msg + "\n"));
-		channel.createMessage(builder.build());
-		//builder.send();
-
+		System.out.println(Arrays.asList(args));
+		if(args.length > 1) {
+			String emoji = args[1];
+			if(emoji.matches("<:.+?:\\d+>")) {
+				emoji = emoji.replaceAll("<:.+?:(\\d+)>","$1");
+				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji + ".png?v=1"))).block();
+			}
+		}
 	}
 
 	@Override

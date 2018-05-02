@@ -1,88 +1,104 @@
 package me.bot.base.configs;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@SuppressWarnings("unused")
 public class ResourceManager {
 
 	private String BASE_FOLDER;
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public ResourceManager(String folder) {
 		this.BASE_FOLDER = folder;
 	}
 
-	public void setValue(String dir, String filename, String key, Object value) {
+//	public void setValue(String dir, String filename, String key, Object value) {
+//
+//		HashMap<String, Object> toEdit = new HashMap<>();
+//		toEdit.put(key, value);
+//		editKey(dir, filename, toEdit);
+//
+//	}
 
-		HashMap<String, Object> toEdit = new HashMap<>();
-		toEdit.put(key, value);
-		editKey(dir, filename, toEdit);
+//	public void setValues(String dir, String filename, HashMap<String, Object> toEdit) {
+//		editKey(dir, filename, toEdit);
+//	}
 
+//	public Object getValue(String dir, String filename, String key) {
+//
+//
+//		File folder = new File(BASE_FOLDER + dir);
+//		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+//		if (!folder.exists())
+//			return null;
+//
+//		if (!fileToEdit.exists())
+//			return null;
+//
+//		JSONObject object = new JSONObject(readFileAsString(fileToEdit));
+//
+//
+//		return object.get(key);
+//
+//	}
+
+//	public boolean isSet(String dir, String filename, String key) {
+//
+//		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+//
+//		if (!fileToEdit.exists())
+//			return false;
+//
+//		return new JSONObject(readFileAsString(fileToEdit)).has(key);
+//
+//	}
+
+	public Map<String,Object> getConfig(String dir, String filename) {
+		File folder = new File(BASE_FOLDER + dir);
+		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+		if (!folder.exists())
+			return new HashMap<>();
+
+		if (!fileToEdit.exists())
+			return new HashMap<>();
+
+		try {
+			return mapper.readValue(readFileAsString(fileToEdit), new TypeReference<Map<String, Object>>(){});
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new HashMap<>();
+		}
 	}
 
-	public void setValues(String dir, String filename, HashMap<String, Object> toEdit) {
-		editKey(dir, filename, toEdit);
-	}
-
-	public Object getValue(String dir, String filename, String key) {
-
+	public void writeConfig(String dir, String filename, Map<String,Object> config) {
 
 		File folder = new File(BASE_FOLDER + dir);
 		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
 		if (!folder.exists())
-			return null;
-
-		if (!fileToEdit.exists())
-			return null;
-
-		JSONObject object = new JSONObject(readFileAsString(fileToEdit));
-
-
-		return object.get(key);
-
-	}
-
-	public boolean isSet(String dir, String filename, String key) {
-
-		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-
-		if (!fileToEdit.exists())
-			return false;
-
-		return new JSONObject(readFileAsString(fileToEdit)).has(key);
-
-	}
-
-	public JSONObject getConfig(String dir, String filename) {
-		File folder = new File(BASE_FOLDER + dir);
-		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-		if (!folder.exists())
-			return new JSONObject();
-
-		if (!fileToEdit.exists())
-			return new JSONObject();
-
-		return new JSONObject(readFileAsString(fileToEdit));
-	}
-
-	public void writeConfig(String dir, String filename, JSONObject config) {
-
-		File folder = new File(BASE_FOLDER + dir);
-		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-		if (!folder.exists())
-			folder.mkdirs();
+			if(!folder.mkdirs())
+				throw new RuntimeException("Couldn't create folder");
 
 		if (!fileToEdit.exists()) {
 			try {
-				fileToEdit.createNewFile();
+				if(!fileToEdit.createNewFile())
+					throw new RuntimeException("Couldn't create file");
 			} catch (IOException e) {
 			}
 		}
 
-		writeFile(config.toString(),fileToEdit);
+		try {
+			writeFile(mapper.writeValueAsString(config),fileToEdit);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private List<String> readFileAsList(File file) {
@@ -111,7 +127,7 @@ public class ResourceManager {
 			String line;
 
 			while ((line = in.readLine()) != null)
-				out.append(line + " ");
+				out.append(line).append(" ");
 
 		} catch (Exception ex) {
 
@@ -145,36 +161,36 @@ public class ResourceManager {
 		}
 	}
 
-	private void editKey(String dir, String filename, HashMap<String, Object> toEdit) {
-		File folder = new File(BASE_FOLDER + dir);
-		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-		if (!folder.exists())
-			folder.mkdirs();
-
-		if (!fileToEdit.exists()) {
-			try {
-				fileToEdit.createNewFile();
-			} catch (IOException e) {
-			}
-
-			JSONObject c = new JSONObject();
-			for (String key : toEdit.keySet()) {
-				c.put(key, toEdit.get(key));
-			}
-			writeFile(c.toString(),fileToEdit);
-
-		} else {
-
-			JSONObject c = new JSONObject(readFileAsString(fileToEdit));
-
-			for (String key : toEdit.keySet()) {
-				c.put(key, toEdit.get(key));
-			}
-
-			writeFile(c.toString(), fileToEdit);
-
-		}
-
-	}
+//	private void editKey(String dir, String filename, HashMap<String, Object> toEdit) {
+//		File folder = new File(BASE_FOLDER + dir);
+//		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
+//		if (!folder.exists())
+//			folder.mkdirs();
+//
+//		if (!fileToEdit.exists()) {
+//			try {
+//				fileToEdit.createNewFile();
+//			} catch (IOException e) {
+//			}
+//
+//			JSONObject c = new JSONObject();
+//			for (String key : toEdit.keySet()) {
+//				c.put(key, toEdit.get(key));
+//			}
+//			writeFile(c.toString(),fileToEdit);
+//
+//		} else {
+//
+//			JSONObject c = new JSONObject(readFileAsString(fileToEdit));
+//
+//			for (String key : toEdit.keySet()) {
+//				c.put(key, toEdit.get(key));
+//			}
+//
+//			writeFile(c.toString(), fileToEdit);
+//
+//		}
+//
+//	}
 
 }

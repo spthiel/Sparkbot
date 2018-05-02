@@ -1,21 +1,19 @@
 package me.bot.base;
 
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
+import discord4j.core.object.entity.*;
+import discord4j.core.object.util.Permission;
 
 import java.util.List;
 
 public interface ICommand {
 
-    CommandType getType();
-    String getHelp();
-    String[] getNames();
-    String[] getPrefixes(IGuild guild);
-    boolean hasPermissions(IGuild guild, IUser user);
-    List<Permissions> requiredBotPermissions();
-    void run(Bot bot, IUser author, IMessage message, String[] args);
-    void onLoad();
-    
+	CommandType getType();
+	String getHelp();
+	String[] getNames();
+	String[] getPrefixes(final Guild guild);
+	boolean hasPermissions(final User user, final Guild guild);
+	List<Permission> requiredBotPermissions();
+	void run(final Bot bot, final User author, final MessageChannel channel, final Guild guild, final String content, final Message message, final String[] args);
+	void onLoad();
+
 }

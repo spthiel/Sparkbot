@@ -1,11 +1,19 @@
 package me.main;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import sx.blah.discord.handle.obj.IUser;
+
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Role;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Permission;
+import discord4j.core.object.util.PermissionSet;
+import discord4j.core.object.util.Snowflake;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 public class PermissionManager {
 
@@ -14,18 +22,42 @@ public class PermissionManager {
 			filename = "botowner.json"
 	;
 
-	private static JSONObject config;
+	private static Map<String,Object> config;
+
+	public static Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
+		return Main.getBot().getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))
+				.flatMapMany(Member::getRoles)
+				.map(Role::getPermissions)
+				.map(PermissionSet::asEnumSet)
+				.reduce((set0, set1) -> {
+					EnumSet<Permission> copy = EnumSet.copyOf(set0);
+					copy.addAll(set1);
+					return copy;
+				});
+	}
+
+	public static Mono<EnumSet<Permission>> getPermissions(Guild guild, User user) {
+		return Main.getBot().getClient().getMemberById(guild.getId(), user.getId())
+				.flatMapMany(Member::getRoles)
+				.map(Role::getPermissions)
+				.map(PermissionSet::asEnumSet)
+				.reduce((set0, set1) -> {
+					EnumSet<Permission> copy = EnumSet.copyOf(set0);
+					copy.addAll(set1);
+					return copy;
+				});
+	}
 
 	public static void setupPermfile() {
 
 		if(updateConfigIfUnset()) {
 
-			if (!config.has("Admins")) {
-				config.put("Admins",new JSONArray());
+			if (!config.containsKey("Admins")) {
+				config.put("Admins",new ArrayList<Long>());
 			}
 
-			if (!config.has("Owners")) {
-				config.put("Owners",new JSONArray());
+			if (!config.containsKey("Owners")) {
+				config.put("Owners",new ArrayList<Long>());
 			}
 
 			updateConfig();
@@ -34,19 +66,22 @@ public class PermissionManager {
 
 	public static List<Long> getBotAdmins() {
 
-		final List<Long> out = new ArrayList<>();
+		if(updateConfigIfUnset()) {
+			final List<Long> out = new ArrayList<>();
 
+			((ArrayList) config.get("Owners")).forEach(object -> out.add((Long) object));
+			((ArrayList) config.get("Admins")).forEach(object -> out.add((Long) object));
 
-		config.getJSONArray("Owners").forEach(object -> out.add((Long)object));
-		config.getJSONArray("Admins").forEach(object -> out.add((Long)object));
-
-		return out;
+			return out;
+		} else {
+			return null;
+		}
 
 	}
 
-	public static boolean isBotAdmin(IUser user) {
+	public static boolean isBotAdmin(User user) {
 
-		final long id = user.getLongID();
+		final long id = user.getId().asLong();
 
 		return isBotAdmin(id);
 
@@ -54,17 +89,17 @@ public class PermissionManager {
 
 	public static boolean isBotAdmin(final long id) {
 
-		if(updateConfigIfUnset() && config.has("Admins")) {
-			return config.getJSONArray("Admins").toList().contains(id) || isBotOwner(id);
+		if(updateConfigIfUnset() && config.containsKey("Admins")) {
+			return ((ArrayList)config.get("Admins")).contains(id) || isBotOwner(id);
 		} else {
 			return false;
 		}
 
 	}
 
-	public static boolean addBotAdmin(IUser user) {
+	public static boolean addBotAdmin(User user) {
 
-		final long id = user.getLongID();
+		final long id = user.getId().asLong();
 
 		return addBotAdmin(id);
 
@@ -73,7 +108,7 @@ public class PermissionManager {
 	public static boolean addBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
-			config.getJSONArray("Admins").put(id);
+			((ArrayList)config.get("Admins")).add(id);
 			updateConfig();
 			return true;
 		} else {
@@ -81,9 +116,9 @@ public class PermissionManager {
 		}
 	}
 
-	public static boolean removeBotAdmin(IUser user) {
+	public static boolean removeBotAdmin(User user) {
 
-		final long id = user.getLongID();
+		final long id = user.getId().asLong();
 
 		return removeBotAdmin(id);
 
@@ -92,7 +127,7 @@ public class PermissionManager {
 	public static boolean removeBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
-			List<Object> toPut = config.getJSONArray("Admins").toList();
+			List<Object> toPut = (ArrayList)config.get("Admins");
 			for (int i = 0; i < toPut.size(); i++) {
 				Object object = toPut.get(i);
 				if (id == (Long) object) {
@@ -107,9 +142,9 @@ public class PermissionManager {
 		}
 	}
 
-	public static boolean isBotOwner(IUser user) {
+	public static boolean isBotOwner(User user) {
 
-		final long id = user.getLongID();
+		final long id = user.getId().asLong();
 
 		return isBotOwner(id);
 
@@ -117,17 +152,17 @@ public class PermissionManager {
 
 	public static boolean isBotOwner(final long id) {
 
-		if(updateConfigIfUnset() && config.has("Owners")) {
-			return config.getJSONArray("Owners").toList().contains(id);
+		if(updateConfigIfUnset() && config.containsKey("Owners")) {
+			return ((ArrayList)config.get("Owners")).contains(id);
 		} else {
 			return false;
 		}
 
 	}
 
-	public static boolean addBotOwner(IUser user) {
+	public static boolean addBotOwner(User user) {
 
-		final long id = user.getLongID();
+		final long id = user.getId().asLong();
 
 		return addBotOwner(id);
 
@@ -136,7 +171,7 @@ public class PermissionManager {
 	public static boolean addBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			config.getJSONArray("Owners").put(id);
+			((ArrayList)config.get("Owners")).add(id);
 			updateConfig();
 			return true;
 		} else {
@@ -144,9 +179,9 @@ public class PermissionManager {
 		}
 	}
 
-	public static boolean removeBotOwner(IUser user) {
+	public static boolean removeBotOwner(User user) {
 
-		final long id = user.getLongID();
+		final long id = user.getId().asLong();
 
 		return removeBotOwner(id);
 
@@ -155,7 +190,8 @@ public class PermissionManager {
 	public static boolean removeBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			List<Object> toPut = config.getJSONArray("Owners").toList();
+			System.out.println(config.get("Owners").getClass().getCanonicalName());
+			List<Object> toPut = (ArrayList)config.get("Owners");
 			for (int i = 0; i < toPut.size(); i++) {
 				Object object = toPut.get(i);
 				if (id == (Long) object) {

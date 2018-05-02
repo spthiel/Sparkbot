@@ -1,15 +1,12 @@
 package me.bot.commands.superadmin;
 
-import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.ICommand;
-import me.bot.base.MessageAPI;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Permission;
+import me.bot.base.*;
 import me.main.Prefixes;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
-import sx.blah.discord.util.MessageBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,23 +30,23 @@ public class SuperAdminHelp implements ICommand {
 	}
 
 	@Override
-	public String[] getPrefixes(IGuild guild) {
+	public String[] getPrefixes(Guild guild) {
 		String[] prefixes = {Prefixes.getSuperAdminPrefix()};
 		return prefixes;
 	}
 
 	@Override
-	public boolean hasPermissions(IGuild guild, IUser user) {
+	public boolean hasPermissions( User user, Guild guild) {
 		return true;
 	}
 
 	@Override
-	public List<Permissions> requiredBotPermissions() {
+	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, IUser author, IMessage message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
 		ArrayList<String> out = new ArrayList<>();
 		final String serverprefix = Prefixes.getSuperAdminPrefix();
 		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.ADMIN)).collect(Collectors.toList()).forEach(iCommand -> {
@@ -58,10 +55,10 @@ public class SuperAdminHelp implements ICommand {
 
 		MessageBuilder builder = new MessageBuilder(bot.getClient());
 
-		builder.withChannel(message.getChannel());
+		builder.withChannel(channel);
 		builder.appendContent("Superadmin Commands:\n");
 		out.forEach(msg -> builder.appendContent(msg + "\n"));
-		MessageAPI.sendMessage(builder);
+		builder.send();
 
 	}
 

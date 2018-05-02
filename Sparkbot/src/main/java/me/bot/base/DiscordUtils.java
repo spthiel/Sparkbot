@@ -1,7 +1,8 @@
 package me.bot.base;
 
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.RequestBuffer;
+import discord4j.core.object.entity.Channel;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.TextChannel;
 
 public class DiscordUtils {
 
@@ -11,10 +12,22 @@ public class DiscordUtils {
 		this.bot = bot;
 	}
 
-	public IUser getUserByID(final long id) {
+	public static MessageChannel getMessageChannelOfChannel(Channel channel) {
+		if(channel instanceof MessageChannel)
+			return (MessageChannel)channel;
+		return null;
+	}
+
+	public static TextChannel getTextChannelOfChannel(Channel channel) {
+		if(channel instanceof TextChannel)
+			return (TextChannel)channel;
+		return null;
+	}
+
+	/*public IUser getUserByID(final long id) {
 		return RequestBuffer.request(() -> {
 			return bot.getClient().getUserByID(id);
 		}).get();
-	}
+	}*/
 
 }

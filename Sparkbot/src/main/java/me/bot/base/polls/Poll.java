@@ -1,18 +1,10 @@
 package me.bot.base.polls;
 
-import me.bot.base.Bot;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.RequestBuffer;
-
-import java.util.List;
+import discord4j.core.object.entity.Message;
 
 public interface Poll<T> {
 
-	/**/
-
-	boolean onTrigger(IMessage message);
+	boolean onTrigger(Message message);
 	void sendMessage();
 	void onExit();
 	long getUserID();

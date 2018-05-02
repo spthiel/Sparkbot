@@ -1,22 +1,18 @@
 package me.bot.commands.superadmin;
 
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.configs.HTTP;
-import me.bot.base.polls.Input;
-import me.bot.base.polls.Option;
 import me.main.PermissionManager;
 import me.main.Prefixes;
-import org.apache.commons.io.FileUtils;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
-import sx.blah.discord.util.MessageBuilder;
 
 import java.io.File;
-import java.net.URL;
 import java.util.List;
 
 public class Test implements ICommand {
@@ -32,28 +28,26 @@ public class Test implements ICommand {
 
 	@Override
 	public String[] getNames() {
-		String[] names = {"test"};
-		return names;
+		return new String[]{"test"};
 	}
 
 	@Override
-	public String[] getPrefixes(IGuild guild) {
-		String[] prefixes = {Prefixes.getSuperAdminPrefix()};
-		return prefixes;
+	public String[] getPrefixes(Guild guild) {
+		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
 	@Override
-	public boolean hasPermissions(IGuild guild, IUser user) {
+	public boolean hasPermissions(User user, Guild guild) {
 		return PermissionManager.isBotAdmin(user);
 	}
 
 	@Override
-	public List<Permissions> requiredBotPermissions() {
+	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, IUser author, IMessage message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
 		/*Option option = new Option(bot,author,message.getChannel(),"This is the head","This is the tail","This is left",5000);
 		option.appendOption("First");
 		option.appendOption("Second");
@@ -81,7 +75,7 @@ public class Test implements ICommand {
 			String url = attachment.getUrl();
 			String filename = attachment.getFilename();
 			try {
-				File file = new File("./resources/configs/" + message.getGuild() + "/" + author.getLongID(),filename);
+				File file = new File("./resources/configs/" + message.getGuild() + "/" + author.getId().asLong(),filename);
 				System.out.println(HTTP.getAsList(url));
 				//FileUtils.copyURLToFile(new URL(url), file);
 			} catch (Exception e) {
