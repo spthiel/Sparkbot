@@ -66,11 +66,6 @@ public class Bot {
 			    Throwable::printStackTrace,
 	        () -> System.out.println("Something went wrong whilst getting bot id")
 	    );
-	    try {
-		    client.login().block(Duration.ofSeconds(3));
-	    } catch(IllegalStateException ignore){
-
-	    }
     }
 
     private void initListeners() {
@@ -130,6 +125,10 @@ public class Bot {
         if (client != null)
             client.logout();
 	    Main.exit();
+    }
+
+    public void login() {
+    	client.login().block();
     }
     
     private DiscordClient createClient(String token) {

@@ -50,7 +50,7 @@ public class Delete implements ICommand {
     @Override
     public List<Permission> requiredBotPermissions() {
         List<Permission> out = new ArrayList<>();
-        out.add(Permission.MANAGED_MESSAGES);
+        out.add(Permission.MANAGE_MESSAGES);
         return out;
     }
 

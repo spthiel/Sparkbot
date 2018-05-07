@@ -29,6 +29,7 @@ import sun.misc.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Used to configure and send a {@link Message}.
@@ -260,7 +261,7 @@ public class MessageBuilder {
 	 *
 	 */
 	public MessageBuilder withAttachment(String fileName,String content) {
-		if (stream == null)
+		if (content == null)
 			throw new NullPointerException("File argument is null");
 		this.stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
 		this.fileName = fileName;
@@ -336,10 +337,10 @@ public class MessageBuilder {
 	 *
 	 * @return The sent message object.
 	 */
-	public Mono<Message> send() {
+	public Message send() {
 		if(messagespec == null)
 			build();
-		return channel.createMessage(messagespec);
+		return channel.createMessage(messagespec).block();
 	}
 
 	/**

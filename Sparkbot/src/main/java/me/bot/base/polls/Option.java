@@ -122,7 +122,7 @@ public class Option implements Poll<Integer>{
 		builder.appendContent("```\n\n");
 		builder.appendContent(tail);
 
-		lastMessage = builder.send().block();
+		lastMessage = builder.send();
 	}
 
 	@Override

@@ -8,6 +8,8 @@ import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.presence.Activity;
+import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Permission;
 import me.bot.base.polls.Poll;
 import me.main.PermissionManager;
@@ -98,17 +100,19 @@ public class Listener {
 	}
 
 	private void updatePresence() {
-//		bot.getClient().getGuilds().buffer().subscribe(
-//				servers -> {
-//					int servercount = servers.size();
-//					String message = servers + " Server" + (servercount > 1 ? "s" : "");
-//					if(!bot.isStreaming()) {
-//						bot.getUtils()
-//					} else {
-//						bot.getClient().changeStreamingPresence(StatusType.ONLINE,message,bot.getUrl());
-//					}
-//				}
-//		);
+		int servercount = 0;
+		for(Guild g : bot.getClient().getGuilds().toIterable()) {
+			servercount++;
+		}
+
+		String message = servercount + " Server" + (servercount > 1 ? "s" : "");
+		if(!bot.isStreaming()) {
+			bot.getClient().updatePresence(Presence.online(Activity.playing(message))).block();
+			System.out.println("Changed playing presence");
+		} else {
+			bot.getClient().updatePresence(Presence.online(Activity.streaming(message,bot.getUrl()))).block();
+			System.out.println("Changed streaming presence");
+		}
 	}
 
 	public void onMessageReceivedEvent(MessageCreateEvent event) {
@@ -176,11 +180,11 @@ public class Listener {
 									}
 								}
 
-								System.out.println(user.getUsername() + " issued " + event.getMessage().getContent());
+								System.out.println(user.getUsername() + " issued " + message);
 								command.run(bot, user, channel, guild, message, event.getMessage(), args);
 								return;
 							} else if (args[0].equalsIgnoreCase(name)) {
-								System.out.println(user.getUsername() + " failed to issue " + event.getMessage().getContent());
+								System.out.println(user.getUsername() + " failed to issue " + message);
 								MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
 								break;
 							}
@@ -211,9 +215,9 @@ public class Listener {
 	}
 
 	private boolean hasPermission(ICommand command, Guild guild, User author) {
-//		if (PermissionManager.isBotAdmin(author))
-//			return true;
-//		else
+		if (PermissionManager.isBotAdmin(author))
+			return true;
+		else
 			return command.hasPermissions(author, guild);
 
 	}

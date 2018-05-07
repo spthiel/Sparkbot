@@ -57,8 +57,7 @@ public class UserHelp implements ICommand {
 		builder.withChannel(channel);
 		builder.appendContent("Public Commands:\n");
 		out.forEach(msg -> builder.appendContent(msg + "\n"));
-		channel.createMessage(builder.build());
-		//builder.send();
+		builder.send();
 
 	}
 

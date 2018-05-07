@@ -72,7 +72,7 @@ public class Bool implements Poll<Boolean> {
 				.appendContent(tail)
 		;
 
-		lastMessage = builder.send().block();
+		lastMessage = builder.send();
 	}
 
 	@Override

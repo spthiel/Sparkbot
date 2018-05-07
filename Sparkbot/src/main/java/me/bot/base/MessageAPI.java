@@ -12,7 +12,7 @@ public class MessageAPI {
     }
 
 	public static void sendAndDeleteMessageLater(final MessageBuilder content, long lifetime) {
-		deleteLater(content.send().block(),lifetime);
+		deleteLater(content.send(),lifetime);
 	}
 
 	private static void deleteLater(Message message,long lifetime) {

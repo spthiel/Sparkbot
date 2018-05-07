@@ -13,24 +13,15 @@ public class Main {
 
     public static void main(String[] args) {
 
+    	//System.setOut();
+
 	    System.out.println("Stuff");
 
-
-	    //Level.toLevel(Level.INFO_INT);
-
-
         commands = new ConsoleCommandManager();
-        commands.addCommand(new Help());
-        commands.addCommand(new Broadcast());
-        commands.addCommand(new Team());
-        commands.addCommand(new Chatlog());
-        commands.addCommand(new SendMsg());
-
-
 
         bot = new Bot(Constants.TOKEN,"Sparkbot","./resources/", "https://www.twitch.tv/discordsparkbot");
 
-	    System.out.println("Bot set");
+	    bot.login();
 
     }
 

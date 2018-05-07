@@ -1,5 +1,7 @@
 package me.console;
 
+import org.reflections.Reflections;
+
 import java.util.*;
 
 public class ConsoleCommandManager implements Runnable{
@@ -23,6 +25,14 @@ public class ConsoleCommandManager implements Runnable{
 
     @Override
     public void run() {
+        Reflections reflections = new Reflections("me.console.commands");
+        reflections.getSubTypesOf(ConsoleCommand.class).forEach(i -> {
+            try {
+	            ConsoleCommand command = i.newInstance();
+	            addCommand(command);
+            } catch (InstantiationException | IllegalAccessException ignored) {
+            }
+        });
         while(true) {
             scanner = new Scanner(System.in);
             String line = scanner.nextLine().trim();
