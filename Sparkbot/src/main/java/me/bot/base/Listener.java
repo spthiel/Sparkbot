@@ -117,82 +117,86 @@ public class Listener {
 
 	public void onMessageReceivedEvent(MessageCreateEvent event) {
 
-		User user = event.getMessage().getAuthor().block();
-		if (user == null || user.isBot()) {
-			return;
-		}
 
-		Poll poll = getPollOfPlayer(user.getId().asLong());
-
-		if (poll != null) {
-
-			MessageChannel channel = event.getMessage().getChannel().block();
-
-			String messagecontent = event.getMessage().getContent().orElse("");
-
-			if (messagecontent.startsWith("skip")) {
-
-				if (!poll.skipAble()) {
-					sendNotAValidPollRespond(channel);
-				} else {
-					poll.onSkip();
-				}
-
-			} else if (messagecontent.startsWith("exit")) {
-				poll.onExit();
-			} else {
-				if(!poll.onTrigger(event.getMessage()))
-					sendNotAValidPollRespond(channel);
-			}
-
-		} else {
-
-			String message = event.getMessage().getContent().orElse("");
-
-			Guild guild = event.getMessage().getGuild().block();
-			MessageChannel channel = event.getMessage().getChannel().block();
-			if(channel == null)
-				return;
-
-			for (ICommand command : commands) {
-
-				for (String prefix : command.getPrefixes(guild)) {
-
-					if (message.startsWith(prefix)) {
-
-						String messageWithoutPrefix = message.substring(prefix.length(), message.length());
-						String[] args = messageWithoutPrefix.split(" ");
-
-						if (args.length == 0)
-							continue;
-
-						for (String name : command.getNames()) {
-
-
-							if (args[0].equalsIgnoreCase(name) && hasPermission(command, guild, user)) {
-
-
-								if (command.requiredBotPermissions() != null) {
-									List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
-									if (required != null && required.size() != 0) {
-										MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**", 5000L);
-										return;
-									}
-								}
-
-								System.out.println(user.getUsername() + " issued " + message);
-								command.run(bot, user, channel, guild, message, event.getMessage(), args);
-								return;
-							} else if (args[0].equalsIgnoreCase(name)) {
-								System.out.println(user.getUsername() + " failed to issue " + message);
-								MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
-								break;
-							}
-						}
+		event.getMessage().getAuthor().subscribe(
+			user -> event.getMessage().getChannel().subscribe(
+				channel -> {
+					System.out.println("Got everything");
+					if (user == null || user.isBot()) {
+						return;
 					}
-				}
-			}
-		}
+
+					Poll poll = getPollOfPlayer(user.getId().asLong());
+					if (poll != null) {
+
+						String messagecontent = event.getMessage().getContent().orElse("");
+
+						if (messagecontent.startsWith("skip")) {
+
+							if (!poll.skipAble()) {
+								sendNotAValidPollRespond(channel);
+							} else {
+								poll.onSkip();
+							}
+
+						} else if (messagecontent.startsWith("exit")) {
+							poll.onExit();
+						} else {
+							if (!poll.onTrigger(event.getMessage()))
+								sendNotAValidPollRespond(channel);
+						}
+
+					} else {
+
+						String message = event.getMessage().getContent().orElse("");
+
+						event.getMessage().getGuild().subscribe(
+							guild -> {
+								if (channel == null)
+									return;
+
+								commands.forEach(command -> {
+
+									for (String prefix : command.getPrefixes(guild)) {
+
+										if (message.startsWith(prefix)) {
+
+											String messageWithoutPrefix = message.substring(prefix.length(), message.length());
+											String[] args = messageWithoutPrefix.split(" ");
+
+											if (args.length == 0)
+												continue;
+
+											for (String name : command.getNames()) {
+
+
+												if (args[0].equalsIgnoreCase(name) && hasPermission(command, guild, user)) {
+
+
+													if (command.requiredBotPermissions() != null) {
+														List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
+														if (required != null && required.size() != 0) {
+															MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**", 5000L);
+															return;
+														}
+													}
+
+													System.out.println(user.getUsername() + " issued " + message);
+													command.run(bot, user, channel, guild, message, event.getMessage(), args);
+													return;
+												} else if (args[0].equalsIgnoreCase(name)) {
+													System.out.println(user.getUsername() + " failed to issue " + message);
+													MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
+													break;
+												}
+											}
+										}
+									}
+								});
+							});
+					}
+				})
+		);
 	}
 
 	private void sendNotAValidPollRespond(MessageChannel channel) {

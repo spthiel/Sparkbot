@@ -20,12 +20,12 @@ public enum DataTypes {
 
 		switch(type) {
 			case STRING:
-				if(parseVariableValue(arg,STRING))
-					return arg;
 				if(arg.startsWith("\""))
 					arg = arg.substring(1);
 				if(arg.endsWith("\""))
 					arg = arg.substring(0, arg.length()-1);
+				if(parseVariableValue(arg,STRING))
+					return "\"" + arg + "\"";
 				return "\"" + arg.replaceAll("([^\\\\]|^)\"", "$1\\\\\"") + "\"";
 			case INTEGER:
 				if(parseVariableValue(arg,INTEGER))

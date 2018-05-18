@@ -46,15 +46,16 @@ public enum EffectiveTypes {
 	}
 	
 	public String format(String s) throws MacroException {
+		s = s.trim();
 		if(this.specialType.equalsIgnoreCase("wildcard"))
 			return s;
 		if(this.specialType.equalsIgnoreCase("foreach"))
 			return s;
 		if(this.specialType.equalsIgnoreCase("match"))
 			return s;
-		if(optional && s.trim().equalsIgnoreCase(""))
+		if(optional && s.equalsIgnoreCase(""))
 			return s;
-		else if(!optional && s.trim().equalsIgnoreCase(""))
+		else if(!optional && s.equalsIgnoreCase(""))
 			throw new MacroException(MacroExceptionTypes.NOT_A_VALID_ARGUMENT);
 		return DataTypes.formatData(s, type);
 	}

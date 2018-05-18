@@ -60,7 +60,9 @@ public class Input implements Poll<String> {
 				.appendContent(tail)
 				;
 
-		lastMessage = builder.send();
+		builder.send().subscribe(
+				message -> lastMessage = message
+		);
 	}
 
 	@Override

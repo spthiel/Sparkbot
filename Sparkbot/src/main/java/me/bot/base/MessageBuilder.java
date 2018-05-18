@@ -337,10 +337,10 @@ public class MessageBuilder {
 	 *
 	 * @return The sent message object.
 	 */
-	public Message send() {
+	public Mono<Message> send() {
 		if(messagespec == null)
 			build();
-		return channel.createMessage(messagespec).block();
+		return channel.createMessage(messagespec);
 	}
 
 	/**

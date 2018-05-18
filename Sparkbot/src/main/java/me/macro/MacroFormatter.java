@@ -1,5 +1,7 @@
 package me.macro;
 
+import me.main.Entry;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -55,12 +57,19 @@ public class MacroFormatter {
 
 			line = line.trim();
 
-			String cmd = parseCommand(line);
+			Entry<String,String> response = parseCommand(line);
+			String cmd = response.key;
 			if(!cmd.equalsIgnoreCase("")) {
 				String cmdtoput = cmd;
 				if(caps)
 					cmdtoput = cmdtoput.toUpperCase();
-				line = cmdtoput + line.substring(line.toLowerCase().indexOf(cmd)+cmd.length(), line.length());
+				try {
+					line = line.substring(0, line.toLowerCase().indexOf(cmd)) + cmdtoput + line.substring(line.toLowerCase().indexOf(cmd) + cmd.length(), line.length());
+				} catch(Exception e) {
+					System.out.println(line + " " + cmd + " " + cmdtoput);
+					e.printStackTrace();
+					break;
+				}
 			}
 
 			if(!openelements.isEmpty() && openelements.peek().isEnd(cmd)) {
@@ -94,32 +103,46 @@ public class MacroFormatter {
 
 					} else {
 
-						EffectiveTypes[] types = a.getArgs();
-						String prev = line;
-						List<String> args = parseArgs(line.replaceAll(".+?\\((.+)\\)","$1"));
-						for (int i1 = 0; i1 < types.length; i1++) {
-							EffectiveTypes t = types[i1];
-							try {
-								args.set(i1, t.format(args.get(i1)));
-							} catch (IndexOutOfBoundsException e1) {
+						String argstring = response.value;
+						if(argstring != null) {
+							EffectiveTypes[] types = a.getArgs();
+							String prev = line;
+							List<String> args = parseArgs(line.replaceAll(".+?\\((.+)\\)", "$1"));
+							for (int i1 = 0; i1 < types.length; i1++) {
+								EffectiveTypes t = types[i1];
 								try {
-									t.format("");
-								} catch(MacroException e2) {
-									object.addException(linenumber,e2);
+									args.set(i1, t.format(args.get(i1)));
+								} catch (IndexOutOfBoundsException e1) {
+									try {
+										t.format("");
+									} catch (MacroException e2) {
+										object.addException(linenumber, e2);
+									}
+								} catch (MacroException e) {
+									object.addException(linenumber, e);
 								}
-							} catch (MacroException e) {
-								object.addException(linenumber,e);
 							}
+							String cmdtoput = cmd;
+							if (caps)
+								cmdtoput = cmdtoput.toUpperCase();
+							line = cmdtoput + "(" + String.join(",", args) + ")";
+							if (includeEditedLines && !prev.equalsIgnoreCase(line))
+								object.addEntry(linenumber);
+						} else {
+							String cmdtoput = cmd;
+							switch(cmdtoput) {
+								case "if":
+								case "toggle":
+									cmdtoput = cmdtoput + "(flag)";
+									break;
+								case "stop":
+									cmdtoput = cmdtoput + "()";
+							}
+							line = cmdtoput;
+
 						}
-						String cmdtoput = cmd;
-						if(caps)
-							cmdtoput = cmdtoput.toUpperCase();
-						line = cmdtoput + "(" + String.join(", ", args) + ")";
-						if(includeEditedLines && !prev.equalsIgnoreCase(line))
-							object.addEntry(linenumber);
 
 					}
-
 			}
 
 			line = lengthen(line,tabs+reltabs);
@@ -141,14 +164,17 @@ public class MacroFormatter {
 					do {
 						currentArg.append(c);
 						i++;
-					} while((c = chars[i]) != '"');
-					currentArg.append(c);
+					} while (i < chars.length && (c = chars[i]) != '"');
+					if(i == chars.length-1)
+						currentArg.append("\"");
+					else
+						currentArg.append(c);
 					break;
 				case '{':
 					do {
 						currentArg.append(c);
 						i++;
-					} while((c = chars[i]) != '}');
+					} while ((c = chars[i]) != '}');
 					currentArg.append(c);
 					break;
 				case ',':
@@ -165,18 +191,45 @@ public class MacroFormatter {
 		return out;
 	}
 
-	private static String parseCommand(String s) {
+	private static Entry<String,String> parseCommand(String s) {
+//		s = s.toLowerCase();
+//		StringBuilder out = new StringBuilder();
+//
+//		char[] charArray = s.toCharArray();
+//		for (int i = 0; i < charArray.length; i++) {
+//			char c = charArray[i];
+//			if (c == '/') {
+//				if (charArray[i + 1] == '/')
+//					return "";
+//				out = new StringBuilder();
+//			} else if((c + "").matches("[ =]")) {
+//				do {
+//					i++;
+//				} while (i < charArray.length && !(charArray[i] + "").matches("[a-z]"));
+//				out = new StringBuilder();
+//			} else if(c == '(') {
+//				break;
+//			} else if((c + "").matches("[a-z]")) {
+//				out.append(c);
+//			} else {
+//				do {
+//					i++;
+//				} while (i < charArray.length && !(charArray[i] + "").matches("[a-z]"));
+//				out = new StringBuilder();
+//			}
+//		}
+//
+//		return out.toString();
+
 		s = s.toLowerCase();
-		StringBuilder out = new StringBuilder();
-		
-		for(char c : s.toCharArray()) {
-			if(!(c + "").matches("[a-z]"))
-				break;
-			else
-				out.append(c);
+
+		if(s.matches(".*?[a-z]+\\(.*\\).*?")) {
+			return new Entry<>(s.replaceAll(".*?([a-z]+)\\(.*\\).*?","$1"),s.replaceAll(".*?[a-z]+\\((.*)\\).*?","$2"));
+		} else if(s.matches("^[^@%#&]*?([a-zA-Z]+)[^%]*?$")) {
+			return new Entry<>(s.replaceAll("^[^@%#&]*?([a-zA-Z]+)[^%]*?$","$1"),null);
 		}
-		
-		return out.toString();
+		return new Entry<>(null,null);
+
 	}
 	
 	private static String lengthen(String line,int length){
@@ -187,44 +240,6 @@ public class MacroFormatter {
 		
 		return toAdd.toString() + line;
 		
-	}
-	
-	private static void saveFile(String path,List<String> toStore) {
-
-		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(path), StandardCharsets.UTF_8)) {
-
-			toStore.forEach(line -> {
-				try {
-					writer.write(line + "\n");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
-		
-	private static ArrayList<String> readFile(String path){
-
-		ArrayList<String> out = new ArrayList<>();
-		
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(path), "UTF8"))) {
-
-			String sCurrentLine;
-
-			while ((sCurrentLine = br.readLine()) != null) {
-				out.add(sCurrentLine);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return out;
 	}
 	
 }

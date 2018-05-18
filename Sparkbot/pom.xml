@@ -8,7 +8,6 @@
     <artifactId>Sparkbot</artifactId>
     <version>v3-1.0</version>
 
-
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -24,7 +23,7 @@
         <dependency>
             <groupId>com.discord4j.discord4j</groupId>
             <artifactId>discord4j-core</artifactId>
-            <version>95a6131</version>
+            <version>ca026eb</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
