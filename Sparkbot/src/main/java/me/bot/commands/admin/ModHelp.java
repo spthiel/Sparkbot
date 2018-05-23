@@ -44,7 +44,7 @@ public class ModHelp implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 
 		ArrayList<String> out = new ArrayList<>();
 		final String serverprefix = Prefixes.getAdminPrefixFor(guild);
@@ -57,7 +57,7 @@ public class ModHelp implements ICommand {
 		builder.withChannel(channel);
 		builder.appendContent("Moderator Commands:\n");
 		out.forEach(msg -> builder.appendContent(msg + "\n"));
-		builder.send();
+		builder.send().subscribe();
 
 	}
 

@@ -56,7 +56,7 @@ public class Delete implements ICommand {
     }
 
     @Override
-    public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
+    public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 
 		//TODO: Fix stuff
 
@@ -66,7 +66,7 @@ public class Delete implements ICommand {
 	            System.out.println("works");
 				TextChannel c = (TextChannel) channel;
 	            final int[] amount = {0};
-	            message.delete().block();
+	            message.delete().subscribe();
 	            Flux<Snowflake> messages = c.getMessagesBefore(message.getId()).map(Message::getId);
 	            messages.count().subscribe((result) -> {
 	            	amount[0]+=result;
@@ -87,7 +87,7 @@ public class Delete implements ICommand {
 			            num = 1000;
 		            TextChannel c = (TextChannel) channel;
 		            final int[] amount = {num};
-		            message.delete().block();
+		            message.delete().subscribe();
 		            c.bulkDelete(c.getMessagesBefore(message.getId()).take(num).map(Message::getId)).subscribe((ignored) -> amount[0]--);
 		            MessageAPI.sendAndDeleteMessageLater(channel, ":white_check_mark: **| Successfully deleted " + (amount[0]) + " messages from <#" + c.getId().asLong() + "> **", 10000L);
 	            } catch (NumberFormatException e) {

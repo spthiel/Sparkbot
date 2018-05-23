@@ -13,7 +13,7 @@ public interface ICommand {
 	String[] getPrefixes(final Guild guild);
 	boolean hasPermissions(final User user, final Guild guild);
 	List<Permission> requiredBotPermissions();
-	void run(final Bot bot, final User author, final MessageChannel channel, final Guild guild, final String content, final Message message, final String[] args);
+	void run(final Bot bot, final User author, final MessageChannel channel, final Guild guild, final Message message, final String commandname, final String[] args, final String content);
 	void onLoad();
 
 }

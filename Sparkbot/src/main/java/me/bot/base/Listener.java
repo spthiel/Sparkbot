@@ -4,7 +4,6 @@ import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
@@ -33,8 +32,8 @@ public class Listener {
 			while(true) {
 				for (int i = 0; i < polls.size(); i++) {
 					Poll poll = polls.get(i);
-					if (poll.getTimeUntilInactivity() != -1 && poll.getTimeUntilInactivity() < System.currentTimeMillis() - poll.startTime()) {
-						polls.remove(i).onStop();
+					if (poll.getTimeUntilInactive() > -1 && poll.getTimeUntilInactive() < System.currentTimeMillis() - poll.getLastInteraction()) {
+						polls.remove(i).onInactiv();
 					} else if(poll.ended())
 						polls.remove(i);
 				}
@@ -53,7 +52,7 @@ public class Listener {
 			try {
 				ICommand command = i.newInstance();
 				addCommands(command);
-			} catch (Exception ex) {
+			} catch (Exception ignored) {
 			}
 
 		});
@@ -88,9 +87,6 @@ public class Listener {
 
 		String name = bot.getName();
 
-//		if (!bot.getClient().getOurUser().getName().equalsIgnoreCase(name))
-//			bot.getClient().changeUsername(name);
-
 		updatePresence();
 
 	}
@@ -119,83 +115,84 @@ public class Listener {
 
 
 		event.getMessage().getAuthor().subscribe(
-			user -> event.getMessage().getChannel().subscribe(
-				channel -> {
-					System.out.println("Got everything");
-					if (user == null || user.isBot()) {
-						return;
-					}
+			user -> {
+				if (user == null || user.isBot()) {
+					return;
+				}
+				event.getMessage().getChannel().subscribe(
+					channel -> {
 
-					Poll poll = getPollOfPlayer(user.getId().asLong());
-					if (poll != null) {
+						Poll poll = getPollOfPlayer(user.getId().asLong());
+						if (poll != null) {
 
-						String messagecontent = event.getMessage().getContent().orElse("");
+							String messagecontent = event.getMessage().getContent().orElse("");
 
-						if (messagecontent.startsWith("skip")) {
+							if (messagecontent.startsWith("skip")) {
 
-							if (!poll.skipAble()) {
-								sendNotAValidPollRespond(channel);
+								if (!poll.isSkipable()) {
+									sendNotAValidPollRespond(channel);
+								} else {
+									poll.onSkip();
+								}
+
+							} else if (messagecontent.startsWith("exit")) {
+								poll.onExit();
 							} else {
-								poll.onSkip();
+								if (!poll.onTrigger(event.getMessage()))
+									sendNotAValidPollRespond(channel);
 							}
 
-						} else if (messagecontent.startsWith("exit")) {
-							poll.onExit();
 						} else {
-							if (!poll.onTrigger(event.getMessage()))
-								sendNotAValidPollRespond(channel);
-						}
 
-					} else {
+							String message = event.getMessage().getContent().orElse("");
 
-						String message = event.getMessage().getContent().orElse("");
+							event.getMessage().getGuild().subscribe(
+								guild -> {
+									if (channel == null)
+										return;
 
-						event.getMessage().getGuild().subscribe(
-							guild -> {
-								if (channel == null)
-									return;
+									commands.forEach(command -> {
 
-								commands.forEach(command -> {
+										for (String prefix : command.getPrefixes(guild)) {
 
-									for (String prefix : command.getPrefixes(guild)) {
+											if (message.startsWith(prefix)) {
 
-										if (message.startsWith(prefix)) {
+												String messageWithoutPrefix = message.substring(prefix.length(), message.length());
+												String[] args = messageWithoutPrefix.split(" ");
 
-											String messageWithoutPrefix = message.substring(prefix.length(), message.length());
-											String[] args = messageWithoutPrefix.split(" ");
+												if (args.length == 0)
+													continue;
 
-											if (args.length == 0)
-												continue;
-
-											for (String name : command.getNames()) {
+												for (String name : command.getNames()) {
 
 
-												if (args[0].equalsIgnoreCase(name) && hasPermission(command, guild, user)) {
+													if (args[0].equalsIgnoreCase(name) && hasPermission(command, guild, user)) {
 
 
-													if (command.requiredBotPermissions() != null) {
-														List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
-														if (required != null && required.size() != 0) {
-															MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**", 5000L);
-															return;
+														if (command.requiredBotPermissions() != null) {
+															List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
+															if (required != null && required.size() != 0) {
+																MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**", 5000L);
+																return;
+															}
 														}
-													}
 
-													System.out.println(user.getUsername() + " issued " + message);
-													command.run(bot, user, channel, guild, message, event.getMessage(), args);
-													return;
-												} else if (args[0].equalsIgnoreCase(name)) {
-													System.out.println(user.getUsername() + " failed to issue " + message);
-													MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
-													break;
+														System.out.println(user.getUsername() + " issued " + message);
+														command.run(bot, user, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
+														return;
+													} else if (args[0].equalsIgnoreCase(name)) {
+														System.out.println(user.getUsername() + " failed to issue " + message);
+														MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
+														break;
+													}
 												}
 											}
 										}
-									}
+									});
 								});
-							});
-					}
-				})
+						}
+					});
+			}
 		);
 	}
 
@@ -209,8 +206,8 @@ public class Listener {
 			Poll poll = polls.get(i);
 			if(poll.ended())
 				polls.remove(i);
-			else if (now - poll.startTime() > poll.getTimeUntilInactivity() && poll.getTimeUntilInactivity() >= 0)
-				polls.remove(i).onStop();
+			else if (now - poll.getLastInteraction() > poll.getTimeUntilInactive() && poll.getTimeUntilInactive() >= 0)
+				polls.remove(i).onInactiv();
 			else if (poll.getUserID() == userid)
 				return poll;
 		}

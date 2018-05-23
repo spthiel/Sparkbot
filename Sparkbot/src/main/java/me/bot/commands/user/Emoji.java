@@ -53,10 +53,10 @@ public class Emoji implements ICommand {
 	//https://cdn.discordapp.com/emojis/<id>.png?v=1
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		System.out.println(Arrays.asList(args));
-		if(args.length > 1) {
-			String emoji = args[1];
+		if(args.length >= 1) {
+			String emoji = args[0];
 			if(emoji.matches("<:.+?:\\d+>")) {
 				emoji = emoji.replaceAll("<:.+?:(\\d+)>","$1");
 				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji + ".png?v=1"))).block();

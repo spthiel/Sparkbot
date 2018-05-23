@@ -2,8 +2,8 @@ package me.main;
 
 public class Entry<K,V> {
 
-	public K key;
-	public V value;
+	private K key;
+	private V value;
 
 	public Entry() {
 
@@ -14,4 +14,19 @@ public class Entry<K,V> {
 		this.value = value;
 	}
 
+	public V getValue() {
+		return value;
+	}
+
+	public K getKey() {
+		return key;
+	}
+
+	public void setValue(V value) {
+		this.value = value;
+	}
+
+	public void setKey(K key) {
+		this.key = key;
+	}
 }

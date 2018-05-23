@@ -24,10 +24,4 @@ public class DiscordUtils {
 		return null;
 	}
 
-	/*public IUser getUserByID(final long id) {
-		return RequestBuffer.request(() -> {
-			return bot.getClient().getUserByID(id);
-		}).get();
-	}*/
-
 }

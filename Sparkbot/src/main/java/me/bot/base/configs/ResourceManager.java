@@ -20,47 +20,6 @@ public class ResourceManager {
 		this.BASE_FOLDER = folder;
 	}
 
-//	public void setValue(String dir, String filename, String key, Object value) {
-//
-//		HashMap<String, Object> toEdit = new HashMap<>();
-//		toEdit.put(key, value);
-//		editKey(dir, filename, toEdit);
-//
-//	}
-
-//	public void setValues(String dir, String filename, HashMap<String, Object> toEdit) {
-//		editKey(dir, filename, toEdit);
-//	}
-
-//	public Object getValue(String dir, String filename, String key) {
-//
-//
-//		File folder = new File(BASE_FOLDER + dir);
-//		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-//		if (!folder.exists())
-//			return null;
-//
-//		if (!fileToEdit.exists())
-//			return null;
-//
-//		JSONObject object = new JSONObject(readFileAsString(fileToEdit));
-//
-//
-//		return object.get(key);
-//
-//	}
-
-//	public boolean isSet(String dir, String filename, String key) {
-//
-//		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-//
-//		if (!fileToEdit.exists())
-//			return false;
-//
-//		return new JSONObject(readFileAsString(fileToEdit)).has(key);
-//
-//	}
-
 	public Map<String,Object> getConfig(String dir, String filename) {
 		File folder = new File(BASE_FOLDER + dir);
 		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
@@ -129,7 +88,7 @@ public class ResourceManager {
 			while ((line = in.readLine()) != null)
 				out.append(line).append(" ");
 
-		} catch (Exception ex) {
+		} catch (Exception ignored) {
 
 		}
 
@@ -145,7 +104,7 @@ public class ResourceManager {
 				out.write(line + "\n");
 			}
 
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 
 		}
 	}
@@ -156,41 +115,9 @@ public class ResourceManager {
 
 			out.write(toWrite);
 
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 
 		}
 	}
-
-//	private void editKey(String dir, String filename, HashMap<String, Object> toEdit) {
-//		File folder = new File(BASE_FOLDER + dir);
-//		File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
-//		if (!folder.exists())
-//			folder.mkdirs();
-//
-//		if (!fileToEdit.exists()) {
-//			try {
-//				fileToEdit.createNewFile();
-//			} catch (IOException e) {
-//			}
-//
-//			JSONObject c = new JSONObject();
-//			for (String key : toEdit.keySet()) {
-//				c.put(key, toEdit.get(key));
-//			}
-//			writeFile(c.toString(),fileToEdit);
-//
-//		} else {
-//
-//			JSONObject c = new JSONObject(readFileAsString(fileToEdit));
-//
-//			for (String key : toEdit.keySet()) {
-//				c.put(key, toEdit.get(key));
-//			}
-//
-//			writeFile(c.toString(), fileToEdit);
-//
-//		}
-//
-//	}
 
 }

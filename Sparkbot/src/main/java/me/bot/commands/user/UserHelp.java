@@ -44,7 +44,7 @@ public class UserHelp implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		ArrayList<String> out = new ArrayList<>();
 		final String serverprefix = Prefixes.getNormalPrefixFor(guild);
 		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.PUBLIC)).collect(Collectors.toList()).forEach(iCommand -> {
@@ -57,7 +57,7 @@ public class UserHelp implements ICommand {
 		builder.withChannel(channel);
 		builder.appendContent("Public Commands:\n");
 		out.forEach(msg -> builder.appendContent(msg + "\n"));
-		builder.send();
+		builder.send().subscribe();
 
 	}
 

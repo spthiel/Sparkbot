@@ -7,52 +7,37 @@ import discord4j.core.object.entity.User;
 import me.bot.base.Bot;
 import me.bot.base.MessageBuilder;
 
-public class Input implements Poll<String> {
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-	private Bot bot;
-	private User user;
-	private MessageChannel channel;
-	private String leaveMessage;
+public class Input extends Poll<String> {
+
 	private String question;
 	private String tail;
-	private boolean skipable;
 
 	private Message lastMessage;
 
-	private long inactiveTime;
-	private long lastStart;
-
-	private boolean end = false;
-
-	private String ret;
-
-	public Input(Bot bot, User user, MessageChannel channel,String question, String tail, String leaveMessage, boolean skipable, long inactiveTime) {
-		this.bot = bot;
-		this.user = user;
-		this.channel = channel;
-		this.leaveMessage = leaveMessage;
-		this.skipable = skipable;
+	public Input(Bot bot, User user, MessageChannel channel,String question, String tail, boolean skipable, long inactiveTime) {
+		super(bot,user,channel,skipable,inactiveTime);
 		this.question = question.replace("```\\w+|`","");
 		this.tail = tail;
-		this.inactiveTime = inactiveTime;
-		lastStart = System.currentTimeMillis();
 	}
 
 	@Override
 	public boolean onTrigger(Message message) {
-		ret = message.getContent().orElse("");
-		removeLastMessage();
+		onEnd(message.getContent().orElse(""));
+		deleteLastMessage();
 		return true;
 	}
 
 	@Override
 	public void sendMessage() {
-		removeLastMessage();
-		lastStart = System.currentTimeMillis();
+		deleteLastMessage();
+		registerInteraction();
 
-		MessageBuilder builder = new MessageBuilder(bot.getClient());
+		MessageBuilder builder = new MessageBuilder(getBot().getClient());
 
-		builder.withChannel(channel);
+		builder.withChannel(getChannel());
 
 		builder.appendContent("```\n")
 				.appendContent(question)
@@ -66,65 +51,9 @@ public class Input implements Poll<String> {
 	}
 
 	@Override
-	public void onExit() {
-		removeLastMessage();
-		end = true;
-	}
-
-	@Override
-	public long getUserID() {
-		return user.getId().asLong();
-	}
-
-
-	@Override
-	public boolean skipAble() {
-		return skipable;
-	}
-
-	@Override
-	public void onSkip() {
-		removeLastMessage();
-		ret = "skip";
-		end = true;
-	}
-
-	@Override
-	public long startTime() {
-		return lastStart;
-	}
-
-	@Override
-	public void onStop() {
-		removeLastMessage();
-		ret = "stop";
-		end = true;
-	}
-
-	@Override
-	public long getTimeUntilInactivity() {
-		return inactiveTime;
-	}
-
-	@Override
-	public boolean ended() {
-		return end || ret != null;
-	}
-
-	@Override
-	public String get() {
-		while(!ended()){
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
-		return ret;
-	}
-
-	private void removeLastMessage() {
+	void deleteLastMessage() {
 		if(lastMessage != null) {
-			lastMessage.delete();
+			lastMessage.delete().subscribe();
 		}
 	}
 }

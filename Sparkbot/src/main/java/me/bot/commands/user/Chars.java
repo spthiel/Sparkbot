@@ -44,9 +44,9 @@ public class Chars implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-		if(args.length > 1) {
-			switch(args[1]) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+		if(args.length >= 1) {
+			switch(args[0]) {
 				case "new":
 				case "create":
 					Thread t = new Thread(() -> createCharacter(bot, author, channel, guild));

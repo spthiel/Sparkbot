@@ -48,14 +48,16 @@ public class Ping implements ICommand {
     }
 
     @Override
-    public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
+    public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
         ZonedDateTime zdt = message.getTimestamp().atZone(ZoneOffset.UTC);
-        Message message1 = channel.createMessage(new MessageCreateSpec().setContent("**Ping!**")).block();
+        channel.createMessage(new MessageCreateSpec().setContent("**Ping!**")).subscribe(
+            message1 -> {
+                ZonedDateTime now = message1.getTimestamp().atZone(ZoneOffset.UTC);
+                long delay = now.toInstant().toEpochMilli()-zdt.toInstant().toEpochMilli();
 
-        ZonedDateTime now = message1.getTimestamp().atZone(ZoneOffset.UTC);
-        long delay = now.toInstant().toEpochMilli()-zdt.toInstant().toEpochMilli();
+                message1.edit(new MessageEditSpec().setContent("**Ping!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message."));
+            });
 
-        message1.edit(new MessageEditSpec().setContent("**Ping!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message."));
     }
 
     @Override

@@ -6,7 +6,13 @@ public class Messages {
 	public static String getMessage(String key) {
 		String message = "";
 
+		String[] keys = key.split("\\.");
 
+
+
+		for(String k : keys) {
+
+		}
 
 		return format(message);
 	}

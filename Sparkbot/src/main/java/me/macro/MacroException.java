@@ -12,7 +12,8 @@ public class MacroException extends Exception {
 	public MacroExceptionTypes getType() {
 		return type;
 	}
-	
+
+	@SuppressWarnings("unused")
 	public enum MacroExceptionTypes {
 		
 		TOO_MANY_EXPRESSIONS,

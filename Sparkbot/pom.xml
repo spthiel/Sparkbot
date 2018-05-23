@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.discord4j.discord4j</groupId>
             <artifactId>discord4j-core</artifactId>
-            <version>ca026eb</version>
+            <version>915434b</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

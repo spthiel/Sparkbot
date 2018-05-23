@@ -47,8 +47,8 @@ public class Nick implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-		if(args.length > 1) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+		if(args.length >= 1) {
 			StringBuilder newname = new StringBuilder();
 			for(int i = 1; i < args.length; i++)
 				newname.append(args[i] + " ");
@@ -60,7 +60,7 @@ public class Nick implements ICommand {
 			builder
 					.withChannel(channel)
 					.appendContent("Look " + author.getUsername() + " you have a new Name! Hi, " + name +" :wave:");
-			builder.send();
+			builder.send().subscribe();
 
 		}
 	}

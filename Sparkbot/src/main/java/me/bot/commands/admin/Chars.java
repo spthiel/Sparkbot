@@ -47,13 +47,13 @@ public class Chars implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-		if (args.length > 1) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+		if (args.length >= 1) {
 
 			if(guild == null || channel == null)
 				return;
 
-			switch (args[1]) {
+			switch (args[0]) {
 				case "add":
 					Thread t = new Thread(() -> {
 						Input poll = new Input(bot, author, channel, "What Question would you like to add?", "Use `exit` to exit the Menu", "You left the menu", false, 30000);

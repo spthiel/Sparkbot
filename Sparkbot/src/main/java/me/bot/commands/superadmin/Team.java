@@ -48,15 +48,15 @@ public class Team implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-		if(args.length < 2) {
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+		if(args.length < 1) {
 			return;
 		}
 
-		if(args.length == 2) {
+		if(args.length == 1) {
 
 
-			switch(args[1]) {
+			switch(args[0]) {
 				case "get":
 					logGet(bot,channel,guild);
 					break;
@@ -65,14 +65,14 @@ public class Team implements ICommand {
 		} else {
 
 
-			String action = args[1];
+			String action = args[0];
 
 			switch (action) {
 				case "get":
 					logGet(bot,channel,guild);
 					break;
 				case "add":
-					String idstring = args[2];
+					String idstring = args[1];
 
 					if (!idstring.matches("\\d+")) {
 						return;
@@ -93,7 +93,7 @@ public class Team implements ICommand {
 
 					break;
 				case "remove":
-					idstring = args[2];
+					idstring = args[1];
 					if (!idstring.matches("\\d+")) {
 						return;
 					}
@@ -136,12 +136,12 @@ public class Team implements ICommand {
 		StringBuilder ownerBuilder = new StringBuilder();
 
 		if(admins.size() != 0)
-			admins.forEach(user -> adminsBuilder.append("<@" + user.getId().asLong() + ">\n"));
+			admins.forEach(user -> adminsBuilder.append("<@").append(user.getId().asLong()).append(">\n"));
 		else
 			adminsBuilder.append("-- None --");
 
 		if(owner.size() != 0)
-			owner.forEach(user -> ownerBuilder.append("<@" + user.getId().asLong() + ">\n"));
+			owner.forEach(user -> ownerBuilder.append("<@").append(user.getId().asLong()).append(">\n"));
 		else
 			ownerBuilder.append("-- None --");
 

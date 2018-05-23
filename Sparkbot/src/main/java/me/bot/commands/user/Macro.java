@@ -48,22 +48,28 @@ public class Macro implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-		if(args.length > 1) {
-			switch(args[1]) {
-				case "format":
-					if(message.getAttachments().isEmpty()) {
-						channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| You have to attach a txt file.**")).block();
+	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+
+		channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| This command was to difficult to continue for it being a thing.**")).subscribe();
+
+		if(false) {
+			channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| You have to attach a txt file.**")).subscribe();
+			if (args.length >= 1) {
+				switch (args[0]) {
+					case "format":
+						if (message.getAttachments().isEmpty()) {
+							channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| You have to attach a txt file.**")).subscribe();
+							break;
+						}
+						if (!format(channel, content, message.getAttachments().iterator().next()))
+							channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).subscribe();
 						break;
-					}
-					if(!format(channel,content,message.getAttachments().iterator().next()))
-						channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).block();
-					break;
-				case "help":
-					sendHelp(channel);
+					case "help":
+						sendHelp(channel);
+				}
+			} else {
+				sendHelp(channel);
 			}
-		} else {
-			sendHelp(channel);
 		}
 	}
 
@@ -83,7 +89,7 @@ public class Macro implements ICommand {
 				.appendContent("\n`--caps` will set all commands to uppercase instead of lowercase.")
 				.appendContent("\n`--diff` will include the amount of changed lines")
 				.appendContent("\n`--debug` will display the cause of errors. Might exceed 2000 char limit, use it wisely.");
-		builder.send();
+		builder.send().subscribe();
 	}
 
 	private boolean format(MessageChannel channel, String message, Attachment attachment) {
@@ -133,7 +139,7 @@ public class Macro implements ICommand {
 					}
 				}
 				builder.withAttachment(attachment.getFilename(),String.join("\n",object.getFormatted()));
-				builder.send();
+				builder.send().subscribe();
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;

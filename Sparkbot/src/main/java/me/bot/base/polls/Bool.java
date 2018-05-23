@@ -7,35 +7,17 @@ import me.bot.base.Bot;
 import me.bot.base.MessageAPI;
 import me.bot.base.MessageBuilder;
 
-public class Bool implements Poll<Boolean> {
+public class Bool extends Poll<Boolean> {
 
-	private Bot bot;
-	private User user;
-	private MessageChannel channel;
-	private String leaveMessage;
 	private String question;
 	private String tail;
-	private boolean skipable;
 
 	private Message lastMessage;
 
-	private long inactiveTime;
-	private long lastStart;
-
-	private boolean end = false;
-
-	private boolean ret;
-
-	public Bool(Bot bot, User user, MessageChannel channel,String question, String tail, String leaveMessage, boolean skipable, long inactiveTime) {
-		this.bot = bot;
-		this.user = user;
-		this.channel = channel;
-		this.leaveMessage = leaveMessage;
-		this.skipable = skipable;
+	public Bool(Bot bot, User user, MessageChannel channel,String question, String tail, boolean skipable, long inactiveTime) {
+		super(bot,user,channel,skipable,inactiveTime);
 		this.question = question.replace("```\\w+|`","");
 		this.tail = tail;
-		this.inactiveTime = inactiveTime;
-		lastStart = System.currentTimeMillis();
 	}
 
 	private final String TRUE_REGEX  = "1|yes|true|y";
@@ -51,20 +33,19 @@ public class Bool implements Poll<Boolean> {
 			return false;
 		}
 
-		ret = lcase.matches(TRUE_REGEX);
-		end = true;
-		removeLastMessage();
+		onEnd(lcase.matches(TRUE_REGEX));
+		deleteLastMessage();
 		return true;
 	}
 
 	@Override
 	public void sendMessage() {
-		removeLastMessage();
-		lastStart = System.currentTimeMillis();
+		deleteLastMessage();
+		registerInteraction();
 
-		MessageBuilder builder = new MessageBuilder(bot.getClient());
+		MessageBuilder builder = new MessageBuilder(getBot().getClient());
 
-		builder.withChannel(channel);
+		builder.withChannel(getChannel());
 
 		builder.appendContent("```\n")
 				.appendContent(question)
@@ -78,63 +59,10 @@ public class Bool implements Poll<Boolean> {
 	}
 
 	@Override
-	public void onExit() {
-		removeLastMessage();
-		end = true;
-	}
-
-	@Override
-	public long getUserID() {
-		return user.getId().asLong();
-	}
-
-
-	@Override
-	public boolean skipAble() {
-		return skipable;
-	}
-
-	@Override
-	public void onSkip() {
-		removeLastMessage();
-		end = true;
-	}
-
-	@Override
-	public long startTime() {
-		return lastStart;
-	}
-
-	@Override
-	public void onStop() {
-		removeLastMessage();
-		end = true;
-	}
-
-	@Override
-	public long getTimeUntilInactivity() {
-		return inactiveTime;
-	}
-
-	@Override
-	public boolean ended() {
-		return end;
-	}
-
-	@Override
-	public Boolean get() {
-		while(!ended()){
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
-		return ret;
-	}
-
-	private void removeLastMessage() {
+	void deleteLastMessage() {
 		if(lastMessage != null) {
 			lastMessage.delete();
 		}
+
 	}
 }

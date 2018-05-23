@@ -6,42 +6,30 @@ import discord4j.core.object.entity.User;
 import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.MessageBuilder;
+import me.main.Triplet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class Option implements Poll<Integer>{
-
-	private User user;
-	private MessageChannel channel;
-	private Bot bot;
+public class Option extends Poll<Integer>{
 
 	private ArrayList<String> executions;
-	private String leaveMessage;
-	private boolean skipable;
 	private Message lastMessage;
 	private String
 			head,
 			tail;
 	private int page;
 	private long start = 0;
-	private long timeUntilInactive;
-	private int ret = -1;
 
-	private boolean end = false;
-
-	public Option (Bot bot, User user, MessageChannel channel, String head, String tail, String leaveMessage, boolean skipable, long timeUntilInactive) {
+	public Option (Bot bot, User user, MessageChannel channel, String head, String tail, boolean skipable, long timeUntilInactive) {
+		super(bot,user,channel,skipable,timeUntilInactive);
 		this.head = head.replace("```\\w+|`","");
 		this.tail = tail;
-		this.leaveMessage = leaveMessage;
-		this.user = user;
 		this.page = 0;
-		this.channel = channel;
-		this.bot = bot;
-		this.timeUntilInactive = timeUntilInactive;
-		this.skipable = skipable;
 
 		executions = new ArrayList<>();
 	}
@@ -53,6 +41,8 @@ public class Option implements Poll<Integer>{
 
 		if(!input.matches("\\d+"))
 			return false;
+
+		registerInteraction();
 
 		int option = Integer.parseInt(input);
 
@@ -75,7 +65,7 @@ public class Option implements Poll<Integer>{
 			nextPage();
 		} else {
 
-			ret = page * 7 + option - 1;
+			onEnd(page * 7 + option - 1);
 
 			lastMessage.delete();
 		}
@@ -94,8 +84,8 @@ public class Option implements Poll<Integer>{
 
 		MessageCreateSpec spec = new MessageCreateSpec();
 
-		MessageBuilder builder = new MessageBuilder(bot.getClient())
-				.withChannel(channel)
+		MessageBuilder builder = new MessageBuilder(getBot().getClient())
+				.withChannel(getChannel())
 				.appendContent("```")
 				.appendContent(head)
 				.appendContent("\n");
@@ -128,61 +118,10 @@ public class Option implements Poll<Integer>{
 	}
 
 	@Override
-	public void onExit() {
-		if(lastMessage != null)
-			lastMessage.delete();
-		end = true;
-	}
-
-	@Override
-	public long getUserID() {
-		return user.getId().asLong();
-	}
-
-	@Override
-	public boolean skipAble() {
-		return skipable;
-	}
-
-	@Override
-	public void onSkip() {
-		ret = -2;
-		end = true;
-	}
-
-	@Override
-	public long startTime() {
-		return start;
-	}
-
-	@Override
-	public void onStop() {
-		if(lastMessage != null)
-			lastMessage.delete();
-		end = true;
-	}
-
-	@Override
-	public long getTimeUntilInactivity() {
-		return timeUntilInactive;
-	}
-
-	@Override
-	public boolean ended() {
-		return end || ret != -1;
-	}
-
-	@Override
-	public Integer get() {
-
-		while(!ended()){
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
+	void deleteLastMessage() {
+		if(lastMessage != null) {
+			lastMessage.delete().subscribe();
 		}
-		return ret;
-
 	}
 
 	public void appendOption(String option) {

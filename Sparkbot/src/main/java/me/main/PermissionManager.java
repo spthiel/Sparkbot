@@ -74,7 +74,7 @@ public class PermissionManager {
 
 			return out;
 		} else {
-			return null;
+			return new ArrayList<>();
 		}
 
 	}

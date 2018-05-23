@@ -47,7 +47,7 @@ public class Remotelogout implements ICommand {
     }
 
     @Override
-    public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
+    public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
         bot.disable();
     }
 

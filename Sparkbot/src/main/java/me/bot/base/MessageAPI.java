@@ -1,9 +1,13 @@
 package me.bot.base;
 
+import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.MessageChannel;
+import discord4j.core.object.entity.TextChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 @SuppressWarnings("unused")
 public class MessageAPI {
@@ -17,21 +21,10 @@ public class MessageAPI {
 	}
 
 	private static void deleteLater(Mono<Message> monomessage, long lifetime) {
-    	monomessage.subscribe(
-            message -> {
-			    if (message == null)
-				    return;
-
-			    Thread t = new Thread(() -> {
-				    try {
-					    Thread.sleep(lifetime);
-				    } catch (InterruptedException ignored) {
-				    }
-				    message.delete();
-			    });
-
-			    t.start();
-		    });
+		monomessage
+				.delayElement(Duration.ofMillis(lifetime))
+				.flatMap(Message::delete)
+				.subscribe();
 	}
 
 }

@@ -49,8 +49,8 @@ public class Invite implements ICommand {
     private String LINK = "http://bit.ly/invSparkbot";
 
     @Override
-    public void run(Bot bot, User author, MessageChannel channel, Guild guild, String content, Message message, String[] args) {
-       channel.createMessage(new MessageCreateSpec().setContent("Hello, <@" + author.getId().asLong() + "> you can invite me with <" + LINK + ">")).block();
+    public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+       channel.createMessage(new MessageCreateSpec().setContent("Hello, <@" + author.getId().asLong() + "> you can invite me with <" + LINK + ">")).subscribe();
 
     }
 

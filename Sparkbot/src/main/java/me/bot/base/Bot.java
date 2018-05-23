@@ -1,6 +1,5 @@
 package me.bot.base;
 
-import discord4j.common.json.payload.dispatch.MessageCreate;
 import discord4j.core.ClientBuilder;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.EventDispatcher;
@@ -13,7 +12,6 @@ import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
 import me.main.Main;
 
-import java.time.Duration;
 import java.util.List;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
@@ -60,11 +58,10 @@ public class Bot {
 						    botuser = v;
 						    System.out.println("Successfully got the botuser: " + botuser.getUsername());
 					    },
-					    Throwable::printStackTrace,
-					    () -> System.out.println("Something went wrong whilst getting botuser")
+					    Throwable::printStackTrace
 			    ),
 			    Throwable::printStackTrace,
-	        () -> System.out.println("Something went wrong whilst getting bot id")
+	        () -> System.out.println("Successfully got bot id")
 	    );
     }
 
