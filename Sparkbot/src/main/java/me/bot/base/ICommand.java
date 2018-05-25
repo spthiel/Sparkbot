@@ -2,7 +2,9 @@ package me.bot.base;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
+import reactor.core.publisher.Mono;
 
+import java.util.EnumSet;
 import java.util.List;
 
 public interface ICommand {
@@ -11,9 +13,9 @@ public interface ICommand {
 	String getHelp();
 	String[] getNames();
 	String[] getPrefixes(final Guild guild);
-	boolean hasPermissions(final User user, final Guild guild);
+	Permission[] getRequiredPermissions();
 	List<Permission> requiredBotPermissions();
-	void run(final Bot bot, final User author, final MessageChannel channel, final Guild guild, final Message message, final String commandname, final String[] args, final String content);
+	void run(final Bot bot, final User author, final TextChannel channel, final Guild guild, final Message message, final String commandname, final String[] args, final String content);
 	void onLoad();
 
 }

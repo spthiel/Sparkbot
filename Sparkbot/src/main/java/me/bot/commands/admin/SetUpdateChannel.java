@@ -1,9 +1,6 @@
 package me.bot.commands.admin;
 
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
@@ -11,8 +8,8 @@ import me.bot.base.ICommand;
 import me.bot.base.configs.ResourceManager;
 import me.main.PermissionManager;
 import me.main.Prefixes;
+import reactor.core.publisher.Mono;
 
-import java.security.Permissions;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -37,13 +34,11 @@ public class SetUpdateChannel implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
+	private static Permission[] PERMISSIONS = new Permission[]{Permission.MANAGE_GUILD};
+
 	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		EnumSet<Permission> perms = PermissionManager.getPermissions(guild,user).block();
-		if(perms != null)
-			return perms.contains(Permission.MANAGE_GUILD) || perms.contains(Permission.ADMINISTRATOR);
-		else
-			return false;
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
 	}
 
 	@Override
@@ -52,7 +47,7 @@ public class SetUpdateChannel implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		ResourceManager manager = bot.getResourceManager();
 
 	}

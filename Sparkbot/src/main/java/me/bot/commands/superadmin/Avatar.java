@@ -1,15 +1,13 @@
 package me.bot.commands.superadmin;
 
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.PermissionManager;
 import me.main.Prefixes;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -34,9 +32,11 @@ public class Avatar implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
+	private static Permission[] PERMISSIONS = new Permission[]{};
+
 	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		return PermissionManager.isBotAdmin(user);
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class Avatar implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		if(args.length > 1) {
 
 			//TODO: Fix stuff

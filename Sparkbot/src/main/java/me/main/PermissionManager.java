@@ -64,17 +64,18 @@ public class PermissionManager {
 		}
 	}
 
-	public static List<Long> getBotAdmins() {
+	public static Entry<List<Snowflake>,List<Snowflake>> getBotAdmins() {
 
 		if(updateConfigIfUnset()) {
-			final List<Long> out = new ArrayList<>();
+			final List<Snowflake> owners = new ArrayList<>();
+			final List<Snowflake> admins = new ArrayList<>();
 
-			((ArrayList) config.get("Owners")).forEach(object -> out.add((Long) object));
-			((ArrayList) config.get("Admins")).forEach(object -> out.add((Long) object));
+			getBotAdminsList().forEach(object -> admins.add(Snowflake.of((Long) object)));
+			getBotOwnersList().forEach(object -> owners.add(Snowflake.of((Long) object)));
 
-			return out;
+			return new Entry<>(owners,admins);
 		} else {
-			return new ArrayList<>();
+			return new Entry<>(new ArrayList<>(),new ArrayList<>());
 		}
 
 	}
@@ -108,7 +109,24 @@ public class PermissionManager {
 	public static boolean addBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
-			((ArrayList)config.get("Admins")).add(id);
+			List<Long> admins;
+			if(config.containsKey("Admins")) {
+				if (config.get("Admins") instanceof List) {
+					List ad = ((List) config.get("Admins"));
+					if (ad.size() > 0 && ad.get(0) instanceof Long) {
+						//noinspection unchecked
+						admins = (List<Long>) ad;
+					} else {
+						admins = new ArrayList<>();
+					}
+				} else {
+					admins = new ArrayList<>();
+				}
+			} else {
+				admins = new ArrayList<>();
+			}
+			admins.add(id);
+			config.put("Admins",admins);
 			updateConfig();
 			return true;
 		} else {
@@ -171,7 +189,9 @@ public class PermissionManager {
 	public static boolean addBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			((ArrayList)config.get("Owners")).add(id);
+			List<Long> owners = getBotOwnersList();
+			owners.add(id);
+			config.put("Owners",owners);
 			updateConfig();
 			return true;
 		} else {
@@ -226,6 +246,44 @@ public class PermissionManager {
 
 		Main.getBot().getResourceManager().writeConfig(directory,filename,config);
 
+	}
+
+	private static List<Long> getBotAdminsList() {
+
+		if(config.containsKey("Admins")) {
+			if (config.get("Admins") instanceof List) {
+				List ad = ((List) config.get("Admins"));
+				if (ad.size() > 0 && ad.get(0) instanceof Long) {
+					//noinspection unchecked
+					return (List<Long>) ad;
+				} else {
+					return new ArrayList<>();
+				}
+			} else {
+				return new ArrayList<>();
+			}
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	private static List<Long> getBotOwnersList() {
+
+		if(config.containsKey("Owners")) {
+			if (config.get("Owners") instanceof List) {
+				List ow = ((List) config.get("Owners"));
+				if (ow.size() > 0 && ow.get(0) instanceof Long) {
+					//noinspection unchecked
+					return (List<Long>) ow;
+				} else {
+					return new ArrayList<>();
+				}
+			} else {
+				return new ArrayList<>();
+			}
+		} else {
+			return new ArrayList<>();
+		}
 	}
 
 }

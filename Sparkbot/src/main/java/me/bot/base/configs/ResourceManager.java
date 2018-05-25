@@ -50,6 +50,7 @@ public class ResourceManager {
 				if(!fileToEdit.createNewFile())
 					throw new RuntimeException("Couldn't create file");
 			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 

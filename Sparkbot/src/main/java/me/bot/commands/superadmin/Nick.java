@@ -1,15 +1,12 @@
 package me.bot.commands.superadmin;
 
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import me.bot.base.*;
 import me.main.PermissionManager;
 import me.main.Prefixes;
+import reactor.core.publisher.Mono;
 
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +31,12 @@ public class Nick implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
-	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		return PermissionManager.isBotAdmin(user);
-	}
+	private static Permission[] PERMISSIONS = new Permission[]{Permission.MANAGE_GUILD};
 
+	@Override
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
+	}
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		List<Permission> out = new ArrayList<>();
@@ -47,7 +45,7 @@ public class Nick implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		if(args.length >= 1) {
 			StringBuilder newname = new StringBuilder();
 			for(int i = 1; i < args.length; i++)
@@ -55,7 +53,7 @@ public class Nick implements ICommand {
 
 			String name = newname.toString().trim();
 //			message.getGuild().setUserNickname(author,name);
-			MessageBuilder builder = new MessageBuilder(bot.getClient());
+			MessageBuilder builder = new MessageBuilder();
 
 			builder
 					.withChannel(channel)

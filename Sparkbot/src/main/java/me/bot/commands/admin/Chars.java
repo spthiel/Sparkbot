@@ -9,10 +9,11 @@ import me.bot.base.MessageAPI;
 import me.bot.base.polls.Bool;
 import me.bot.base.polls.Input;
 import me.bot.base.polls.Option;
+import me.bot.base.polls.PollExitType;
 import me.main.PermissionManager;
 import me.main.Prefixes;
+import reactor.core.publisher.Mono;
 
-import java.security.Permissions;
 import java.util.*;
 
 public class Chars implements ICommand {
@@ -32,13 +33,11 @@ public class Chars implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
+	private static Permission[] PERMISSIONS = new Permission[]{Permission.MANAGE_GUILD};
+
 	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		EnumSet<Permission> perms = PermissionManager.getPermissions(guild,user).block();
-		if(perms != null)
-			return perms.contains(Permission.MANAGE_GUILD) || perms.contains(Permission.ADMINISTRATOR);
-		else
-			return false;
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
 	}
 
 	@Override
@@ -47,7 +46,7 @@ public class Chars implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		if (args.length >= 1) {
 
 			if(guild == null || channel == null)
@@ -55,30 +54,32 @@ public class Chars implements ICommand {
 
 			switch (args[0]) {
 				case "add":
-					Thread t = new Thread(() -> {
-						Input poll = new Input(bot, author, channel, "What Question would you like to add?", "Use `exit` to exit the Menu", "You left the menu", false, 30000);
-						bot.addPoll(poll);
-						String input = poll.get();
-						if (input != null && !input.equalsIgnoreCase("stop")) {
-							Bool skipable = new Bool(bot, author, channel, "What Question would you like to add?", "Use `exit` to exit the Menu", "You left the menu", false, 30000);
-							bot.addPoll(skipable);
-							boolean skip = skipable.get();
+					Input poll = new Input(bot, author, channel, "What Question would you like to add?", "Use `exit` to exit the Menu", false, 30000);
+					bot.addPoll(poll);
+					poll.subscribe((result,type) -> {
+						if(type == PollExitType.SUCCESS)
+							if (result != null && !result.equalsIgnoreCase("stop")) {
+								Bool skipable = new Bool(bot, author, channel, "Is this question optional?", "Use `exit` to exit the Menu or yes/no to answer it.", false, 30000);
+								bot.addPoll(skipable);
 
-							Map<String,Object> toPut = new HashMap<>();
-							toPut.put("q", input);
-							toPut.put("s", skip);
-							Map<String,Object> object = bot.getResourceManager().getConfig("configs/rp/" + guild.getId().asLong(), "settings.json");
-							object.put("questions", toPut);
-							bot.getResourceManager().writeConfig("configs/rp/" + guild.getId().asLong(), "settings.json", object);
-						}
+								skipable.subscribe((result2,type2) -> {
+									if(type2 != PollExitType.SUCCESS)
+										return;
+									Map<String,Object> toPut = new HashMap<>();
+									toPut.put("q", result);
+									toPut.put("s", result2);
+									Map<String,Object> object = getConfig(bot,guild.getId().asLong());
+									object.put("questions", toPut);
+									write(bot,guild.getId().asLong(),object);
+								});
+							}
 					});
-					t.start();
 					break;
 				case "list":
-					Map<String,Object> object = bot.getResourceManager().getConfig("configs/rp/" + guild.getId().asLong(), "settings.json");
+					Map<String,Object> object = getConfig(bot,guild.getId().asLong());
 					if (object.containsKey("questions")) {
 						ArrayList<Object> questions = (ArrayList) object.get("questions");
-						Option option = new Option(bot, author, channel, "List of your questions:", "Use `exit` to leave the Menu", "", false, -1);
+						Option option = new Option(bot, author, channel, "List of your questions:", "Use `exit` to leave the Menu", false, -1);
 						for (Object q : questions) {
 							String question = (String)((Map) q).get("q");
 							option.appendOption(question);
@@ -91,10 +92,10 @@ public class Chars implements ICommand {
 					}
 					break;
 				case "remove":
-					Map<String,Object> object2 = bot.getResourceManager().getConfig("configs/rp/" + guild.getId().asLong(), "settings.json");
+					Map<String,Object> object2 = getConfig(bot,guild.getId().asLong());
 					if (object2.containsKey("questions")) {
 						ArrayList<Object> questions = (ArrayList) object2.get("questions");
-						Option option = new Option(bot, author, channel, "List of your questions:", "Select the question you want to delete or use `exit` to leave the Menu", "", false, -1);
+						Option option = new Option(bot, author, channel, "List of your questions:", "Select the question you want to delete or use `exit` to leave the Menu", false, -1);
 						List<String> qs = new ArrayList<>();
 						for (Object q : questions) {
 							String question = (String)((Map) q).get("q");
@@ -102,13 +103,13 @@ public class Chars implements ICommand {
 							option.appendOption(question);
 						}
 						bot.addPoll(option);
-						Thread t2 = new Thread(() -> {
-							qs.remove((int) option.get());
-							object2.put("questions", qs);
-							bot.getResourceManager().writeConfig("configs/rp/" + guild.getId().asLong(), "settings.json", object2);
+						option.subscribe((result,type) -> {
+							if(type == PollExitType.SUCCESS) {
+								qs.remove(result);
+								object2.put("questions", qs);
+								write(bot,guild.getId().asLong(),object2);
+							}
 						});
-
-						t2.start();
 
 					} else {
 						MessageAPI.sendAndDeleteMessageLater(channel, "```\nYour server has no Character questions set yet\n```", 30000);
@@ -130,5 +131,13 @@ public class Chars implements ICommand {
 
 	@Override
 	public void onLoad() {
+	}
+
+	private Map<String,Object> getConfig(Bot bot,long guildid) {
+		return bot.getResourceManager().getConfig("configs/" + guildid + "/rp", "settings.json");
+	}
+
+	private void write(Bot bot,long guildid,Map<String,Object> object) {
+		bot.getResourceManager().writeConfig("configs/" + guildid + "/rp", "settings.json", object);
 	}
 }

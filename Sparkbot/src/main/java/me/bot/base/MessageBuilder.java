@@ -48,7 +48,6 @@ public class MessageBuilder {
 	/**
 	 * The client the message belongs to.
 	 */
-	private DiscordClient client;
 	/**
 	 * Whether the message should use text-to-speech.
 	 */
@@ -68,8 +67,7 @@ public class MessageBuilder {
 
 	private MessageCreateSpec messagespec;
 
-	public MessageBuilder(DiscordClient client) {
-		this.client = client;
+	public MessageBuilder() {
 	}
 
 	/**
@@ -130,7 +128,7 @@ public class MessageBuilder {
 	 * @param channelID The channel the message will be sent in.
 	 * @return The builder instance.
 	 */
-	public MessageBuilder withChannel(long channelID) {
+	public MessageBuilder withChannel(DiscordClient client, long channelID) {
 		this.channel = DiscordUtils.getMessageChannelOfChannel(client.getChannelById(Snowflake.of(channelID)).block());
 		return this;
 	}

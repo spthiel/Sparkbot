@@ -1,8 +1,10 @@
 package me.bot.commands.user;
 
-import discord4j.core.object.entity.*;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.TextChannel;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Permission;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
@@ -10,10 +12,10 @@ import me.bot.base.ICommand;
 import me.main.Prefixes;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
-public class Emoji implements ICommand {
+public class Choice implements ICommand {
 	@Override
 	public CommandType getType() {
 		return CommandType.PUBLIC;
@@ -21,12 +23,12 @@ public class Emoji implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Enlarges an emoji";
+		return "Makes a choice for you";
 	}
 
 	@Override
 	public String[] getNames() {
-		return new String[]{"emoji","enlarge"};
+		return new String[]{"choice","choose"};
 	}
 
 	@Override
@@ -45,18 +47,11 @@ public class Emoji implements ICommand {
 		return null;
 	}
 
-	//https://cdn.discordapp.com/emojis/<id>.png?v=1
-
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
-		System.out.println(Arrays.asList(args));
-		if(args.length >= 1) {
-			String emoji = args[0];
-			if(emoji.matches("<:.+?:\\d+>")) {
-				emoji = emoji.replaceAll("<:.+?:(\\d+)>","$1");
-				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji + ".png?v=1"))).block();
-			}
-		}
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+		Random rnd = new Random();
+		String rndchoice = args[rnd.nextInt(args.length)];
+		channel.createMessage(new MessageCreateSpec().setContent("I choose " + rndchoice)).subscribe();
 	}
 
 	@Override

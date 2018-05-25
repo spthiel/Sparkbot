@@ -36,7 +36,7 @@ public class Broadcast implements ConsoleCommand {
 		for (Guild guild : Main.getBot().getClient().getGuilds().toIterable()) {
 			MessageChannel broadcastChannel = getBraodcastChannel(guild);
 			if(broadcastChannel != null)
-				new MessageBuilder(Main.getBot().getClient()).withChannel(broadcastChannel).appendContent(message).send();
+				new MessageBuilder().withChannel(broadcastChannel).appendContent(message).send();
 		}
 	}
 

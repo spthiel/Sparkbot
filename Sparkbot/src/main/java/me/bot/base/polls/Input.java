@@ -35,7 +35,7 @@ public class Input extends Poll<String> {
 		deleteLastMessage();
 		registerInteraction();
 
-		MessageBuilder builder = new MessageBuilder(getBot().getClient());
+		MessageBuilder builder = new MessageBuilder();
 
 		builder.withChannel(getChannel());
 
@@ -51,7 +51,7 @@ public class Input extends Poll<String> {
 	}
 
 	@Override
-	void deleteLastMessage() {
+	public void deleteLastMessage() {
 		if(lastMessage != null) {
 			lastMessage.delete().subscribe();
 		}

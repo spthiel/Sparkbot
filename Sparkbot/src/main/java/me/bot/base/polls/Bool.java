@@ -20,8 +20,8 @@ public class Bool extends Poll<Boolean> {
 		this.tail = tail;
 	}
 
-	private final String TRUE_REGEX  = "1|yes|true|y";
-	private final String FALSE_REGEX = "0|no|false|n";
+	private static final String TRUE_REGEX  = "1|yes|true|y";
+	private static final String FALSE_REGEX = "0|no|false|n";
 
 	@Override
 	public boolean onTrigger(Message message) {
@@ -43,7 +43,7 @@ public class Bool extends Poll<Boolean> {
 		deleteLastMessage();
 		registerInteraction();
 
-		MessageBuilder builder = new MessageBuilder(getBot().getClient());
+		MessageBuilder builder = new MessageBuilder();
 
 		builder.withChannel(getChannel());
 
@@ -59,7 +59,7 @@ public class Bool extends Poll<Boolean> {
 	}
 
 	@Override
-	void deleteLastMessage() {
+	public void deleteLastMessage() {
 		if(lastMessage != null) {
 			lastMessage.delete();
 		}

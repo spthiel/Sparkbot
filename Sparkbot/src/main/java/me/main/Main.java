@@ -4,7 +4,10 @@ import me.bot.base.Bot;
 import me.console.ConsoleCommandManager;
 import me.console.commands.*;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.nio.channels.Channel;
+import java.nio.file.Paths;
 
 public class Main {
     
@@ -19,9 +22,21 @@ public class Main {
 
         commands = new ConsoleCommandManager();
 
-        bot = new Bot(Constants.TOKEN,"Sparkbot","./resources/", "https://www.twitch.tv/discordsparkbot");
+	    try {
+		    String base = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/storage/";
+		    System.out.println("Basefile: " + base);
+	        bot = new Bot(Constants.TOKEN,"Sparkbot",base, "https://www.twitch.tv/discordsparkbot");
 
-	    bot.login();
+		    bot.login();
+
+		    System.out.println("Exit main without error");
+	    } catch (Exception e) {
+		    e.printStackTrace();
+		    System.out.println("Exit main with error");
+	    }
+
+//		File file = Paths.get("storage").toFile();
+
 
     }
 

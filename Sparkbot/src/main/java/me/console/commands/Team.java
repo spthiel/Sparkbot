@@ -5,11 +5,14 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
 import me.console.ConsoleCommand;
+import me.main.Entry;
 import me.main.Main;
 import me.main.PermissionManager;
+import reactor.core.publisher.Flux;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Team implements ConsoleCommand {
 
@@ -27,7 +30,7 @@ public class Team implements ConsoleCommand {
 		if(args.length == 1) {
 
 
-			switch(args[1]) {
+			switch(args[0]) {
 				case "get":
 					logGet(Main.getBot());
 					break;
@@ -36,25 +39,27 @@ public class Team implements ConsoleCommand {
 		} else {
 
 
-			String action = args[1];
+			String action = args[0];
 
 			switch (action) {
 				case "get":
 					logGet(Main.getBot());
 					break;
 				case "add":
-					String idstring = args[2];
+					String idstring = args[1];
 
 					if (!idstring.matches("\\d+")) {
+						System.out.println("id is not a number");
 						return;
 					}
 
 					long id = Long.parseLong(idstring);
 					if(PermissionManager.isBotAdmin(id)) {
+						System.out.println("User is already admin");
 						return;
 					}
 
-					boolean returned = PermissionManager.addBotAdmin(id);
+					boolean returned = PermissionManager.addBotOwner(id);
 
 					String out = (returned ? "Successfully added " + id + " to bot admins." : "Failed to add " + id + " to bot admins.");
 
@@ -90,33 +95,39 @@ public class Team implements ConsoleCommand {
 
 	@Override
 	public String[] getNames() {
-		String[] out = {"team","botteam"};
-		return out;
+		return new String[]{"team","botteam"};
 	}
 
 	public void logGet(Bot bot) {
-		ArrayList<User> owner = new ArrayList<>();
-		ArrayList<User> admins = new ArrayList<>();
-		PermissionManager.getBotAdmins().forEach(m -> {
-			Snowflake id = Snowflake.of(m);
-			if(PermissionManager.isBotOwner(m)) {
-				owner.add(bot.getClient().getUserById(id).block());
-			} else {
-				admins.add(bot.getClient().getUserById(id).block());
-			}
-		});
 
-		admins.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()));
-		owner.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()));
+		Entry<java.util.List<Snowflake>,java.util.List<Snowflake>> entry = PermissionManager.getBotAdmins();
 
-		StringBuilder adminsBuilder = new StringBuilder();
-		StringBuilder ownerBuilder = new StringBuilder();
+		Flux.fromIterable(entry.getKey())
+				.flatMap(bot.getClient()::getUserById)
+				.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
+				.collectList()
+				.zipWith(Flux.fromIterable(entry.getValue())
+						.flatMap(bot.getClient()::getUserById)
+						.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
+						.collectList()).subscribe(
+				result -> {
+					java.util.List<User> owners = result.getT1();
+					List<User> admins = result.getT2();
 
-		admins.forEach(user -> adminsBuilder.append(user.getUsername()).append("\n"));
-		owner.forEach(user -> ownerBuilder.append(user.getUsername()).append("\n"));
+					StringBuilder adminsBuilder = new StringBuilder();
+					StringBuilder ownerBuilder = new StringBuilder();
+
+					admins.forEach(user -> adminsBuilder.append(user.getUsername()).append("\n"));
+					owners.forEach(user -> ownerBuilder.append(user.getUsername()).append("\n"));
 
 
-		System.out.println("Owners:\n" + ownerBuilder.toString() + "\nAdmins:\n" + adminsBuilder.toString());
+					System.out.println("Owners:\n" + ownerBuilder.toString() + "\nAdmins:\n" + adminsBuilder.toString());
+				}
+
+		);
+
+
+
 
 	}
 }

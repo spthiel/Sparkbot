@@ -4,19 +4,16 @@ import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.object.entity.Guild;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.*;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Permission;
 import me.bot.base.polls.Poll;
 import me.main.PermissionManager;
 import org.reflections.Reflections;
+import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class Listener {
@@ -101,7 +98,7 @@ public class Listener {
 			servercount++;
 		}
 
-		String message = servercount + " Server" + (servercount > 1 ? "s" : "");
+		String message = servercount + " Server" + (servercount > 1 ? "s" : "") + " | s!help";
 		if(!bot.isStreaming()) {
 			bot.getClient().updatePresence(Presence.online(Activity.playing(message))).block();
 			System.out.println("Changed playing presence");
@@ -120,80 +117,116 @@ public class Listener {
 					return;
 				}
 				event.getMessage().getChannel().subscribe(
-					channel -> {
+					c -> {
+						TextChannel channel;
+						if(c instanceof TextChannel)
+							channel = (TextChannel) c;
+						else
+							return;
 
-						Poll poll = getPollOfPlayer(user.getId().asLong());
-						if (poll != null) {
+						event.getMessage().getGuild().subscribe(
+							guild -> {
+								boolean isOnWhitelist = isOnWhitelist(bot, guild.getId().asLong(),channel);
+								Poll poll = getPollOfPlayer(user.getId().asLong());
+								if (poll != null) {
 
-							String messagecontent = event.getMessage().getContent().orElse("");
+									String messagecontent = event.getMessage().getContent().orElse("");
 
-							if (messagecontent.startsWith("skip")) {
+									if (messagecontent.startsWith("skip")) {
 
-								if (!poll.isSkipable()) {
-									sendNotAValidPollRespond(channel);
-								} else {
-									poll.onSkip();
-								}
-
-							} else if (messagecontent.startsWith("exit")) {
-								poll.onExit();
-							} else {
-								if (!poll.onTrigger(event.getMessage()))
-									sendNotAValidPollRespond(channel);
-							}
-
-						} else {
-
-							String message = event.getMessage().getContent().orElse("");
-
-							event.getMessage().getGuild().subscribe(
-								guild -> {
-									if (channel == null)
-										return;
-
-									commands.forEach(command -> {
-
-										for (String prefix : command.getPrefixes(guild)) {
-
-											if (message.startsWith(prefix)) {
-
-												String messageWithoutPrefix = message.substring(prefix.length(), message.length());
-												String[] args = messageWithoutPrefix.split(" ");
-
-												if (args.length == 0)
-													continue;
-
-												for (String name : command.getNames()) {
-
-
-													if (args[0].equalsIgnoreCase(name) && hasPermission(command, guild, user)) {
-
-
-														if (command.requiredBotPermissions() != null) {
-															List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
-															if (required != null && required.size() != 0) {
-																MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**", 5000L);
-																return;
-															}
-														}
-
-														System.out.println(user.getUsername() + " issued " + message);
-														command.run(bot, user, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
-														return;
-													} else if (args[0].equalsIgnoreCase(name)) {
-														System.out.println(user.getUsername() + " failed to issue " + message);
-														MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
-														break;
-													}
-												}
-											}
+										if (!poll.isSkipable()) {
+											sendNotAValidPollRespond(channel);
+										} else {
+											poll.onSkip();
 										}
-									});
-								});
-						}
-					});
+
+									} else if (messagecontent.startsWith("exit")) {
+										poll.onExit();
+									} else {
+										if (!poll.onTrigger(event.getMessage()))
+											sendNotAValidPollRespond(channel);
+									}
+
+								} else {
+									procressCommand(user,guild,channel,event,isOnWhitelist);
+								}
+							}
+						);
+					}
+				);
 			}
 		);
+	}
+
+	private void procressCommand(User user, Guild guild, TextChannel channel, MessageCreateEvent event,boolean isOnWhitelist) {
+
+		String message = event.getMessage().getContent().orElse("");
+
+		if (channel == null)
+			return;
+
+		commands.forEach(command -> {
+
+			if(isOnWhitelist || !command.getType().equals(CommandType.PUBLIC))
+
+				for (String prefix : command.getPrefixes(guild)) {
+
+					if (message.startsWith(prefix)) {
+
+						String messageWithoutPrefix = message.substring(prefix.length(), message.length());
+						String[] args = messageWithoutPrefix.split(" ");
+
+						if (args.length == 0)
+							continue;
+
+						for (String name : command.getNames()) {
+
+
+							if (args[0].equalsIgnoreCase(name)) {
+
+								hasPermission(command, guild, user).subscribe(
+									hasPermissions -> {
+										if(hasPermissions) {
+											if (command.requiredBotPermissions() != null) {
+												List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
+												if (required != null && required.size() != 0) {
+													MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**", 5000L);
+													return;
+												}
+											}
+
+											System.out.println(user.getUsername() + " issued " + message);
+											command.run(bot, user, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
+										} else {
+											System.out.println(user.getUsername() + " failed to issue " + message);
+											MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
+										}
+									}
+								);
+							}
+						}
+					}
+				}
+		});
+	}
+
+	private boolean isOnWhitelist(Bot bot, long guildid, Channel channel) {
+		List<String> whitelist = getWhitelist(bot,guildid);
+		return whitelist == null || whitelist.size() == 0 || whitelist.contains(channel.getId().asString());
+	}
+
+	private List<String> getWhitelist(Bot bot, long guildid) {
+		Map<String,Object> map = bot.getResourceManager().getConfig("configs/" + guildid, "whitelist.json");
+		if(map.containsKey("channels")) {
+			Object channels = map.get("channels");
+			if(channels instanceof List && ((List) channels).size() != 0 && ((List) channels).get(0) instanceof String) {
+				//noinspection unchecked
+				return (List<String>)map.get("channels");
+			} else
+				return null;
+		} else {
+			return null;
+		}
 	}
 
 	private void sendNotAValidPollRespond(MessageChannel channel) {
@@ -215,12 +248,19 @@ public class Listener {
 
 	}
 
-	private boolean hasPermission(ICommand command, Guild guild, User author) {
+	private Mono<Boolean> hasPermission(ICommand command, Guild guild, User author) {
 		if (PermissionManager.isBotAdmin(author))
-			return true;
+			return Mono.just(true);
+		else if(command.getType() != CommandType.ADMIN)
+			return hasGuildPermissions(command, guild, author);
 		else
-			return command.hasPermissions(author, guild);
+			return Mono.just(false);
+	}
 
+	private Mono<Boolean> hasGuildPermissions(ICommand command, Guild guild, User author) {
+		return PermissionManager.getPermissions(guild,author)
+				.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(command.requiredBotPermissions()))
+				.hasElement();
 	}
 
 	//TODO: Add permission check

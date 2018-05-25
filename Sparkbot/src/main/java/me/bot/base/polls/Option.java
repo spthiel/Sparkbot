@@ -84,7 +84,7 @@ public class Option extends Poll<Integer>{
 
 		MessageCreateSpec spec = new MessageCreateSpec();
 
-		MessageBuilder builder = new MessageBuilder(getBot().getClient())
+		MessageBuilder builder = new MessageBuilder()
 				.withChannel(getChannel())
 				.appendContent("```")
 				.appendContent(head)
@@ -118,7 +118,7 @@ public class Option extends Poll<Integer>{
 	}
 
 	@Override
-	void deleteLastMessage() {
+	public void deleteLastMessage() {
 		if(lastMessage != null) {
 			lastMessage.delete().subscribe();
 		}

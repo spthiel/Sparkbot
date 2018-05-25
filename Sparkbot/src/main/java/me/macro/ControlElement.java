@@ -27,43 +27,26 @@ public enum ControlElement {
 		this.close = close;
 	}	
 	
-	public static ControlElement isStart(String cmd) {
+	public static ControlElement isStart(String line) {
 		for(ControlElement element : ControlElement.values())
 			for(String str : element.open)
-				if(str.equals(cmd))
+				if(line.startsWith(str.toLowerCase()))
 					return element;
 		return null;
 	}
-
-	public static boolean canBeMiddle(String cmd) {
-		for(ControlElement element : ControlElement.values())
-			if(element.middle != null)
-				for(String str : element.middle)
-					if(str.equals(cmd))
-						return true;
-		return false;
-	}
-
-	public static boolean canBeEnd(String cmd) {
-		for(ControlElement element : ControlElement.values())
-			for(String str : element.close)
-				if(str.equals(cmd))
-					return true;
-		return false;
-	}
 	
-	public boolean isMiddle(String cmd) {
+	public boolean isMiddle(String line) {
 		if(middle == null)
 			return false;
 		for(String str : middle)
-			if(cmd.equalsIgnoreCase(str))
+			if(line.toLowerCase().startsWith(str.toLowerCase()))
 				return true;
 		return false;
 	}
 	
-	public boolean isEnd(String cmd) {
+	public boolean isEnd(String line) {
 		for(String str : close)
-			if(cmd.equalsIgnoreCase(str))
+			if(line.toLowerCase().startsWith(str.toLowerCase()))
 				return true;
 		return false;
 	}

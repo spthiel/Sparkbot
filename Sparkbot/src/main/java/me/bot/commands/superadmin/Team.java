@@ -8,11 +8,13 @@ import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.main.Entry;
 import me.main.PermissionManager;
 import me.main.Prefixes;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Team implements ICommand {
@@ -37,18 +39,19 @@ public class Team implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
-	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		return PermissionManager.isBotAdmin(user);
-	}
+	private static Permission[] PERMISSIONS = new Permission[]{};
 
+	@Override
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
+	}
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		if(args.length < 1) {
 			return;
 		}
@@ -118,43 +121,45 @@ public class Team implements ICommand {
 	}
 
 	public void logGet(Bot bot, MessageChannel channel, Guild guild) {
-		List<User> owner = new ArrayList<>();
-		List<User> admins = new ArrayList<>();
-		PermissionManager.getBotAdmins().forEach(m -> {
-			Snowflake id = Snowflake.of(m);
-			if(PermissionManager.isBotOwner(m)) {
-				owner.add(bot.getClient().getUserById(id).block());
-			} else {
-				admins.add(bot.getClient().getUserById(id).block());
-			}
-		});
 
-		admins.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()));
-		owner.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()));
+		Entry<List<Snowflake>,List<Snowflake>> entry = PermissionManager.getBotAdmins();
 
-		StringBuilder adminsBuilder = new StringBuilder();
-		StringBuilder ownerBuilder = new StringBuilder();
+		Flux.fromIterable(entry.getKey())
+			.flatMap(bot.getClient()::getUserById)
+			.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
+			.collectList()
+			.zipWith(Flux.fromIterable(entry.getValue())
+				.flatMap(bot.getClient()::getUserById)
+				.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
+				.collectList()).subscribe(
+					result -> {
+						List<User> owners = result.getT1();
+						List<User> admins = result.getT2();
 
-		if(admins.size() != 0)
-			admins.forEach(user -> adminsBuilder.append("<@").append(user.getId().asLong()).append(">\n"));
-		else
-			adminsBuilder.append("-- None --");
+						StringBuilder adminsBuilder = new StringBuilder();
+						StringBuilder ownerBuilder = new StringBuilder();
 
-		if(owner.size() != 0)
-			owner.forEach(user -> ownerBuilder.append("<@").append(user.getId().asLong()).append(">\n"));
-		else
-			ownerBuilder.append("-- None --");
+						if(admins.size() != 0)
+							admins.forEach(user -> adminsBuilder.append("<@").append(user.getId().asLong()).append(">\n"));
+						else
+							adminsBuilder.append("-- None --");
 
+						if(owners.size() != 0)
+							owners.forEach(user -> ownerBuilder.append("<@").append(user.getId().asLong()).append(">\n"));
+						else
+							ownerBuilder.append("-- None --");
 
+						EmbedCreateSpec embed = new EmbedCreateSpec()
+								.setColor(new Color(890083).getRGB())
+								.setThumbnail(bot.getBotuser().getAvatarHash().orElse(""))
+								.setAuthor("Sparkbot Team","","")
+								.addField("Owners", ownerBuilder.toString(), true)
+								.addField("Admins", adminsBuilder.toString(), true);
 
-		EmbedCreateSpec embed = new EmbedCreateSpec()
-				.setColor(new Color(890083).getRGB())
-				.setThumbnail(bot.getBotuser().getAvatarHash().orElse(""))
-				.setAuthor("Sparkbot Team","","")
-				.addField("Owners", ownerBuilder.toString(), true)
-				.addField("Admins", adminsBuilder.toString(), true);
+						channel.createMessage(new MessageCreateSpec().setEmbed(embed)).subscribe();
+					}
+		);
 
-		channel.createMessage(new MessageCreateSpec().setEmbed(embed));
 	}
 
 	@Override

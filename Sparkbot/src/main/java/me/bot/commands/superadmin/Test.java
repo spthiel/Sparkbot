@@ -7,11 +7,10 @@ import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.bot.base.configs.HTTP;
 import me.main.PermissionManager;
 import me.main.Prefixes;
+import reactor.core.publisher.Mono;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,18 +35,19 @@ public class Test implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
-	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		return PermissionManager.isBotAdmin(user);
-	}
+	private static Permission[] PERMISSIONS = new Permission[]{};
 
+	@Override
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
+	}
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 
 		channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec()
 				.addField("Command",command,true)

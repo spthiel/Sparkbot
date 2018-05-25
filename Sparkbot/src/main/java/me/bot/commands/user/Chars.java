@@ -6,6 +6,7 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,24 +34,24 @@ public class Chars implements ICommand {
 		return Prefixes.getNormalPrefixesFor(guild);
 	}
 
-	@Override
-	public boolean hasPermissions(User user, Guild guild) {
-		return false;
-	}
+	private static Permission[] PERMISSIONS = new Permission[]{};
 
+	@Override
+	public Permission[] getRequiredPermissions() {
+		return PERMISSIONS;
+	}
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, MessageChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		if(args.length >= 1) {
 			switch(args[0]) {
 				case "new":
 				case "create":
-					Thread t = new Thread(() -> createCharacter(bot, author, channel, guild));
-					t.run();
+					createCharacter(bot, author, channel, guild);
 					break;
 				case "delete":
 				case "remove":
@@ -72,7 +73,7 @@ public class Chars implements ICommand {
 
 	private int createCharacter(Bot bot, User user,Channel channel, Guild guild) {
 
-		Map<String,Object> object = bot.getResourceManager().getConfig("configs/rp/" + guild.getId().asLong(), "settings.json");
+		Map<String,Object> object = getConfig(bot,guild.getId().asLong());
 		if (object.containsKey("questions")) {
 			ArrayList<Object> questions = (ArrayList)object.get("questions");
 			Map<String,Object> character = new HashMap<>();
@@ -94,5 +95,13 @@ public class Chars implements ICommand {
 			return -2;
 		}
 		return -1;
+	}
+
+	private Map<String,Object> getConfig(Bot bot,long guildid) {
+		return bot.getResourceManager().getConfig("configs/" + guildid + "/rp", "settings.json");
+	}
+
+	private void write(Bot bot,long guildid,Map<String,Object> object) {
+		bot.getResourceManager().writeConfig("configs/" + guildid + "/rp", "settings.json", object);
 	}
 }
