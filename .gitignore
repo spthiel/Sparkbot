@@ -3,5 +3,7 @@
 /Sparkbot/.idea/
 /Sparkbot/modules/
 
+/Sparkbot/src/main/java/me/main/Constants.java
+
 /Sparkbot/BotBase.iml
 /Sparkbot/dependency-reduced-pom.xml
