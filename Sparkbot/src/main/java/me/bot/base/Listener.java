@@ -9,13 +9,11 @@ import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Permission;
 import me.bot.base.polls.Poll;
-import me.main.PermissionManager;
 import org.reflections.Reflections;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class Listener {
 
 	public ArrayList<ICommand> commands = new ArrayList<>();
@@ -111,18 +109,18 @@ public class Listener {
 	public void onMessageReceivedEvent(MessageCreateEvent event) {
 
 
-		event.getMessage().getAuthor().subscribe(
-			user -> {
-				if (user == null || user.isBot()) {
+		event.getMessage().getChannel().subscribe(
+			c -> {
+				TextChannel channel;
+				if(c instanceof TextChannel)
+					channel = (TextChannel) c;
+				else
 					return;
-				}
-				event.getMessage().getChannel().subscribe(
-					c -> {
-						TextChannel channel;
-						if(c instanceof TextChannel)
-							channel = (TextChannel) c;
-						else
+				event.getMessage().getAuthor().subscribe(
+					user -> {
+						if (user == null || user.isBot()) {
 							return;
+						}
 
 						event.getMessage().getGuild().subscribe(
 							guild -> {
@@ -184,7 +182,7 @@ public class Listener {
 
 							if (args[0].equalsIgnoreCase(name)) {
 
-								hasPermission(command, guild, user).subscribe(
+								command.hasPermission(guild, user).subscribe(
 									hasPermissions -> {
 										if(hasPermissions) {
 											if (command.requiredBotPermissions() != null) {
@@ -246,21 +244,6 @@ public class Listener {
 		}
 		return null;
 
-	}
-
-	private Mono<Boolean> hasPermission(ICommand command, Guild guild, User author) {
-		if (PermissionManager.isBotAdmin(author))
-			return Mono.just(true);
-		else if(command.getType() != CommandType.ADMIN)
-			return hasGuildPermissions(command, guild, author);
-		else
-			return Mono.just(false);
-	}
-
-	private Mono<Boolean> hasGuildPermissions(ICommand command, Guild guild, User author) {
-		return PermissionManager.getPermissions(guild,author)
-				.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(command.requiredBotPermissions()))
-				.hasElement();
 	}
 
 	//TODO: Add permission check

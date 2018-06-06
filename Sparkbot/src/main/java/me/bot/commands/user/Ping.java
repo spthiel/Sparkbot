@@ -10,6 +10,7 @@ import me.bot.base.ICommand;
 import me.main.Prefixes;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -48,13 +49,21 @@ public class Ping implements ICommand {
 
     @Override
     public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
-        ZonedDateTime zdt = message.getTimestamp().atZone(ZoneOffset.UTC);
+        Instant invoker = message.getTimestamp();
         channel.createMessage(new MessageCreateSpec().setContent("**Pong!**")).subscribe(
             message1 -> {
-                ZonedDateTime now = message1.getTimestamp().atZone(ZoneOffset.UTC);
-                long delay = now.toInstant().toEpochMilli()-zdt.toInstant().toEpochMilli();
+                Instant messgeTimestamp = message1.getTimestamp();
+                long delay = messgeTimestamp.toEpochMilli()-invoker.toEpochMilli();
 
-                message1.edit(new MessageEditSpec().setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message.")).subscribe();
+                message1.edit(new MessageEditSpec().setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message.")).subscribe(
+                        message2 -> {
+                            Instant edited = message2.getEditedTimestamp().orElse(null);
+                            if(edited != null) {
+                                long delay2 = edited.toEpochMilli()-messgeTimestamp.toEpochMilli();
+                                message2.edit(new MessageEditSpec().setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message and " + delay2 + " to edit it again.")).subscribe();
+                            }
+                        }
+                );
             });
 
     }

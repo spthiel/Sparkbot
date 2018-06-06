@@ -25,6 +25,7 @@ public class Bot {
     private boolean streaming;
     private ResourceManager resourceManager;
     private DiscordUtils utils;
+    private long startTime;
 
     public Bot(String token, String name, String basefolder) {
 
@@ -125,6 +126,7 @@ public class Bot {
     }
 
     public void login() {
+    	startTime = System.currentTimeMillis();
     	client.login().block();
     }
     

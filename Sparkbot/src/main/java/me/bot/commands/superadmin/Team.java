@@ -120,6 +120,8 @@ public class Team implements ICommand {
 
 	}
 
+	private static String AVATAR_URL = "https://cdn.discordapp.com/avatars/%ID%/%HASH%.png?size=2048";
+
 	public void logGet(Bot bot, MessageChannel channel, Guild guild) {
 
 		Entry<List<Snowflake>,List<Snowflake>> entry = PermissionManager.getBotAdmins();
@@ -149,9 +151,11 @@ public class Team implements ICommand {
 						else
 							ownerBuilder.append("-- None --");
 
+						String url = AVATAR_URL.replace("%ID%",bot.getBotuser().getId().asLong() + "").replace("%HASH%",bot.getBotuser().getAvatarHash().orElse(""));
+
 						EmbedCreateSpec embed = new EmbedCreateSpec()
-								.setColor(new Color(890083).getRGB())
-								.setThumbnail(bot.getBotuser().getAvatarHash().orElse(""))
+								.setColor(890083)
+								.setThumbnail(url)
 								.setAuthor("Sparkbot Team","","")
 								.addField("Owners", ownerBuilder.toString(), true)
 								.addField("Admins", adminsBuilder.toString(), true);
