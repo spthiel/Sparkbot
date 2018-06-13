@@ -9,12 +9,10 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Entry;
-import me.main.PermissionManager;
+import me.bot.base.configs.PermissionManager;
 import me.main.Prefixes;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.awt.*;
 import java.util.List;
 
 public class Team implements ICommand {
@@ -39,19 +37,18 @@ public class Team implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{};
-
 	@Override
-	public Permission[] getRequiredPermissions() {
-		return PERMISSIONS;
+	public List<Permission> getRequiredPermissions() {
+		return null;
 	}
+
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		if(args.length < 1) {
 			return;
 		}
@@ -80,15 +77,15 @@ public class Team implements ICommand {
 					if (!idstring.matches("\\d+")) {
 						return;
 					}
-					if(!PermissionManager.isBotOwner(author)) {
+					if(!bot.getPermissionManager().isBotOwner(author)) {
 						return;
 					}
 					long id = Long.parseLong(idstring);
-					if(PermissionManager.isBotAdmin(id)) {
+					if(bot.getPermissionManager().isBotAdmin(id)) {
 						return;
 					}
 
-					boolean returned = PermissionManager.addBotAdmin(id);
+					boolean returned = bot.getPermissionManager().addBotAdmin(id);
 
 					String out = (returned ? "Successfully added <@" + id + "> to bot admins." : "Failed to add <@" + id + "> to bot admins.");
 
@@ -100,15 +97,15 @@ public class Team implements ICommand {
 					if (!idstring.matches("\\d+")) {
 						return;
 					}
-					if(!PermissionManager.isBotOwner(author)) {
+					if(!bot.getPermissionManager().isBotOwner(author)) {
 						return;
 					}
 					id = Long.parseLong(idstring);
-					if(PermissionManager.isBotOwner(id)) {
+					if(bot.getPermissionManager().isBotOwner(id)) {
 						return;
 					}
 
-					returned = PermissionManager.removeBotAdmin(id);
+					returned = bot.getPermissionManager().removeBotAdmin(id);
 
 					out = (returned ? "Successfully removed <@" + id + "> to bot admins." : "Failed to remove <@" + id + "> to bot admins.");
 
@@ -124,7 +121,7 @@ public class Team implements ICommand {
 
 	public void logGet(Bot bot, MessageChannel channel, Guild guild) {
 
-		Entry<List<Snowflake>,List<Snowflake>> entry = PermissionManager.getBotAdmins();
+		Entry<List<Snowflake>,List<Snowflake>> entry = bot.getPermissionManager().getBotAdmins();
 
 		Flux.fromIterable(entry.getKey())
 			.flatMap(bot.getClient()::getUserById)
@@ -167,10 +164,13 @@ public class Team implements ICommand {
 	}
 
 	@Override
-	public void onLoad() {
-		PermissionManager.setupPermfile();
-		if(!PermissionManager.isBotOwner(261538420952662016L)) {
-			PermissionManager.addBotOwner(261538420952662016L);
+	public void onLoad(final Bot bot) {
+
+		System.out.println("on load called");
+		bot.getPermissionManager().setupPermfile();
+		if(!bot.getPermissionManager().isBotOwner(261538420952662016L)) {
+			System.out.println("Add owner required");
+			bot.getPermissionManager().addBotOwner(261538420952662016L);
 		}
 
 	}

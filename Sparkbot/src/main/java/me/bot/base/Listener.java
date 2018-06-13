@@ -42,26 +42,17 @@ public class Listener {
 
 		clearPolls.start();
 
-		Reflections reflections = new Reflections("me.bot.commands");
-		reflections.getSubTypesOf(ICommand.class).forEach(i -> {
-			try {
-				ICommand command = i.newInstance();
-				addCommands(command);
-			} catch (Exception ignored) {
-			}
-
-		});
 	}
 
 	public List<ICommand> getCommands() {
 		return commands;
 	}
 
-	public void addCommands(ICommand... c) {
-		Arrays.stream(c).forEach(ICommand -> {
-			ICommand.onLoad();
-			commands.add(ICommand);
-			System.out.println(ICommand.getNames()[0] + " has been enabled.");
+	public void addCommands(Bot bot, ICommand... c) {
+		Arrays.stream(c).forEach(command -> {
+			command.onLoad(bot);
+			commands.add(command);
+			System.out.println(command.getNames()[0] + " has been enabled.");
 		});
 	}
 
@@ -106,57 +97,54 @@ public class Listener {
 		}
 	}
 
-	public void onMessageReceivedEvent(MessageCreateEvent event) {
-
+	public void onMessageReceivedEvent(final MessageCreateEvent event) {
 
 		event.getMessage().getChannel().subscribe(
 			c -> {
-				TextChannel channel;
+				final TextChannel channel;
 				if(c instanceof TextChannel)
 					channel = (TextChannel) c;
 				else
 					return;
-				event.getMessage().getAuthor().subscribe(
-					user -> {
-						if (user == null || user.isBot()) {
-							return;
-						}
+				final Member member = event.getMember().orElse(null);
 
-						event.getMessage().getGuild().subscribe(
-							guild -> {
-								boolean isOnWhitelist = isOnWhitelist(bot, guild.getId().asLong(),channel);
-								Poll poll = getPollOfPlayer(user.getId().asLong());
-								if (poll != null) {
+				if (member == null || member.isBot()) {
+					return;
+				}
 
-									String messagecontent = event.getMessage().getContent().orElse("");
+				event.getMessage().getGuild().subscribe(
+					guild -> {
+						boolean isOnWhitelist = isOnWhitelist(bot, guild.getId().asLong(),channel);
+						final Poll poll = getPollOfPlayer(member.getId().asLong());
+						if (poll != null) {
 
-									if (messagecontent.startsWith("skip")) {
+							final String messagecontent = event.getMessage().getContent().orElse("");
 
-										if (!poll.isSkipable()) {
-											sendNotAValidPollRespond(channel);
-										} else {
-											poll.onSkip();
-										}
+							if (messagecontent.startsWith("skip")) {
 
-									} else if (messagecontent.startsWith("exit")) {
-										poll.onExit();
-									} else {
-										if (!poll.onTrigger(event.getMessage()))
-											sendNotAValidPollRespond(channel);
-									}
-
+								if (!poll.isSkipable()) {
+									sendNotAValidPollRespond(channel);
 								} else {
-									procressCommand(user,guild,channel,event,isOnWhitelist);
+									poll.onSkip();
 								}
+
+							} else if (messagecontent.startsWith("exit")) {
+								poll.onExit();
+							} else {
+								if (!poll.onTrigger(event.getMessage()))
+									sendNotAValidPollRespond(channel);
 							}
-						);
+
+						} else {
+							procressCommand(member,guild,channel,event,isOnWhitelist);
+						}
 					}
 				);
 			}
 		);
 	}
 
-	private void procressCommand(User user, Guild guild, TextChannel channel, MessageCreateEvent event,boolean isOnWhitelist) {
+	private void procressCommand(final Member member, final Guild guild, final TextChannel channel, final MessageCreateEvent event, final boolean isOnWhitelist) {
 
 		String message = event.getMessage().getContent().orElse("");
 
@@ -182,7 +170,7 @@ public class Listener {
 
 							if (args[0].equalsIgnoreCase(name)) {
 
-								command.hasPermission(guild, user).subscribe(
+								command.hasPermission(bot, guild, member).subscribe(
 									hasPermissions -> {
 										if(hasPermissions) {
 											if (command.requiredBotPermissions() != null) {
@@ -193,11 +181,11 @@ public class Listener {
 												}
 											}
 
-											System.out.println(user.getUsername() + " issued " + message);
-											command.run(bot, user, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
+											System.out.println(member.getUsername() + " issued " + message);
+											command.run(bot, member, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
 										} else {
-											System.out.println(user.getUsername() + " failed to issue " + message);
-											MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + user.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
+											System.out.println(member.getUsername() + " failed to issue " + message);
+											MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> | **" + member.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
 										}
 									}
 								);

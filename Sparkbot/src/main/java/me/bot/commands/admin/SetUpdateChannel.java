@@ -6,11 +6,9 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.configs.ResourceManager;
-import me.main.PermissionManager;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
 
 public class SetUpdateChannel implements ICommand {
@@ -34,10 +32,10 @@ public class SetUpdateChannel implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{Permission.MANAGE_GUILD};
+	private static List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_GUILD);
 
 	@Override
-	public Permission[] getRequiredPermissions() {
+	public List<Permission> getRequiredPermissions() {
 		return PERMISSIONS;
 	}
 
@@ -47,13 +45,13 @@ public class SetUpdateChannel implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		ResourceManager manager = bot.getResourceManager();
 
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 
 	}
 }

@@ -7,6 +7,7 @@ import me.main.Prefixes;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,19 +32,20 @@ public class Whitelist implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{Permission.MANAGE_GUILD};
+	private static List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_GUILD);
 
 	@Override
-	public Permission[] getRequiredPermissions() {
+	public List<Permission> getRequiredPermissions() {
 		return PERMISSIONS;
 	}
+
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		Map<String,Object> map = getConfig(bot,guild.getId().asLong());
 		List<String> whitelist;
 		if(map.containsKey("channels")) {
@@ -82,7 +84,7 @@ public class Whitelist implements ICommand {
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 
 	}
 

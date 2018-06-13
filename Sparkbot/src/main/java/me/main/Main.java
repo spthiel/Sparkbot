@@ -8,10 +8,10 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.channels.Channel;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class Main {
-    
-    private static Bot bot;
+
     private static ConsoleCommandManager commands;
 
     public static void main(String[] args) {
@@ -25,7 +25,7 @@ public class Main {
 	    try {
 		    String base = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent() + "/storage/";
 		    System.out.println("Basefile: " + base);
-	        bot = new Bot(Constants.TOKEN,"Sparkbot",base, "https://www.twitch.tv/discordsparkbot");
+	        Bot bot = new Bot(Constants.TOKEN,"Sparkbot",base, "https://www.twitch.tv/discordsparkbot","me.bot.commands");
 
 		    bot.login();
 
@@ -34,8 +34,6 @@ public class Main {
 		    e.printStackTrace();
 		    System.out.println("Exit main with error");
 	    }
-
-//		File file = Paths.get("storage").toFile();
 
 
     }
@@ -46,10 +44,6 @@ public class Main {
 
     public static ConsoleCommandManager getCommandManager() {
         return commands;
-    }
-
-    public static Bot getBot() {
-        return bot;
     }
     
 }

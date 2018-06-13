@@ -8,15 +8,20 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.User;
+import me.bot.base.configs.PermissionManager;
 import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
 import me.main.Main;
+import org.reflections.Reflections;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Bot {
-    
+
+	private static List<Bot> bots = new ArrayList<>();
+
     private DiscordClient client;
     private User botuser;
     private Listener listener;
@@ -24,35 +29,39 @@ public class Bot {
     private String url;
     private boolean streaming;
     private ResourceManager resourceManager;
+    private PermissionManager permissionManager;
     private DiscordUtils utils;
     private long startTime;
 
-    public Bot(String token, String name, String basefolder) {
+    public Bot(String token, String name, String basefolder, String commandPackage) {
 
         this.streaming = false;
 
-	    createBot(token, name, basefolder);
+	    createBot(token, name, basefolder, commandPackage);
 
     }
 
-    public Bot(String token, String name, String basefolder, String streamingurl) {
+    public Bot(String token, String name, String basefolder, String streamingurl, String commandPackage) {
 
         this.streaming = true;
         this.url = streamingurl;
 
-        createBot(token, name, basefolder);
+        createBot(token, name, basefolder, commandPackage);
 
     }
 
-    private void createBot(String token, String name, String basefolder) {
+    private void createBot(String token, String name, String basefolder, String commandPackage) {
+
+    	bots.add(this);
 
 	    this.name = name;
 
 	    this.resourceManager = new ResourceManager(basefolder);
+	    this.permissionManager = new PermissionManager(this);
 	    this.utils = new DiscordUtils(this);
 
 	    client = createClient(token);
-	    initListeners();
+	    initListeners(commandPackage);
 	    client.getApplicationInfo().subscribe(
 	    		value -> client.getUserById(value.getId()).subscribe(
 					    v -> {
@@ -66,7 +75,7 @@ public class Bot {
 	    );
     }
 
-    private void initListeners() {
+    private void initListeners(String commandPackage) {
 
 	    EventDispatcher dispatcher = client.getEventDispatcher();
 	    listener = new Listener(this);
@@ -75,9 +84,24 @@ public class Bot {
 	    dispatcher.on(GuildCreateEvent.class).subscribe(listener::onJoinServer);
 	    dispatcher.on(MessageCreateEvent.class).subscribe(listener::onMessageReceivedEvent);
 
+
+	    Reflections reflections = new Reflections(commandPackage);
+	    reflections.getSubTypesOf(ICommand.class).forEach(i -> {
+		    try {
+			    ICommand command = i.newInstance();
+			    addCommands(command);
+		    } catch (Exception ignored) {
+		    }
+
+	    });
+
     }
 
-    public User getBotuser() {
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public User getBotuser() {
     	return botuser;
     }
 
@@ -97,8 +121,8 @@ public class Bot {
         return url;
     }
 
-    public void addCommands(ICommand... ICommands){
-        listener.addCommands(ICommands);
+    public void addCommands(ICommand... command){
+        listener.addCommands(this, command);
     }
 
     public Poll addPoll(Poll poll){
@@ -122,7 +146,6 @@ public class Bot {
         System.out.println("Disabling");
         if (client != null)
             client.logout();
-	    Main.exit();
     }
 
     public void login() {
@@ -134,4 +157,17 @@ public class Bot {
         ClientBuilder clientBuilder = new ClientBuilder(token);
         return clientBuilder.build();
     }
+
+	public PermissionManager getPermissionManager() {
+		return permissionManager;
+	}
+
+
+	public static Bot getBotByName(String name) {
+    	if(bots.size() == 0)
+    		return null;
+    	if(name.trim().equalsIgnoreCase(""))
+    		return bots.get(0);
+		return bots.stream().filter(bot -> bot.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+	}
 }

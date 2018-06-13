@@ -15,7 +15,7 @@ public class Prefixes {
         String sprefix = getNormalPrefixFor(guild);
         String prefix = getNormalPrefix();
         String[] out;
-        if(sprefix == prefix) {
+        if(sprefix.equalsIgnoreCase(prefix)) {
             out = new String[1];
             out[0] = prefix;
         } else {
@@ -31,7 +31,7 @@ public class Prefixes {
         String sprefix = getAdminPrefixFor(guild);
         String prefix = getAdminPrefix();
         String[] out;
-        if(sprefix == prefix) {
+        if(sprefix.equalsIgnoreCase(prefix)) {
             out = new String[1];
             out[0] = prefix;
         } else {

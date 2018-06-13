@@ -31,11 +31,9 @@ public class ModHelp implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{};
-
 	@Override
-	public Permission[] getRequiredPermissions() {
-		return PERMISSIONS;
+	public List<Permission> getRequiredPermissions() {
+		return null;
 	}
 
 	@Override
@@ -44,7 +42,7 @@ public class ModHelp implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 
 		ArrayList<String> out = new ArrayList<>();
 		final String serverprefix = Prefixes.getAdminPrefixFor(guild);
@@ -62,7 +60,7 @@ public class ModHelp implements ICommand {
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 
 	}
 }

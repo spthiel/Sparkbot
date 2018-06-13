@@ -1,4 +1,4 @@
-package me.main;
+package me.bot.base.configs;
 
 
 import discord4j.core.object.entity.Guild;
@@ -8,6 +8,10 @@ import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.PermissionSet;
 import discord4j.core.object.util.Snowflake;
+import me.bot.base.Bot;
+import me.bot.base.configs.ResourceManager;
+import me.main.Entry;
+import me.main.Main;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -17,15 +21,21 @@ import java.util.Map;
 
 public class PermissionManager {
 
+	private Bot bot;
+
+	public PermissionManager(Bot bot) {
+		this.bot = bot;
+	}
+
 	private static final String
 			directory = "configs/main",
 			filename = "botowner.json"
 	;
 
-	private static Map<String,Object> config;
+	private Map<String,Object> config;
 
-	public static Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
-		return Main.getBot().getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))
+	public Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
+		return bot.getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))
 				.flatMapMany(Member::getRoles)
 				.map(Role::getPermissions)
 				.map(PermissionSet::asEnumSet)
@@ -36,8 +46,8 @@ public class PermissionManager {
 				});
 	}
 
-	public static Mono<EnumSet<Permission>> getPermissions(Guild guild, User user) {
-		return Main.getBot().getClient().getMemberById(guild.getId(), user.getId())
+	public Mono<EnumSet<Permission>> getPermissions(Guild guild, User user) {
+		return bot.getClient().getMemberById(guild.getId(), user.getId())
 				.flatMapMany(Member::getRoles)
 				.map(Role::getPermissions)
 				.map(PermissionSet::asEnumSet)
@@ -48,7 +58,7 @@ public class PermissionManager {
 				});
 	}
 
-	public static void setupPermfile() {
+	public void setupPermfile() {
 
 		if(updateConfigIfUnset()) {
 
@@ -64,7 +74,7 @@ public class PermissionManager {
 		}
 	}
 
-	public static Entry<List<Snowflake>,List<Snowflake>> getBotAdmins() {
+	public Entry<List<Snowflake>,List<Snowflake>> getBotAdmins() {
 
 		if(updateConfigIfUnset()) {
 			final List<Snowflake> owners = new ArrayList<>();
@@ -80,7 +90,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean isBotAdmin(User user) {
+	public boolean isBotAdmin(User user) {
 
 		final long id = user.getId().asLong();
 
@@ -88,7 +98,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean isBotAdmin(final long id) {
+	public boolean isBotAdmin(final long id) {
 
 		if(updateConfigIfUnset() && config.containsKey("Admins")) {
 			return ((ArrayList)config.get("Admins")).contains(id) || isBotOwner(id);
@@ -98,7 +108,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean addBotAdmin(User user) {
+	public boolean addBotAdmin(User user) {
 
 		final long id = user.getId().asLong();
 
@@ -106,7 +116,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean addBotAdmin(final long id) {
+	public boolean addBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
 			List<Long> admins;
@@ -134,7 +144,7 @@ public class PermissionManager {
 		}
 	}
 
-	public static boolean removeBotAdmin(User user) {
+	public boolean removeBotAdmin(User user) {
 
 		final long id = user.getId().asLong();
 
@@ -142,7 +152,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean removeBotAdmin(final long id) {
+	public boolean removeBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
 			List<Object> toPut = (ArrayList)config.get("Admins");
@@ -160,7 +170,7 @@ public class PermissionManager {
 		}
 	}
 
-	public static boolean isBotOwner(User user) {
+	public boolean isBotOwner(User user) {
 
 		final long id = user.getId().asLong();
 
@@ -168,7 +178,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean isBotOwner(final long id) {
+	public boolean isBotOwner(final long id) {
 
 		if(updateConfigIfUnset() && config.containsKey("Owners")) {
 			return ((ArrayList)config.get("Owners")).contains(id);
@@ -178,7 +188,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean addBotOwner(User user) {
+	public boolean addBotOwner(User user) {
 
 		final long id = user.getId().asLong();
 
@@ -186,12 +196,13 @@ public class PermissionManager {
 
 	}
 
-	public static boolean addBotOwner(final long id) {
+	public boolean addBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
 			List<Long> owners = getBotOwnersList();
 			owners.add(id);
 			config.put("Owners",owners);
+			System.out.println("added owner");
 			updateConfig();
 			return true;
 		} else {
@@ -199,7 +210,7 @@ public class PermissionManager {
 		}
 	}
 
-	public static boolean removeBotOwner(User user) {
+	public boolean removeBotOwner(User user) {
 
 		final long id = user.getId().asLong();
 
@@ -207,7 +218,7 @@ public class PermissionManager {
 
 	}
 
-	public static boolean removeBotOwner(final long id) {
+	public boolean removeBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
 			System.out.println(config.get("Owners").getClass().getCanonicalName());
@@ -227,28 +238,25 @@ public class PermissionManager {
 	}
 
 
-	public static boolean updateConfigIfUnset() {
-		if(config != null)
+	public boolean updateConfigIfUnset() {
+		if(config != null) {
 			return true;
-		if(Main.getBot() == null)
-			return false;
+		}
 
-		config = Main.getBot().getResourceManager().getConfig(directory,filename);
+		config = bot.getResourceManager().getConfig(directory,filename);
 		return true;
 	}
 
-	public static void updateConfig() {
+	public void updateConfig() {
 
 		if(config == null)
 			return;
-		if(Main.getBot() == null)
-			return;
 
-		Main.getBot().getResourceManager().writeConfig(directory,filename,config);
+		bot.getResourceManager().writeConfig(directory,filename,config);
 
 	}
 
-	private static List<Long> getBotAdminsList() {
+	private List<Long> getBotAdminsList() {
 
 		if(config.containsKey("Admins")) {
 			if (config.get("Admins") instanceof List) {
@@ -267,7 +275,7 @@ public class PermissionManager {
 		}
 	}
 
-	private static List<Long> getBotOwnersList() {
+	private List<Long> getBotOwnersList() {
 
 		if(config.containsKey("Owners")) {
 			if (config.get("Owners") instanceof List) {

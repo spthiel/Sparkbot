@@ -2,36 +2,41 @@ package me.bot.base;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
-import me.main.PermissionManager;
+import me.bot.base.configs.PermissionManager;
 import reactor.core.publisher.Mono;
 
-import java.util.EnumSet;
+import java.security.Permissions;
 import java.util.List;
 
 public interface ICommand {
 
-	default Mono<Boolean> hasPermission(Guild guild, User author) {
-		if (PermissionManager.isBotAdmin(author))
+	default Mono<Boolean> hasPermission(Bot bot, Guild guild, Member author) {
+
+		if (bot.getPermissionManager().isBotAdmin(author))
 			return Mono.just(true);
 		else if(getType() != CommandType.ADMIN)
-			return hasGuildPermissions(guild, author);
+			return hasGuildPermissions(bot, guild, author);
 		else
 			return Mono.just(false);
 	}
 
-	default Mono<Boolean> hasGuildPermissions(Guild guild, User author) {
-		return PermissionManager.getPermissions(guild,author)
-				.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(requiredBotPermissions()))
+	default Mono<Boolean> hasGuildPermissions(Bot bot, Guild guild, Member author) {
+		final List<Permission> perms = getRequiredPermissions();
+		if(perms != null)
+			return bot.getPermissionManager().getPermissions(guild,author)
+				.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(perms))
 				.hasElement();
+		else
+			return Mono.just(true);
 	}
 
 	CommandType getType();
 	String getHelp();
 	String[] getNames();
 	String[] getPrefixes(final Guild guild);
-	Permission[] getRequiredPermissions();
+	List<Permission> getRequiredPermissions();
 	List<Permission> requiredBotPermissions();
-	void run(final Bot bot, final User author, final TextChannel channel, final Guild guild, final Message message, final String commandname, final String[] args, final String content);
-	void onLoad();
+	void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandname, final String[] args, final String content);
+	void onLoad(final Bot bot);
 
 }

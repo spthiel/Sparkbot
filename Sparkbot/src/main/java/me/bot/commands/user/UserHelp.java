@@ -31,19 +31,18 @@ public class UserHelp implements ICommand {
 		return Prefixes.getNormalPrefixesFor(guild);
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{};
-
 	@Override
-	public Permission[] getRequiredPermissions() {
-		return PERMISSIONS;
+	public List<Permission> getRequiredPermissions() {
+		return null;
 	}
+
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		ArrayList<String> out = new ArrayList<>();
 		final String serverprefix = Prefixes.getNormalPrefixFor(guild);
 		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.PUBLIC)).collect(Collectors.toList()).forEach(iCommand -> {
@@ -61,7 +60,7 @@ public class UserHelp implements ICommand {
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 
 	}
 }

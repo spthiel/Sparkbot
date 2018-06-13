@@ -33,12 +33,11 @@ public class Invite implements ICommand {
         return Prefixes.getNormalPrefixesFor(guild);
     }
 
-    private static Permission[] PERMISSIONS = new Permission[]{};
-
     @Override
-    public Permission[] getRequiredPermissions() {
-        return PERMISSIONS;
+    public List<Permission> getRequiredPermissions() {
+        return null;
     }
+
     @Override
     public List<Permission> requiredBotPermissions() {
         return null;
@@ -47,13 +46,13 @@ public class Invite implements ICommand {
     private String LINK = "http://bit.ly/invSparkbot";
 
     @Override
-    public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+    public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
        channel.createMessage(new MessageCreateSpec().setContent("Hello, <@" + author.getId().asLong() + "> you can invite me with <" + LINK + ">")).subscribe();
 
     }
 
     @Override
-    public void onLoad() {
+    public void onLoad(final Bot bot) {
 
     }
 }

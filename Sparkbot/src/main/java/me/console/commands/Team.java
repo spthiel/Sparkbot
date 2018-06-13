@@ -1,17 +1,14 @@
 package me.console.commands;
 
-import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
 import me.console.ConsoleCommand;
 import me.main.Entry;
 import me.main.Main;
-import me.main.PermissionManager;
+import me.bot.base.configs.PermissionManager;
 import reactor.core.publisher.Flux;
 
-import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Team implements ConsoleCommand {
@@ -23,30 +20,30 @@ public class Team implements ConsoleCommand {
 
 	@Override
 	public void run(String... args) {
-		if(args.length < 1) {
+		if(args.length < 2) {
 			return;
 		}
 
-		if(args.length == 1) {
+		if(args.length == 2) {
 
 
-			switch(args[0]) {
+			switch(args[1]) {
 				case "get":
-					logGet(Main.getBot());
+					logGet(Bot.getBotByName(args[0]));
 					break;
 			}
 
 		} else {
 
-
-			String action = args[0];
+			Bot bot = Bot.getBotByName(args[0]);
+			String action = args[1];
 
 			switch (action) {
 				case "get":
-					logGet(Main.getBot());
+					logGet(Bot.getBotByName(args[0]));
 					break;
 				case "add":
-					String idstring = args[1];
+					String idstring = args[2];
 
 					if (!idstring.matches("\\d+")) {
 						System.out.println("id is not a number");
@@ -54,12 +51,12 @@ public class Team implements ConsoleCommand {
 					}
 
 					long id = Long.parseLong(idstring);
-					if(PermissionManager.isBotAdmin(id)) {
+					if(bot.getPermissionManager().isBotAdmin(id)) {
 						System.out.println("User is already admin");
 						return;
 					}
 
-					boolean returned = PermissionManager.addBotOwner(id);
+					boolean returned = bot.getPermissionManager().addBotOwner(id);
 
 					String out = (returned ? "Successfully added " + id + " to bot admins." : "Failed to add " + id + " to bot admins.");
 
@@ -67,16 +64,17 @@ public class Team implements ConsoleCommand {
 
 					break;
 				case "remove":
+					bot = Bot.getBotByName(args[0]);
 					idstring = args[2];
 					if (!idstring.matches("\\d+")) {
 						return;
 					}
 					id = Long.parseLong(idstring);
-					if(PermissionManager.isBotOwner(id)) {
+					if(bot.getPermissionManager().isBotOwner(id)) {
 						return;
 					}
 
-					returned = PermissionManager.removeBotAdmin(id);
+					returned = bot.getPermissionManager().removeBotAdmin(id);
 
 					out = (returned ? "Successfully removed " + id + " to bot admins." : "Failed to remove " + id + " to bot admins.");
 
@@ -100,7 +98,7 @@ public class Team implements ConsoleCommand {
 
 	public void logGet(Bot bot) {
 
-		Entry<java.util.List<Snowflake>,java.util.List<Snowflake>> entry = PermissionManager.getBotAdmins();
+		Entry<java.util.List<Snowflake>,java.util.List<Snowflake>> entry = bot.getPermissionManager().getBotAdmins();
 
 		Flux.fromIterable(entry.getKey())
 				.flatMap(bot.getClient()::getUserById)

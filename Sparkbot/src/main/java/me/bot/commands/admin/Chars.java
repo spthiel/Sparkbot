@@ -10,9 +10,7 @@ import me.bot.base.polls.Bool;
 import me.bot.base.polls.Input;
 import me.bot.base.polls.Option;
 import me.bot.base.polls.PollExitType;
-import me.main.PermissionManager;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 
@@ -33,10 +31,10 @@ public class Chars implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{Permission.MANAGE_GUILD};
+	private static List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_GUILD);
 
 	@Override
-	public Permission[] getRequiredPermissions() {
+	public List<Permission> getRequiredPermissions() {
 		return PERMISSIONS;
 	}
 
@@ -46,7 +44,7 @@ public class Chars implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(Bot bot, final Member author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
 		if (args.length >= 1) {
 
 			if(guild == null || channel == null)
@@ -130,7 +128,7 @@ public class Chars implements ICommand {
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 	}
 
 	private Map<String,Object> getConfig(Bot bot,long guildid) {

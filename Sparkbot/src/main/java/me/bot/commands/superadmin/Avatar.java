@@ -5,9 +5,7 @@ import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.main.PermissionManager;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -32,11 +30,9 @@ public class Avatar implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{};
-
 	@Override
-	public Permission[] getRequiredPermissions() {
-		return PERMISSIONS;
+	public List<Permission> getRequiredPermissions() {
+		return null;
 	}
 
 	@Override
@@ -45,10 +41,11 @@ public class Avatar implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		if(args.length > 1) {
 
 			//TODO: Fix stuff
+
 
 //			try {
 //				RequestBuffer.request(() -> {
@@ -68,7 +65,7 @@ public class Avatar implements ICommand {
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 
 	}
 }

@@ -1,19 +1,14 @@
 package me.bot.commands.superadmin;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.reaction.ReactionEmoji;
 import discord4j.core.object.util.Permission;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.main.PermissionManager;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
-import java.awt.*;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,22 +33,21 @@ public class Test implements ICommand {
 		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
-	private static Permission[] PERMISSIONS = new Permission[]{};
-
 	@Override
-	public Permission[] getRequiredPermissions() {
-		return PERMISSIONS;
+	public List<Permission> getRequiredPermissions() {
+		return null;
 	}
+
 	@Override
 	public List<Permission> requiredBotPermissions() {
 		return null;
 	}
 
 	@Override
-	public void run(Bot bot, User author, TextChannel channel, Guild guild, Message message, String command, String[] args, String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 
 		channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec()
-				.setColor(ColorToInt("#2409E9"))
+				.setColor(colorToInt("#2409E9"))
 				.addField("Command",command,true)
 				.addField("Args", Arrays.toString(args),true)
 				.addField("Content",content,true)
@@ -63,12 +57,12 @@ public class Test implements ICommand {
 		).subscribe();
 	}
 
-	private int ColorToInt(String colorhex) {
+	private int colorToInt(String colorhex) {
 		return Integer.parseInt(colorhex.replace("#",""),16);
 	}
 
 	@Override
-	public void onLoad() {
+	public void onLoad(final Bot bot) {
 
 	}
 }

@@ -2,6 +2,7 @@ package me.console.commands;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
+import me.bot.base.Bot;
 import me.bot.base.DiscordUtils;
 import me.console.ConsoleCommand;
 import me.main.Main;
@@ -17,23 +18,23 @@ public class Chatlog implements ConsoleCommand {
 
 	@Override
 	public String getHelp() {
-		return "chatlog <guildid> <channelname> [amount]";
+		return "chatlog <bot> <guildid> <channelname> [amount]";
 	}
 
 	@Override
 	public void run(String... args) {
 
-		if(args.length >= 2)
+		if(args.length >= 3)
 			try {
 				final int amount;
-				if(args.length > 2) {
-					amount = Integer.parseInt(args[2]);
+				if(args.length > 3) {
+					amount = Integer.parseInt(args[3]);
 				} else {
 					amount = 100;
 				}
-				final long guildID = Long.parseLong(args[0]);
-
-				MessageChannel channel = getChannel(guildID,args[1]);
+				final long guildID = Long.parseLong(args[1]);
+				Bot bot = Bot.getBotByName(args[0]);
+				MessageChannel channel = getChannel(bot,guildID,args[2]);
 
 				if(channel == null) {
 					System.err.println("Couldn't find that channel");
@@ -53,8 +54,8 @@ public class Chatlog implements ConsoleCommand {
 			System.err.println(getHelp());
 	}
 
-	private MessageChannel getChannel(long guildID, String channelName) {
-		Guild guild = Main.getBot().getClient().getGuildById(Snowflake.of(guildID)).block();
+	private MessageChannel getChannel(Bot bot, long guildID, String channelName) {
+		Guild guild = bot.getClient().getGuildById(Snowflake.of(guildID)).block();
 		for(Channel c : guild.getChannels().toIterable()) {
 			if(c.getType().equals(Channel.Type.GUILD_TEXT)) {
 				TextChannel channel = DiscordUtils.getTextChannelOfChannel(c);
@@ -66,8 +67,8 @@ public class Chatlog implements ConsoleCommand {
 		return null;
 	}
 
-	private MessageChannel getChannel(long channelid) {
-		return DiscordUtils.getMessageChannelOfChannel(Main.getBot().getClient().getChannelById(Snowflake.of(channelid)).block());
+	private MessageChannel getChannel(Bot bot, long channelid) {
+		return DiscordUtils.getMessageChannelOfChannel(bot.getClient().getChannelById(Snowflake.of(channelid)).block());
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.TextChannel;
+import me.bot.base.Bot;
 import me.bot.base.MessageAPI;
 import me.bot.base.MessageBuilder;
 import me.console.ConsoleCommand;
@@ -20,7 +21,7 @@ public class Broadcast implements ConsoleCommand {
 	@Override
 	public void run(String... args) {
 
-		if(args.length == 0 || args[0].trim().equalsIgnoreCase("")) {
+		if(args.length <= 1 || args[1].trim().equalsIgnoreCase("")) {
 			System.err.println("[Broadcast] Please enter at least one argument");
 			return;
 		}
@@ -33,7 +34,7 @@ public class Broadcast implements ConsoleCommand {
 		}
 		String message = stringBuilder.toString().trim();
 
-		for (Guild guild : Main.getBot().getClient().getGuilds().toIterable()) {
+		for (Guild guild : Bot.getBotByName(args[0]).getClient().getGuilds().toIterable()) {
 			MessageChannel broadcastChannel = getBraodcastChannel(guild);
 			if(broadcastChannel != null)
 				new MessageBuilder().withChannel(broadcastChannel).appendContent(message).send();
