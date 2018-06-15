@@ -3,11 +3,8 @@ package me.console.commands;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
-import me.bot.base.DiscordUtils;
+import me.bot.base.utils.DiscordUtils;
 import me.console.ConsoleCommand;
-import me.main.Main;
-
-import java.util.List;
 
 public class Chatlog implements ConsoleCommand {
 	@Override

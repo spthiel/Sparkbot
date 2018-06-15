@@ -8,10 +8,11 @@ import discord4j.core.object.entity.*;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Permission;
+import discord4j.core.object.util.Snowflake;
 import me.bot.base.polls.Poll;
-import org.reflections.Reflections;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Listener {
@@ -71,8 +72,6 @@ public class Listener {
 
 	public void onReadyEvent(ReadyEvent event) {
 
-		String name = bot.getName();
-
 		updatePresence();
 
 	}
@@ -82,66 +81,66 @@ public class Listener {
 	}
 
 	private void updatePresence() {
-		int servercount = 0;
-		for(Guild g : bot.getClient().getGuilds().toIterable()) {
-			servercount++;
-		}
 
-		String message = servercount + " Server" + (servercount > 1 ? "s" : "") + " | s!help";
-		if(!bot.isStreaming()) {
-			bot.getClient().updatePresence(Presence.online(Activity.playing(message))).block();
-			System.out.println("Changed playing presence");
-		} else {
-			bot.getClient().updatePresence(Presence.online(Activity.streaming(message,bot.getUrl()))).block();
-			System.out.println("Changed streaming presence");
-		}
+		bot.getClient().getGuilds().count().doOnSuccess(
+			count -> {
+				String message = count + " Server" + (count > 1 ? "s" : "") + " | s!help";
+				if(!bot.isStreaming()) {
+					bot.getClient().updatePresence(Presence.online(Activity.playing(message))).subscribe(
+							aVoid -> System.out.println("Changed playing presence")
+					);
+				} else {
+					bot.getClient().updatePresence(Presence.online(Activity.streaming(message,bot.getUrl()))).subscribe(
+							aVoid -> System.out.println("Changed streaming presence")
+					);
+				}
+			}
+		);
+
 	}
 
 	public void onMessageReceivedEvent(final MessageCreateEvent event) {
 
-		event.getMessage().getChannel().subscribe(
-			c -> {
-				final TextChannel channel;
-				if(c instanceof TextChannel)
-					channel = (TextChannel) c;
-				else
-					return;
-				final Member member = event.getMember().orElse(null);
+		Snowflake guildidsf = event.getGuildId().orElse(null);
+		if (guildidsf != null) {
+			long guildid = guildidsf.asLong();
+			event.getMessage().getChannel()
+				.filter(messageChannel -> messageChannel instanceof TextChannel)
+				.filter(messageChannel -> event.getMember().isPresent() && !event.getMember().get().isBot())
+				.zipWith(event.getMessage().getGuild())
+					.subscribe(
+						objects -> {
+							Member member = event.getMember().get();
 
-				if (member == null || member.isBot()) {
-					return;
-				}
+							TextChannel channel = (TextChannel)objects.getT1();
+							Guild guild = objects.getT2();
 
-				event.getMessage().getGuild().subscribe(
-					guild -> {
-						boolean isOnWhitelist = isOnWhitelist(bot, guild.getId().asLong(),channel);
-						final Poll poll = getPollOfPlayer(member.getId().asLong());
-						if (poll != null) {
+							final Poll poll = getPollOfPlayer(member.getId().asLong());
+							if (poll != null) {
 
-							final String messagecontent = event.getMessage().getContent().orElse("");
+								final String messagecontent = event.getMessage().getContent().orElse("");
 
-							if (messagecontent.startsWith("skip")) {
+								if (messagecontent.startsWith("skip")) {
 
-								if (!poll.isSkipable()) {
-									sendNotAValidPollRespond(channel);
+									if (!poll.isSkipable()) {
+										sendNotAValidPollRespond(channel);
+									} else {
+										poll.onSkip();
+									}
+
+								} else if (messagecontent.startsWith("exit")) {
+									poll.onExit();
 								} else {
-									poll.onSkip();
+									if (!poll.onTrigger(event.getMessage()))
+										sendNotAValidPollRespond(channel);
 								}
 
-							} else if (messagecontent.startsWith("exit")) {
-								poll.onExit();
 							} else {
-								if (!poll.onTrigger(event.getMessage()))
-									sendNotAValidPollRespond(channel);
+								procressCommand(member, guild, channel, event, isOnWhitelist(bot,guildid,channel));
 							}
-
-						} else {
-							procressCommand(member,guild,channel,event,isOnWhitelist);
 						}
-					}
-				);
-			}
-		);
+					);
+		}
 	}
 
 	private void procressCommand(final Member member, final Guild guild, final TextChannel channel, final MessageCreateEvent event, final boolean isOnWhitelist) {

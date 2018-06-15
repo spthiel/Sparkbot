@@ -50,7 +50,7 @@ public class Test implements ICommand {
 				.setColor(colorToInt("#2409E9"))
 				.addField("Command",command,true)
 				.addField("Args", Arrays.toString(args),true)
-				.addField("Content",content,true)
+				.addField("Content","`" + content + "`",true)
 				.addField("Channel",channel.getName(),true)
 				.addField("Guild",guild.getName(),true)
 				.addField("Author", "<@" + author.getId().asLong() + ">",true))

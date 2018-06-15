@@ -24,12 +24,11 @@ import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import me.bot.base.utils.DiscordUtils;
 import reactor.core.publisher.Mono;
-import sun.misc.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Used to configure and send a {@link Message}.

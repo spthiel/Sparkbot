@@ -11,7 +11,7 @@ import discord4j.core.object.entity.User;
 import me.bot.base.configs.PermissionManager;
 import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
-import me.main.Main;
+import me.bot.base.utils.DiscordUtils;
 import org.reflections.Reflections;
 
 import java.util.ArrayList;
@@ -80,10 +80,9 @@ public class Bot {
 	    EventDispatcher dispatcher = client.getEventDispatcher();
 	    listener = new Listener(this);
 	    dispatcher.on(MessageDeleteEvent.class).subscribe(listener::onDelete);
-	    dispatcher.on(ReadyEvent.class).subscribe(listener::onReadyEvent);
+//	    dispatcher.on(ReadyEvent.class).subscribe(listener::onReadyEvent);
 	    dispatcher.on(GuildCreateEvent.class).subscribe(listener::onJoinServer);
 	    dispatcher.on(MessageCreateEvent.class).subscribe(listener::onMessageReceivedEvent);
-
 
 	    Reflections reflections = new Reflections(commandPackage);
 	    reflections.getSubTypesOf(ICommand.class).forEach(i -> {

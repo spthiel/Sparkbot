@@ -4,8 +4,7 @@ import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
-import me.bot.base.DiscordUtils;
-import me.main.Main;
+import me.bot.base.utils.DiscordUtils;
 import me.console.ConsoleCommand;
 
 public class SendMsg implements ConsoleCommand {
