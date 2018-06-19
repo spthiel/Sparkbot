@@ -5,22 +5,29 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.bot.base.MessageBuilder;
 import me.bot.base.utils.DiscordUtils;
 import me.bot.gifs.Gifmanager;
 import me.main.Prefixes;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Gif implements ICommand {
 
+	private static Gif instance;
 	private List<Gifmanager> gifmanager;
 	private String commands = "gif";
+
+	public Gif() {
+		instance = this;
+	}
 
 	@Override
 	public CommandType getType() {
@@ -71,31 +78,61 @@ public class Gif implements ICommand {
 
 		if (membername.matches("<@(\\d{8,})>")) {
 			String id = membername.replaceAll("<@(\\d+)>", "$1");
-			DiscordUtils.getMember(bot, guild, id).subscribe(
-					member -> {
-						Gifmanager manager = getGifmanager(command);
-						if (manager != null)
-							manager.run(channel, authorname, member.getNickname().orElse(member.getDisplayName()));
-					}
-			);
+			if(id.equalsIgnoreCase(bot.getBotuser().getId().asString())) {
+				Gifmanager manager = getGifmanager(command);
+				if (manager != null)
+					manager.run(channel, authorname, "me");
+			} else {
+				DiscordUtils.getMember(bot, guild, id).subscribe(
+						member -> {
+							Gifmanager manager = getGifmanager(command);
+							if (manager != null)
+								manager.run(channel, authorname, member.getNickname().orElse(member.getDisplayName()));
+						}
+				);
+			}
+
 		} else if (membername.matches("\\d{8,}")) {
+			if(membername.equalsIgnoreCase(bot.getBotuser().getId().asString())) {
+				Gifmanager manager = getGifmanager(command);
+				if (manager != null)
+					manager.run(channel, authorname, "me");
+			} else {
+				DiscordUtils.getMember(bot, guild, membername).subscribe(
+						member -> {
+							Gifmanager manager = getGifmanager(command);
+							if (manager != null)
+								manager.run(channel, authorname, member.getNickname().orElse(member.getDisplayName()));
+						}
+				);
+			}
+		} else {
 			DiscordUtils.getMember(bot, guild, membername).subscribe(
 					member -> {
 						Gifmanager manager = getGifmanager(command);
-						if (manager != null)
-							manager.run(channel, authorname, member.getNickname().orElse(member.getDisplayName()));
+						if (manager != null) {
+							String name;
+							if(member.getId().equals(bot.getBotuser().getId()))
+								name = "me";
+							else
+								name = member.getNickname().orElse(member.getDisplayName());
+
+							manager.run(channel, authorname, name);
+						}
 					}
 			);
-		} else {
-			Gifmanager manager = getGifmanager(command);
-			if (manager != null)
-				manager.run(channel, authorname, membername);
 		}
 
 	}
 
 	private void sendHelp(TextChannel channel) {
-
+		MessageBuilder builder = new MessageBuilder();
+		builder.withChannel(channel);
+		builder.appendContent("Ugly help page for gif: \n");
+		builder.appendContent("`s!gif <option> <user>` or `s!<option> <user>`\n");
+		builder.appendContent("Options are:\n");
+		gifmanager.forEach(manager -> builder.appendContent(" `" + manager.getName() + "` "));
+		builder.send().subscribe();
 	}
 
 	private Gifmanager getGifmanager(String name) {
@@ -108,18 +145,43 @@ public class Gif implements ICommand {
 
 	@Override
 	public void onLoad(Bot bot) {
+
+		Map<String,Object> config = bot.getResourceManager().getConfig("configs/main","gifs.json");
+		if(config.keySet().isEmpty())
+			bot.getResourceManager().writeConfig("configs/main","gifs.json",config);
+
+		loadGiffmanager(bot);
+
+	}
+
+	public void loadGiffmanager(Bot bot) {
+
 		gifmanager = new ArrayList<>();
 
-		addGifmanager(new Gifmanager("wave",new String[]{"https://media1.tenor.com/images/943a3f95936d66dc0c78fd445893431e/tenor.gif?itemid=9060940"},"%executor waves at %user"));
-		addGifmanager(new Gifmanager("hug",new String[]{
-				"https://media3.giphy.com/media/3M4NpbLCTxBqU/giphy.gif",
-				"https://media.tenor.com/images/7db5f172665f5a64c1a5ebe0fd4cfec8/tenor.gif"},"%executor hugs %user"));
-		addGifmanager(new Gifmanager("blush",new String[]{"http://66.media.tumblr.com/01d11c6bcf340db8bc307f1beeb2f8fb/tumblr_ogsqu35lLv1vemg2qo1_500.gif"},"%executor blushes"));
-		addGifmanager(new Gifmanager("angry",new String[]{"https://media.tenor.com/images/ad5544c0cc1b04622cc3413ddd1fe63a/tenor.gif"},"%executor is angry"));
+		Map<String,Object> config = bot.getResourceManager().getConfig("configs/main","gifs.json");
+
+		for(String key : config.keySet()) {
+			try {
+
+				Map<String,Object> entry = (Map<String, Object>) config.get(key);
+
+				String replacer = (String)entry.get("repl");
+
+				ArrayList<String> gifs = (ArrayList<String>) entry.get("gifs");
+
+				addGifmanager(new Gifmanager(key, gifs.toArray(new String[gifs.size()]), replacer));
+			} catch(Exception ignored) {
+
+			}
+		}
 	}
 
 	private void addGifmanager(Gifmanager manager) {
 		gifmanager.add(manager);
 		commands += "|" + manager.getName();
+	}
+
+	public static Gif getInstance() {
+		return instance;
 	}
 }

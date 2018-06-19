@@ -56,7 +56,7 @@ public class Chars implements ICommand {
 					bot.addPoll(poll);
 					poll.subscribe((result,type) -> {
 						if(type == PollExitType.SUCCESS)
-							if (result != null && !result.equalsIgnoreCase("stop")) {
+							if (result != null && !result.equalsIgnoreCase("Stop")) {
 								Bool skipable = new Bool(bot, author, channel, "Is this question optional?", "Use `exit` to exit the Menu or yes/no to answer it.", false, 30000);
 								bot.addPoll(skipable);
 

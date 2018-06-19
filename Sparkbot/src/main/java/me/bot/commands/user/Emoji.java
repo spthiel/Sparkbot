@@ -46,8 +46,6 @@ public class Emoji implements ICommand {
 		return null;
 	}
 
-	//https://cdn.discordapp.com/emojis/<id>.png?v=1
-
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		if(args.length >= 1) {

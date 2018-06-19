@@ -221,7 +221,6 @@ public class PermissionManager {
 	public boolean removeBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			System.out.println(config.get("Owners").getClass().getCanonicalName());
 			List<Object> toPut = (ArrayList)config.get("Owners");
 			for (int i = 0; i < toPut.size(); i++) {
 				Object object = toPut.get(i);

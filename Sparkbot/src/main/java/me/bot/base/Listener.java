@@ -12,7 +12,6 @@ import discord4j.core.object.util.Snowflake;
 import me.bot.base.polls.Poll;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Listener {
@@ -82,7 +81,7 @@ public class Listener {
 
 	private void updatePresence() {
 
-		bot.getClient().getGuilds().count().doOnSuccess(
+		bot.getClient().getGuilds().count().subscribe(
 			count -> {
 				String message = count + " Server" + (count > 1 ? "s" : "") + " | s!help";
 				if(!bot.isStreaming()) {
@@ -102,48 +101,54 @@ public class Listener {
 	public void onMessageReceivedEvent(final MessageCreateEvent event) {
 
 		Snowflake guildidsf = event.getGuildId().orElse(null);
-		if (guildidsf != null) {
-			long guildid = guildidsf.asLong();
-			event.getMessage().getChannel()
-				.filter(messageChannel -> messageChannel instanceof TextChannel)
-				.filter(messageChannel -> event.getMember().isPresent() && !event.getMember().get().isBot())
-				.zipWith(event.getMessage().getGuild())
-					.subscribe(
-						objects -> {
-							Member member = event.getMember().get();
+		if(guildidsf == null)
+			return;
+		long guildid = guildidsf.asLong();
 
-							TextChannel channel = (TextChannel)objects.getT1();
-							Guild guild = objects.getT2();
+		event.getMessage().getChannel()
+			.filter(messageChannel -> messageChannel instanceof TextChannel)
+			.filter(messageChannel -> event.getMember().isPresent() && !event.getMember().get().isBot())
+			.zipWith(event.getMessage().getGuild())
+				.subscribe(
+					objects -> {
+						Member member = event.getMember().get();
+						TextChannel channel = (TextChannel)objects.getT1();
+						Guild guild = objects.getT2();
 
-							final Poll poll = getPollOfPlayer(member.getId().asLong());
-							if (poll != null) {
-
-								final String messagecontent = event.getMessage().getContent().orElse("");
-
-								if (messagecontent.startsWith("skip")) {
-
-									if (!poll.isSkipable()) {
-										sendNotAValidPollRespond(channel);
-									} else {
-										poll.onSkip();
-									}
-
-								} else if (messagecontent.startsWith("exit")) {
-									poll.onExit();
-								} else {
-									if (!poll.onTrigger(event.getMessage()))
-										sendNotAValidPollRespond(channel);
-								}
-
-							} else {
-								procressCommand(member, guild, channel, event, isOnWhitelist(bot,guildid,channel));
-							}
+						if(!processPoll(member, channel, event.getMessage())) {
+							processCommand(member, guild, channel, event, isOnWhitelist(bot,guildid,channel));
 						}
-					);
+					}
+				);
+	}
+
+	private boolean processPoll(final Member member, final TextChannel channel, final Message message) {
+
+		final Poll poll = getPollOfPlayer(member.getId().asLong());
+		if (poll != null) {
+			final String messagecontent = message.getContent().orElse("");
+
+			if (messagecontent.startsWith("skip")) {
+
+				if (!poll.isSkipable()) {
+					sendNotAValidPollRespond(channel);
+				} else {
+					poll.onSkip();
+				}
+
+			} else if (messagecontent.startsWith("exit")) {
+				poll.onExit();
+			} else {
+				if (!poll.onTrigger(message))
+					sendNotAValidPollRespond(channel);
+			}
+			return true;
+		} else {
+			return false;
 		}
 	}
 
-	private void procressCommand(final Member member, final Guild guild, final TextChannel channel, final MessageCreateEvent event, final boolean isOnWhitelist) {
+	private void processCommand(final Member member, final Guild guild, final TextChannel channel, final MessageCreateEvent event, final boolean isOnWhitelist) {
 
 		String message = event.getMessage().getContent().orElse("");
 

@@ -5,12 +5,12 @@ import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.bot.base.polls.Input;
+import me.bot.base.polls.PollExitType;
 import me.main.Prefixes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class Chars implements ICommand {
 	@Override
@@ -69,7 +69,7 @@ public class Chars implements ICommand {
 
 	}
 
-	private int createCharacter(Bot bot, User user,Channel channel, Guild guild) {
+	private int createCharacter(Bot bot, Member user,TextChannel channel, Guild guild) {
 
 		Map<String,Object> object = getConfig(bot,guild.getId().asLong());
 		if (object.containsKey("questions")) {
@@ -81,18 +81,42 @@ public class Chars implements ICommand {
 
 			character.put("author",user);
 
-			for (Object q : questions) {
-				String question = (String)((Map<String,Object>) q).get("q");
-				boolean skipable = (boolean)((Map<String,Object>) q).get("s");
-				//Input input = new Input(bot, user, channel, question, "Use `exit` to leave the Menu " + (), "", false, -1);
-				//bot.addPoll(input);
-			}
+			Iterator<Object> questionIterator = questions.iterator();
+
+			recursive(bot, user, channel, questionIterator, (answers) -> {
+
+			});
 
 
 		} else {
 			return -2;
 		}
 		return -1;
+	}
+
+	private void recursive(Bot bot, Member user, TextChannel channel, Iterator<Object> questions, Consumer<List<String>> onComplete) {
+		recursive(bot, user, channel, questions, onComplete, new ArrayList<>());
+	}
+
+	private void recursive(Bot bot, Member user, TextChannel channel, Iterator<Object> questions, Consumer<List<String>> onComplete, List<String> answers) {
+		if(!questions.hasNext()) {
+			onComplete.accept(answers);
+			return;
+		}
+		HashMap<String,Object> q = (HashMap<String, Object>) questions.next();
+		String question = (String)q.get("q");
+		boolean skipable = (boolean)q.get("s");
+
+		Input input = new Input(bot, user, channel, question, "Use `exit` to leave the Menu", skipable, -1);
+		bot.addPoll(input);
+		input.subscribe((result,type) -> {
+			if(type.equals(PollExitType.SUCCESS))
+				answers.add(result);
+			else
+				answers.add(null);
+			recursive(bot,user,channel,questions,onComplete,answers);
+		});
+
 	}
 
 	private Map<String,Object> getConfig(Bot bot,long guildid) {

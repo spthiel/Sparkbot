@@ -45,11 +45,14 @@ public class Choice implements ICommand {
 		return null;
 	}
 
+	private static Random RANDOM = new Random();
+
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
-		Random rnd = new Random();
-		String rndchoice = args[rnd.nextInt(args.length)];
-		channel.createMessage(new MessageCreateSpec().setContent("I choose " + rndchoice)).subscribe();
+		if(args.length > 0) {
+			String rndchoice = args[RANDOM.nextInt(args.length)];
+			channel.createMessage(new MessageCreateSpec().setContent("I choose " + rndchoice)).subscribe();
+		}
 	}
 
 	@Override

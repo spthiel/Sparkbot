@@ -43,7 +43,7 @@ public class Invite implements ICommand {
         return null;
     }
 
-    private String LINK = "http://bit.ly/invSparkbot";
+    private static String LINK = "http://bit.ly/invSparkbot";
 
     @Override
     public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {

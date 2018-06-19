@@ -1,0 +1,27 @@
+{
+  "wave": {
+    "gifs": [
+      "https://media1.tenor.com/images/943a3f95936d66dc0c78fd445893431e/tenor.gif?itemid=9060940"
+    ],
+    "repl": "%executor waves at %user"
+  },
+  "hug": {
+    "gifs": [
+      "https://media3.giphy.com/media/3M4NpbLCTxBqU/giphy.gif",
+      "https://media.tenor.com/images/7db5f172665f5a64c1a5ebe0fd4cfec8/tenor.gif"
+    ],
+    "repl": "%executor hugs %user"
+  },
+  "blush": {
+    "gifs": [
+      "http://66.media.tumblr.com/01d11c6bcf340db8bc307f1beeb2f8fb/tumblr_ogsqu35lLv1vemg2qo1_500.gif"
+    ],
+    "repl": "%executor blushes"
+  },
+  "angry": {
+    "gifs": [
+      "https://media.tenor.com/images/ad5544c0cc1b04622cc3413ddd1fe63a/tenor.gif"
+    ],
+    "repl": "%executor is angry"
+  }
+}

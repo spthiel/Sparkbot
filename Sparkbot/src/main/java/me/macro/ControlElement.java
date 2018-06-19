@@ -30,7 +30,7 @@ public enum ControlElement {
 	public static ControlElement isStart(String line) {
 		for(ControlElement element : ControlElement.values())
 			for(String str : element.open)
-				if(line.startsWith(str.toLowerCase()))
+				if(line.toLowerCase().startsWith(str.toLowerCase()))
 					return element;
 		return null;
 	}
