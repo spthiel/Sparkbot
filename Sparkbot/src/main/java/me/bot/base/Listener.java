@@ -76,25 +76,21 @@ public class Listener {
 	}
 
 	public void onJoinServer(GuildCreateEvent event) {
-		updatePresence();
+//		updatePresence();
 	}
 
 	private void updatePresence() {
 
-		bot.getClient().getGuilds().count().subscribe(
-			count -> {
-				String message = count + " Server" + (count > 1 ? "s" : "") + " | s!help";
-				if(!bot.isStreaming()) {
-					bot.getClient().updatePresence(Presence.online(Activity.playing(message))).subscribe(
-							aVoid -> System.out.println("Changed playing presence")
-					);
-				} else {
-					bot.getClient().updatePresence(Presence.online(Activity.streaming(message,bot.getUrl()))).subscribe(
-							aVoid -> System.out.println("Changed streaming presence")
-					);
-				}
-			}
-		);
+		String message = "s!help";
+		if(!bot.isStreaming()) {
+			bot.getClient().updatePresence(Presence.online(Activity.playing(message))).subscribe(
+					aVoid -> System.out.println("Changed playing presence")
+			);
+		} else {
+			bot.getClient().updatePresence(Presence.online(Activity.streaming(message,bot.getUrl()))).subscribe(
+					aVoid -> System.out.println("Changed streaming presence")
+			);
+		}
 
 	}
 
