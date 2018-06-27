@@ -71,11 +71,13 @@ public class Listener {
 
 	public void onReadyEvent(ReadyEvent event) {
 
+		System.out.println("Ready");
 		updatePresence();
 
 	}
 
 	public void onJoinServer(GuildCreateEvent event) {
+		System.out.println("Join server");
 //		updatePresence();
 	}
 
@@ -84,11 +86,15 @@ public class Listener {
 		String message = "s!help";
 		if(!bot.isStreaming()) {
 			bot.getClient().updatePresence(Presence.online(Activity.playing(message))).subscribe(
-					aVoid -> System.out.println("Changed playing presence")
+					aVoid -> {},
+					Throwable::printStackTrace,
+					() -> System.out.println("Changed playing presence")
 			);
 		} else {
 			bot.getClient().updatePresence(Presence.online(Activity.streaming(message,bot.getUrl()))).subscribe(
-					aVoid -> System.out.println("Changed streaming presence")
+					aVoid -> System.out.println("Changed streaming presence"),
+					Throwable::printStackTrace,
+					() -> System.out.println("Changed streaming presence")
 			);
 		}
 

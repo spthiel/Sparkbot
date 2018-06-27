@@ -5,25 +5,28 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.util.Permission;
+import discord4j.core.object.util.Snowflake;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
 import me.bot.base.utils.DiscordUtils;
 import me.bot.gifs.Gifmanager;
+import me.main.Messages;
 import me.main.Prefixes;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Gif implements ICommand {
 
 	private static Gif instance;
 	private List<Gifmanager> gifmanager;
 	private String commands = "gif";
+	private HashMap<Snowflake,String> lastGifs;
+	private TextChannel reportChannel;
 
 	public Gif() {
 		instance = this;
@@ -63,7 +66,40 @@ public class Gif implements ICommand {
 	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
 		if(commandname.equalsIgnoreCase("gif")) {
 			if(args.length > 0) {
-				parseCommand(bot, guild, channel, author, args[0], (args.length > 1 ? args[1] : null));
+				if(args[0].equalsIgnoreCase("report")) {
+					if(!lastGifs.containsKey(author.getId())) {
+						channel.createMessage(new MessageCreateSpec().setContent(Messages.Emoji.RED_CROSS.toString() + " | **You haven't used the gif command yet**")).subscribe();
+						return;
+					}
+
+					String image = lastGifs.get(author.getId());
+					String m = "[IMAGE REPORT] From " + author.getUsername() + "#" + author.getDiscriminator() + " " + image;
+
+					EmbedCreateSpec reportSpec = new EmbedCreateSpec();
+					reportSpec.setColor(0xE84112)
+							.setTitle("**`IMAGE REPORT`**")
+							.setThumbnail(image)
+							.addField("Reporter",author.getUsername() + "#" + author.getDiscriminator(),true)
+							.addField("Guild",guild.getName(),true)
+							.addField("Guild ID",guild.getId().asString(), true)
+							.addField("Additional args:", Arrays.toString(args).replace("report,",""),false)
+							.addField("Image",image,false)
+							;
+					String successfull = "Successfully reported <" + image + ">";
+					if(reportChannel == null) {
+						System.out.println(m);
+						channel.createMessage(new MessageCreateSpec().setContent(successfull)).subscribe();
+					} else {
+						reportChannel.createMessage(new MessageCreateSpec().setEmbed(reportSpec)).subscribe(
+								ignored -> channel.createMessage(new MessageCreateSpec().setContent(successfull)).subscribe(),
+								ignored -> {
+									System.out.println(m);
+									channel.createMessage(new MessageCreateSpec().setContent(successfull)).subscribe();
+								}
+						);
+					}
+				} else
+					parseCommand(bot, guild, channel, author, args[0], (args.length > 1 ? args[1] : null));
 			} else {
 				sendHelp(channel);
 			}
@@ -73,41 +109,42 @@ public class Gif implements ICommand {
 	}
 
 	private void parseCommand(Bot bot, Guild guild, TextChannel channel, Member author, String command, @Nullable String arg) {
-		String authorname = author.getNickname().orElse(author.getDisplayName());
-		String membername = (arg != null ? arg : "me");
+		String authorname = author.getDisplayName();
+		if(arg == null) {
+			Gifmanager manager = getGifmanager(command);
+			sendImage(manager,channel,author,authorname,"me");
+			return;
+		}
 
-		if (membername.matches("<@(\\d{8,})>")) {
-			String id = membername.replaceAll("<@(\\d+)>", "$1");
+		if (arg.matches("<@!?(\\d{8,})>")) {
+			String id = arg.replaceAll("<@!?(\\d+)>", "$1");
 			if(id.equalsIgnoreCase(bot.getBotuser().getId().asString())) {
 				Gifmanager manager = getGifmanager(command);
-				if (manager != null)
-					manager.run(channel, authorname, "me");
+				sendImage(manager,channel,author,authorname,"me");
 			} else {
 				DiscordUtils.getMember(bot, guild, id).subscribe(
 						member -> {
 							Gifmanager manager = getGifmanager(command);
-							if (manager != null)
-								manager.run(channel, authorname, member.getNickname().orElse(member.getDisplayName()));
+							sendImage(manager,channel,author,authorname,member.getDisplayName());
 						}
 				);
 			}
 
-		} else if (membername.matches("\\d{8,}")) {
-			if(membername.equalsIgnoreCase(bot.getBotuser().getId().asString())) {
+		} else if (arg.matches("\\d{8,}")) {
+			if(arg.equalsIgnoreCase(bot.getBotuser().getId().asString())) {
 				Gifmanager manager = getGifmanager(command);
 				if (manager != null)
 					manager.run(channel, authorname, "me");
 			} else {
-				DiscordUtils.getMember(bot, guild, membername).subscribe(
+				DiscordUtils.getMember(bot, guild, arg).subscribe(
 						member -> {
 							Gifmanager manager = getGifmanager(command);
-							if (manager != null)
-								manager.run(channel, authorname, member.getNickname().orElse(member.getDisplayName()));
+							sendImage(manager,channel,author,authorname,member.getDisplayName());
 						}
 				);
 			}
 		} else {
-			DiscordUtils.getMember(bot, guild, membername).subscribe(
+			DiscordUtils.getMember(bot, guild, arg).subscribe(
 					member -> {
 						Gifmanager manager = getGifmanager(command);
 						if (manager != null) {
@@ -115,9 +152,9 @@ public class Gif implements ICommand {
 							if(member.getId().equals(bot.getBotuser().getId()))
 								name = "me";
 							else
-								name = member.getNickname().orElse(member.getDisplayName());
+								name = member.getDisplayName();
 
-							manager.run(channel, authorname, name);
+							sendImage(manager,channel,author,authorname,member.getDisplayName());
 						}
 					}
 			);
@@ -125,13 +162,21 @@ public class Gif implements ICommand {
 
 	}
 
+	private void sendImage(@Nullable Gifmanager manager,TextChannel channel, Member member, String executor, String username) {
+		if(manager != null) {
+			String img = manager.run(channel, executor, username);
+			lastGifs.put(member.getId(), img);
+		}
+	}
+
 	private void sendHelp(TextChannel channel) {
 		MessageBuilder builder = new MessageBuilder();
 		builder.withChannel(channel);
 		builder.appendContent("Ugly help page for gif: \n");
 		builder.appendContent("`s!gif <option> <user>` or `s!<option> <user>`\n");
+		builder.appendContent("Use `s!gif report <reason>` if your previous request didn't display an image\n");
 		builder.appendContent("Options are:\n");
-		gifmanager.forEach(manager -> builder.appendContent(" `" + manager.getName() + "` "));
+		gifmanager.forEach(manager -> builder.appendContent("`" + manager.getName() + " (" + manager.length() + " image" + (manager.length() > 1 ? "s" : "") + ")` "));
 		builder.send().subscribe();
 	}
 
@@ -152,11 +197,24 @@ public class Gif implements ICommand {
 
 		loadGiffmanager(bot);
 
+		bot.getClient().getChannelById(Snowflake.of(459658855144488960L))
+				.filter(channel -> channel instanceof TextChannel)
+				.map(channel -> (TextChannel)channel)
+				.subscribe(
+					channel -> {
+						reportChannel = channel;
+						System.out.println("Successfully set report channel");
+					},
+					error -> System.err.println("Something went wrong whilst trying to get the image report channel."),
+					() -> System.out.println("End of getting report channel")
+		);
+		lastGifs = new HashMap<>();
 	}
 
 	public void loadGiffmanager(Bot bot) {
 
 		gifmanager = new ArrayList<>();
+		commands = "gif";
 
 		Map<String,Object> config = bot.getResourceManager().getConfig("configs/main","gifs.json");
 

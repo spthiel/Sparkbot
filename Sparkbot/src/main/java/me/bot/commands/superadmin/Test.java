@@ -53,7 +53,9 @@ public class Test implements ICommand {
 				.addField("Content","`" + content + "`",true)
 				.addField("Channel",channel.getName(),true)
 				.addField("Guild",guild.getName(),true)
-				.addField("Author", "<@" + author.getId().asLong() + ">",true))
+				.addField("Author", "<@" + author.getId().asLong() + ">",true)
+				.addField("Author name:", author.getUsername(),true)
+				.addField("Author Nickname:", author.getNickname().orElse("null"),true))
 		).subscribe();
 	}
 

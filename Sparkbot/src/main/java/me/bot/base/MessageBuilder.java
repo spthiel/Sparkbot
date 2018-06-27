@@ -127,6 +127,7 @@ public class MessageBuilder {
 	 * @param channelID The channel the message will be sent in.
 	 * @return The builder instance.
 	 */
+	@Deprecated
 	public MessageBuilder withChannel(DiscordClient client, long channelID) {
 		this.channel = DiscordUtils.getMessageChannelOfChannel(client.getChannelById(Snowflake.of(channelID)).block());
 		return this;

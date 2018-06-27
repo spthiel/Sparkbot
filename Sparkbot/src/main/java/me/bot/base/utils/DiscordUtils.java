@@ -30,20 +30,27 @@ public class DiscordUtils {
 	}
 
 	private static Optional<Member> getArgMember(List<Member> members, String arg) {
-		List<Member> contain = new ArrayList<>();
+		Member contain = null;
+		Member containInsensitive = null;
 		for(Member member : members) {
-			String discrim = member.getDiscriminator();
-			String normalname = member.getDisplayName();
-			String name = member.getNickname().orElse(member.getDisplayName());
+			String discrim = "#" + member.getDiscriminator();
+			String normalname = member.getUsername();
+			String name = member.getDisplayName();
 			if((normalname + discrim).equalsIgnoreCase(arg) || (name + discrim).equalsIgnoreCase(arg))
 				return Optional.of(member);
 			if(normalname.equalsIgnoreCase(arg) || name.equalsIgnoreCase(arg))
 				return Optional.of(member);
 			if(normalname.contains(arg) || name.contains(arg))
-				contain.add(member);
+				if(contain == null)
+					contain = member;
+			else if(normalname.toLowerCase().contains(arg.toLowerCase()) || name.toLowerCase().contains(arg.toLowerCase()))
+				if(containInsensitive == null)
+					containInsensitive = member;
 		}
-		if(!contain.isEmpty())
-			return Optional.of(contain.get(0));
+		if(contain != null)
+			return Optional.of(contain);
+		else if(containInsensitive != null)
+			return Optional.of(containInsensitive);
 		else
 			return Optional.empty();
 	}

@@ -46,7 +46,17 @@ public class Macro implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, String[] args, final String content) {
+
+
+		if(args.length >= 1 && args[0].contains("\n")) {
+			String[] splitted = args[0].split("\n");
+			String[] newarray = new String[args.length+1];
+			newarray[0] = splitted[0];
+			newarray[1] = splitted[1];
+			System.arraycopy(args, 1, newarray, 2, args.length - 1);
+			args = newarray;
+		}
 
 		if (args.length >= 1) {
 			switch (args[0]) {

@@ -4,6 +4,7 @@ import discord4j.core.ClientBuilder;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
+import discord4j.core.event.domain.lifecycle.DisconnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
@@ -16,11 +17,16 @@ import org.reflections.Reflections;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Bot {
 
 	private static List<Bot> bots = new ArrayList<>();
+
+	public static void foreach(Consumer<? super Bot> consumer) {
+		bots.forEach(consumer);
+	}
 
     private DiscordClient client;
     private User botuser;
@@ -80,9 +86,13 @@ public class Bot {
 	    EventDispatcher dispatcher = client.getEventDispatcher();
 	    listener = new Listener(this);
 	    dispatcher.on(MessageDeleteEvent.class).subscribe(listener::onDelete);
-//	    dispatcher.on(ReadyEvent.class).subscribe(listener::onReadyEvent);
+	    dispatcher.on(ReadyEvent.class).subscribe(listener::onReadyEvent);
 	    dispatcher.on(GuildCreateEvent.class).subscribe(listener::onJoinServer);
 	    dispatcher.on(MessageCreateEvent.class).subscribe(listener::onMessageReceivedEvent);
+	    dispatcher.on(DisconnectEvent.class).subscribe(event -> {
+		    System.out.println(name + " disconnected");
+	    });
+	    dispatcher.on(ReadyEvent.class).subscribe(event -> System.out.println(name + " logged in"));
 
 	    Reflections reflections = new Reflections(commandPackage);
 	    reflections.getSubTypesOf(ICommand.class).forEach(i -> {
@@ -148,10 +158,14 @@ public class Bot {
     }
 
     public void login() {
+	    System.out.println("Logging in");
     	startTime = System.currentTimeMillis();
-    	client.login().block();
+    	client.login().subscribe(
+            aVoid -> {},
+		    Throwable::printStackTrace
+	    );
     }
-    
+
     private DiscordClient createClient(String token) {
         ClientBuilder clientBuilder = new ClientBuilder(token);
         return clientBuilder.build();
