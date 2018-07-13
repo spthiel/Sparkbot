@@ -1,9 +1,10 @@
 package me.macro;
 
+@SuppressWarnings("unused")
 public enum ControlElement {
 
 	IF(new String[]{"if"},new String[]{"elseif","else"},new String[]{"endif"}),
-	ADVANCEDIF(new String[]{"ifbeginswith","ifcontains","ifendswith","ifmatches"},new String[]{"elseif","else"},new String[]{"endif"}),
+	ADVANCED_IF(new String[]{"ifbeginswith","ifcontains","ifendswith","ifmatches"},new String[]{"elseif","else"},new String[]{"endif"}),
 	FOR(new String[]{"for","foreach"},new String[]{"next"}),
 	UNSAFE(new String[]{"unsafe"},new String[]{"endunsafe"}),
 	LOOP(new String[]{"do"},new String[]{"loop","while","until"})
@@ -34,7 +35,24 @@ public enum ControlElement {
 					return element;
 		return null;
 	}
-	
+
+	public static boolean canBeMiddle(String cmd) {
+		for(ControlElement element : ControlElement.values())
+			if(element.middle != null)
+				for(String str : element.middle)
+					if(str.toLowerCase().equals(cmd.toLowerCase()))
+						return true;
+		return false;
+	}
+
+	public static boolean canBeEnd(String cmd) {
+		for(ControlElement element : ControlElement.values())
+			for(String str : element.close)
+				if(str.toLowerCase().equals(cmd.toLowerCase()))
+					return true;
+		return false;
+	}
+
 	public boolean isMiddle(String line) {
 		if(middle == null)
 			return false;

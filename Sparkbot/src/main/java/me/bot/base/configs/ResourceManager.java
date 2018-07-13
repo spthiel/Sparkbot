@@ -15,8 +15,9 @@ public class ResourceManager {
 
 	private String BASE_FOLDER;
 	private static final ObjectMapper mapper = new ObjectMapper();
+	private static final HashMap<String, Language> langMapper = new HashMap<>();
 
-	public ResourceManager(String folder) {
+	public ResourceManager(String folder, Language language) {
 		this.BASE_FOLDER = folder;
 	}
 
@@ -119,6 +120,11 @@ public class ResourceManager {
 		} catch (IOException ignored) {
 
 		}
+	}
+
+
+	public Language loadLanguage() {
+		
 	}
 
 }

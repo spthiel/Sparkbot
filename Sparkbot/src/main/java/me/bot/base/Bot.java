@@ -9,6 +9,7 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.User;
+import me.bot.base.configs.Language;
 import me.bot.base.configs.PermissionManager;
 import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
@@ -39,24 +40,24 @@ public class Bot {
     private DiscordUtils utils;
     private long startTime;
 
-    public Bot(String token, String name, String basefolder, String commandPackage) {
+    public Bot(String token, String name, String basefolder, String commandPackage, Language language) {
 
         this.streaming = false;
 
-	    createBot(token, name, basefolder, commandPackage);
+	    createBot(token, name, basefolder, commandPackage, language);
 
     }
 
-    public Bot(String token, String name, String basefolder, String streamingurl, String commandPackage) {
+    public Bot(String token, String name, String basefolder, String streamingurl, String commandPackage, Language language) {
 
         this.streaming = true;
         this.url = streamingurl;
 
-        createBot(token, name, basefolder, commandPackage);
+        createBot(token, name, basefolder, commandPackage, language);
 
     }
 
-    private void createBot(String token, String name, String basefolder, String commandPackage) {
+    private void createBot(String token, String name, String basefolder, String commandPackage, Language language) {
 
     	bots.add(this);
 
