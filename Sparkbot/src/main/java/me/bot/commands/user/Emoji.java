@@ -15,6 +15,7 @@ import me.bot.base.MessageBuilder;
 import me.main.Prefixes;
 import reactor.util.function.Tuples;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -101,7 +102,7 @@ public class Emoji implements ICommand {
 							MessageBuilder builder = new MessageBuilder();
 							EmbedCreateSpec embed = new EmbedCreateSpec();
 							embed.setTitle("Emojis of " + messageAuthor.getUsername() + "'s message")
-									.setColor(0xdc143c);
+									.setColor(new Color(0xdc143c));
 							builder.withChannel(channel);
 
 							int counter = 1;

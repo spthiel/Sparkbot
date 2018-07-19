@@ -9,6 +9,7 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class Test implements ICommand {
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 
 		channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec()
-				.setColor(colorToInt("#2409E9"))
+				.setColor(new Color(colorToInt("#2409E9")))
 				.addField("Command",command,true)
 				.addField("Args", Arrays.toString(args),true)
 				.addField("Content","`" + content + "`",true)

@@ -36,16 +36,23 @@ public class DiscordUtils {
 			String discrim = "#" + member.getDiscriminator();
 			String normalname = member.getUsername();
 			String name = member.getDisplayName();
-			if((normalname + discrim).equalsIgnoreCase(arg) || (name + discrim).equalsIgnoreCase(arg))
+			if((normalname + discrim).equalsIgnoreCase(arg) || (name + discrim).equalsIgnoreCase(arg)) {
 				return Optional.of(member);
-			if(normalname.equalsIgnoreCase(arg) || name.equalsIgnoreCase(arg))
+			}
+			
+			if(normalname.equalsIgnoreCase(arg) || name.equalsIgnoreCase(arg)) {
 				return Optional.of(member);
-			if(normalname.contains(arg) || name.contains(arg))
-				if(contain == null)
+			}
+			
+			if(normalname.contains(arg) || name.contains(arg)) {
+				if (contain == null) {
 					contain = member;
-			else if(normalname.toLowerCase().contains(arg.toLowerCase()) || name.toLowerCase().contains(arg.toLowerCase()))
-				if(containInsensitive == null)
+				}
+			} else if(normalname.toLowerCase().contains(arg.toLowerCase()) || name.toLowerCase().contains(arg.toLowerCase())) {
+				if (containInsensitive == null) {
 					containInsensitive = member;
+				}
+			}
 		}
 		if(contain != null)
 			return Optional.of(contain);

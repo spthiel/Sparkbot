@@ -4,6 +4,7 @@ import discord4j.core.object.entity.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 
+import java.awt.*;
 import java.util.Random;
 
 public class Gifmanager {
@@ -24,7 +25,7 @@ public class Gifmanager {
 	public String run(TextChannel channel, String executor, String username) {
 		String image = getRandomImage();
 		EmbedCreateSpec embed = new EmbedCreateSpec();
-		embed.setColor(511973);
+		embed.setColor(new Color(511973));
 		embed.setImage(image);
 		embed.setTitle(replacer.replace("%user",username).replace("%executor",executor));
 		channel.createMessage(new MessageCreateSpec().setEmbed(embed)).subscribe();

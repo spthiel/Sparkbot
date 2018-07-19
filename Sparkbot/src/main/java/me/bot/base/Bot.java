@@ -1,7 +1,7 @@
 package me.bot.base;
 
-import discord4j.core.ClientBuilder;
 import discord4j.core.DiscordClient;
+import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.DisconnectEvent;
@@ -63,7 +63,7 @@ public class Bot {
 
 	    this.name = name;
 
-	    this.resourceManager = new ResourceManager(basefolder);
+	    this.resourceManager = new ResourceManager(basefolder,language);
 	    this.permissionManager = new PermissionManager(this);
 	    this.utils = new DiscordUtils(this);
 
@@ -168,7 +168,7 @@ public class Bot {
     }
 
     private DiscordClient createClient(String token) {
-        ClientBuilder clientBuilder = new ClientBuilder(token);
+        DiscordClientBuilder clientBuilder = new DiscordClientBuilder(token);
         return clientBuilder.build();
     }
 

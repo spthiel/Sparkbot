@@ -13,6 +13,7 @@ import me.bot.base.configs.PermissionManager;
 import me.main.Prefixes;
 import reactor.core.publisher.Flux;
 
+import java.awt.*;
 import java.util.List;
 
 public class Team implements ICommand {
@@ -148,10 +149,10 @@ public class Team implements ICommand {
 						else
 							ownerBuilder.append("-- None --");
 
-						String url = AVATAR_URL.replace("%ID%",bot.getBotuser().getId().asLong() + "").replace("%HASH%",bot.getBotuser().getAvatarHash().orElse(""));
+						String url = bot.getBotuser().getDefaultAvatarUrl();
 
 						EmbedCreateSpec embed = new EmbedCreateSpec()
-								.setColor(890083)
+								.setColor(new Color(890083))
 								.setThumbnail(url)
 								.setAuthor("Sparkbot Team","","")
 								.addField("Owners", ownerBuilder.toString(), true)

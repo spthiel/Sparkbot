@@ -98,7 +98,7 @@ public class ResourceManager {
 
 	}
 
-	private void writeFile(List<String> toWrite, File file) {
+	private static void writeFile(List<String> toWrite, File file) {
 
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
 
@@ -111,7 +111,7 @@ public class ResourceManager {
 		}
 	}
 
-	private void writeFile(String toWrite, File file) {
+	private static void writeFile(String toWrite, File file) {
 
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
 
@@ -123,8 +123,8 @@ public class ResourceManager {
 	}
 
 
-	public Language loadLanguage() {
-		
-	}
+//	public Language loadLanguage() {
+//
+//	}
 
 }

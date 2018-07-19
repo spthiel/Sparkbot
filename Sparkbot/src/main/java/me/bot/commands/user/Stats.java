@@ -1,6 +1,7 @@
 package me.bot.commands.user;
 
 import discord4j.core.object.entity.*;
+import discord4j.core.object.util.Image;
 import discord4j.core.object.util.Permission;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
@@ -9,6 +10,7 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+import java.awt.*;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -45,16 +47,14 @@ public class Stats implements ICommand {
 		return null;
 	}
 
-	private static String AVATAR_URL = "https://cdn.discordapp.com/avatars/%ID%/%HASH%.png?size=2048";
-
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		bot.getClient().getGuilds().count().subscribe(
 			guildcount ->{
 				Instant jointime = guild.getJoinTime().orElse(null);
 				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec()
-						.setColor(colorToInt("#DC143C"))
-						.setThumbnail(AVATAR_URL.replace("%ID%", bot.getBotuser().getId().asLong() + "").replace("%HASH%", bot.getBotuser().getAvatarHash().orElse("")))
+						.setColor(new Color(colorToInt("#DC143C")))
+						.setThumbnail(bot.getBotuser().getDefaultAvatarUrl())
 						.addField("Creator", "spthiel#1317", true)
 						.addField("Guilds", guildcount + "", true)
 						.addField("Join time", jointime == null ? "Error" : jointime.toString(), true)

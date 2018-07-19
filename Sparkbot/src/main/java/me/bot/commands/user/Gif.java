@@ -18,7 +18,9 @@ import me.main.Messages;
 import me.main.Prefixes;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Gif implements ICommand {
 
@@ -76,7 +78,7 @@ public class Gif implements ICommand {
 					String m = "[IMAGE REPORT] From " + author.getUsername() + "#" + author.getDiscriminator() + " " + image;
 
 					EmbedCreateSpec reportSpec = new EmbedCreateSpec();
-					reportSpec.setColor(0xE84112)
+					reportSpec.setColor(new Color(0xE84112))
 							.setTitle("**`IMAGE REPORT`**")
 							.setThumbnail(image)
 							.addField("Reporter",author.getUsername() + "#" + author.getDiscriminator(),true)
