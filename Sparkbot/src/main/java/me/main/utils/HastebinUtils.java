@@ -1,7 +1,5 @@
-package me.main;
+package me.main.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +20,7 @@ public class HastebinUtils {
 	public static String postCode(String code) {
 		
 		try {
-			return HTTP.post(BASE_URL + "/documents",code).replaceAll("\\{\"key\":\"(.+?)\"}","$1");
+			return HTTP.post(BASE_URL + "/documents", code).replaceAll("\\{\"key\":\"(.+?)\"}", "$1");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
