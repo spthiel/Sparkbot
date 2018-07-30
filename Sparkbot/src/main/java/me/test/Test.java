@@ -1,25 +1,45 @@
 package me.test;
 
-import discord4j.core.object.entity.Member;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.main.utils.BotsOnDiscordUtils;
+import me.main.utils.HastebinUtils;
+
 public class Test {
 
 	public static void main(String[] args) {
-
-		List<TestMember> members = new ArrayList<>();
-		members.add(new TestMember("spthiel",1317));
-		members.add(new TestMember("TOTProduction","Officer Jenny",1));
-		members.add(new TestMember("TOTProductions","Officer",1));
 		
-		System.out.println(getArgMember(members,"SPTH").orElse(null));
-	
+		/*ObjectMapper mapper = new ObjectMapper();
+		try {
+			Tester start = new Tester();
+			String json = mapper.writeValueAsString(start);
+			System.out.println("Json: " + json);
+			Tester test = mapper.readValue(json,new TypeReference<Tester>(){});
+			System.out.println("[Print] " + test);
+			
+			//start.setA("not a");
+			json = "{\"a\":\"b\",\"c\":null,\"bool\":false,\"x\":42}";
+			System.out.println("Json2: " + json);
+			test = mapper.readValue(json,new TypeReference<Tester>(){});
+			System.out.println("[Print2] " + test);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
+		
+		//BotsOnDiscordUtils.testPayLoad("398040194995060736",9,"21043483d7203c4d32d9fbabc37eaf6b");
+		
+		//System.out.println(HastebinUtils.postCode("test"));
+		//System.out.println(HastebinUtils.getUrl(null).orElse("null"));
+		
 	}
 	
 	private static Optional<TestMember> getArgMember(List<TestMember> members, String arg) {

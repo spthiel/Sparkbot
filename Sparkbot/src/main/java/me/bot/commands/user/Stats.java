@@ -11,8 +11,13 @@ import me.bot.base.ICommand;
 import me.main.Prefixes;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class Stats implements ICommand {
@@ -52,20 +57,17 @@ public class Stats implements ICommand {
 		bot.getClient().getGuilds().count().subscribe(
 			guildcount ->{
 				Instant jointime = guild.getJoinTime().orElse(null);
+				String formattedTime = jointime == null ? "Error" : DateTimeFormatter.ofPattern("hh:mm:ss a dd.MMM.yy").withZone(ZoneId.of("UTC")).format(jointime);
 				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec()
-						.setColor(new Color(colorToInt("#DC143C")))
-						.setThumbnail(bot.getBotuser().getDefaultAvatarUrl())
+						.setColor(new Color(0xDC143C))
+						.setThumbnail(bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse(""))
 						.addField("Creator", "spthiel#1317", true)
 						.addField("Guilds", guildcount + "", true)
-						.addField("Join time", jointime == null ? "Error" : jointime.toString(), true)
+						.addField("Join time", formattedTime, true)
 						.addField("Uptime",uptime(bot),true)
 					)
 				).subscribe();
 			});
-	}
-
-	private int colorToInt(String colorhex) {
-		return Integer.parseInt(colorhex.replace("#",""),16);
 	}
 
 	private String uptime(Bot bot) {
@@ -83,13 +85,6 @@ public class Stats implements ICommand {
 		diff = (diff-h)/24;
 		d = diff;
 		return formatTime(d,h,m,s);
-	}
-
-	private String addLeadingZero(int num) {
-		if(num < 10 && num > 0)
-			return 0 + "" + num;
-		else
-			return num + "";
 	}
 
 	private String formatTime(int days, int hour, int minutes, int seconds) {

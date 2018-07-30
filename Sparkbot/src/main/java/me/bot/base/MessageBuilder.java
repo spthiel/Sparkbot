@@ -24,7 +24,7 @@ import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
-import me.bot.base.utils.DiscordUtils;
+import me.main.utils.DiscordUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.*;

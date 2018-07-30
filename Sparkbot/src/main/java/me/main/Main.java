@@ -36,12 +36,8 @@ public class Main {
 			System.setErr(new Printer(System.err, err));
 			System.out.println("Basefile: " + base);
 			new Bot(
-					Constants.TOKEN,
-					"Sparkbot",
 					base,
-					"https://www.twitch.tv/discordsparkbot",
-					"me.bot.commands",
-					null
+					"sparkbot.config"
 			);
 			
 			Hooks.onOperatorDebug();

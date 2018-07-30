@@ -7,13 +7,13 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
-import me.bot.base.configs.HTTP;
+import me.main.utils.HTTP;
 import me.macro.FormatObject;
 import me.macro.MacroException;
 import me.macro.MacroFormatter;
 import me.main.Entry;
+import me.main.utils.HastebinUtils;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 
@@ -71,6 +71,7 @@ public class Macro implements ICommand {
 						boolean linenumbers = false;
 						boolean debug = false;
 						boolean caps = false;
+						boolean file = false;
 
 						if(content.contains("--full"))
 							fullcheck = true;
@@ -80,11 +81,20 @@ public class Macro implements ICommand {
 							debug = true;
 						if(content.contains("--caps"))
 							caps = true;
+						if(content.contains("--file"))
+							file = true;
 
 						FormatObject result = MacroFormatter.format(new ArrayList<>(Arrays.asList(code)),fullcheck,linenumbers,caps);
-						printObject(channel, result, "temp.txt",debug);
+						printObject(channel, result, "temp.txt",debug,file);
 						break;
 					}
+					
+					if(message.getAttachments().isEmpty()) {
+						sendHelp(channel);
+						return;
+					}
+					
+					
 					if (!format(channel, content, message.getAttachments().iterator().next()))
 						channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).subscribe();
 					break;
@@ -101,7 +111,7 @@ public class Macro implements ICommand {
 
 	}
 
-	private void printObject(MessageChannel channel, FormatObject object, String name, boolean debug) {
+	private void printObject(MessageChannel channel, FormatObject object, String name, boolean debug, boolean asFile) {
 
 		MessageBuilder builder = new MessageBuilder();
 		builder.withChannel(channel)
@@ -128,7 +138,18 @@ public class Macro implements ICommand {
 					builder.appendContent(line + "");
 			}
 		}
-		builder.withAttachment(name,String.join("\n",object.getFormatted()));
+		if (asFile) {
+			builder.withAttachment(name, String.join("\n", object.getFormatted()));
+		} else {
+			Optional<String> url = HastebinUtils.getUrl(HastebinUtils.postCode(object.getFormatted()));
+			if(url.isPresent()) {
+				builder.appendContent(url.get());
+			} else {
+				builder.appendContent("Something went wrong while accessing hastebin, posting as file instead.");
+				builder.withAttachment(name, String.join("\n", object.getFormatted()));
+			}
+			
+		}
 		builder.send().subscribe();
 	}
 
@@ -142,18 +163,20 @@ public class Macro implements ICommand {
 				.appendContent("\n`--full` adds syntax checking of the commands")
 				.appendContent("\n`--caps` will set all commands to uppercase instead of lowercase.")
 				.appendContent("\n`--diff` will include the amount of changed lines")
-				.appendContent("\n`--debug` will display the cause of errors. Might exceed 2000 char limit, use it wisely.");
+				.appendContent("\n`--debug` will display the cause of errors. Might exceed 2000 char limit, use it wisely.")
+				.appendContent("\n`--file` will return the result as attachment instead of as file.");
 		builder.send().subscribe();
 	}
 
 	private boolean format(TextChannel channel, String message, Attachment attachment) {
-
-
+		
+		
 		boolean fullcheck = false;
 		boolean linenumbers = false;
 		boolean debug = false;
 		boolean caps = false;
-
+		boolean includeFile = false;
+		
 		if(message.contains("--full"))
 			fullcheck = true;
 		if(message.contains("--diff"))
@@ -162,12 +185,14 @@ public class Macro implements ICommand {
 			debug = true;
 		if(message.contains("--caps"))
 			caps = true;
+		if(message.contains("--file"))
+			includeFile = true;
 
 		if(attachment.getFilename().endsWith("txt")) {
 			try {
 				List<String> file = HTTP.getAsList(attachment.getUrl());
 				FormatObject object = MacroFormatter.format(file,fullcheck,linenumbers,caps);
-				printObject(channel,object,attachment.getFilename(),debug);
+				printObject(channel,object,attachment.getFilename(),debug,includeFile);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;

@@ -1,5 +1,9 @@
 package me.bot.base;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.EventDispatcher;
@@ -9,179 +13,297 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.User;
+import reactor.core.publisher.Flux;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import org.reflections.Reflections;
+
 import me.bot.base.configs.Language;
 import me.bot.base.configs.PermissionManager;
 import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
-import me.bot.base.utils.DiscordUtils;
-import org.reflections.Reflections;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
+import me.main.utils.BotsOnDiscordUtils;
+import me.main.utils.DiscordUtils;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Bot {
-
+	
 	private static List<Bot> bots = new ArrayList<>();
-
+	
 	public static void foreach(Consumer<? super Bot> consumer) {
+		
 		bots.forEach(consumer);
 	}
-
-    private DiscordClient client;
-    private User botuser;
-    private Listener listener;
-    private String name;
-    private String url;
-    private boolean streaming;
-    private ResourceManager resourceManager;
-    private PermissionManager permissionManager;
-    private DiscordUtils utils;
-    private long startTime;
-
-    public Bot(String token, String name, String basefolder, String commandPackage, Language language) {
-
-        this.streaming = false;
-
-	    createBot(token, name, basefolder, commandPackage, language);
-
-    }
-
-    public Bot(String token, String name, String basefolder, String streamingurl, String commandPackage, Language language) {
-
-        this.streaming = true;
-        this.url = streamingurl;
-
-        createBot(token, name, basefolder, commandPackage, language);
-
-    }
-
-    private void createBot(String token, String name, String basefolder, String commandPackage, Language language) {
-
-    	bots.add(this);
-
-	    this.name = name;
-
-	    this.resourceManager = new ResourceManager(basefolder,language);
-	    this.permissionManager = new PermissionManager(this);
-	    this.utils = new DiscordUtils(this);
-
-	    client = createClient(token);
-	    initListeners(commandPackage);
-	    client.getApplicationInfo().subscribe(
-	    		value -> client.getUserById(value.getId()).subscribe(
-					    v -> {
-						    botuser = v;
-						    System.out.println("Successfully got the botuser: " + botuser.getUsername());
-					    },
-					    Throwable::printStackTrace
-			    ),
-			    Throwable::printStackTrace,
-	        () -> System.out.println("Successfully got bot id")
-	    );
-    }
-
-    private void initListeners(String commandPackage) {
-
-	    EventDispatcher dispatcher = client.getEventDispatcher();
-	    listener = new Listener(this);
-	    dispatcher.on(MessageDeleteEvent.class).subscribe(listener::onDelete);
-	    dispatcher.on(ReadyEvent.class).subscribe(listener::onReadyEvent);
-	    dispatcher.on(GuildCreateEvent.class).subscribe(listener::onJoinServer);
-	    dispatcher.on(MessageCreateEvent.class).subscribe(listener::onMessageReceivedEvent);
-	    dispatcher.on(DisconnectEvent.class).subscribe(event -> {
-		    System.out.println(name + " disconnected");
-	    });
-	    dispatcher.on(ReadyEvent.class).subscribe(event -> System.out.println(name + " logged in"));
-
-	    Reflections reflections = new Reflections(commandPackage);
-	    reflections.getSubTypesOf(ICommand.class).forEach(i -> {
-		    try {
-			    ICommand command = i.newInstance();
-			    addCommands(command);
-		    } catch (Exception ignored) {
-		    }
-
-	    });
-
-    }
-
+	
+	private DiscordClient client;
+	private User          botuser;
+	private Listener      listener;
+	private String        name;
+	private String        url;
+	
+	private HashMap<String, String> api_keys;
+	
+	private boolean           streaming;
+	private ResourceManager   resourceManager;
+	private PermissionManager permissionManager;
+	private DiscordUtils      utils;
+	private long              startTime;
+	
+	public Bot(String basefolder, String configfile) {
+		
+		File         file   = new File(basefolder, configfile);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		
+		if (!file.exists()) {
+			File folder = file.getParentFile();
+			if (!folder.exists()) {
+				folder.mkdirs();
+			}
+			try {
+				file.createNewFile();
+				BotConstruct exampleConstruct = new BotConstruct();
+				String       json             = mapper.writeValueAsString(exampleConstruct);
+				ResourceManager.writeFile(json, file);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			throw new NullPointerException("Bot config file does not exist: " + file.getPath() + " | Create example file.");
+		}
+		
+		String json = ResourceManager.readFileAsString(file);
+		
+		try {
+			BotConstruct construct = mapper.readValue(json, new TypeReference<BotConstruct>() {});
+			
+			String                    languagePath  = construct.LANGUAGEPATH;
+			Class<? extends Language> languageClass = null;
+			if (!languagePath.equalsIgnoreCase("null")) {
+				try {
+					Class<?> clazz = Class.forName(languagePath);
+					if (clazz.isAssignableFrom(Language.class)) {
+						languageClass = (Class<? extends Language>) clazz;
+					}
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if(construct.TWITCHURL.equalsIgnoreCase("OPTIONAL") || construct.TWITCHURL.equalsIgnoreCase("null")) {
+				this.streaming = false;
+			} else {
+				this.streaming = true;
+				this.url = construct.TWITCHURL;
+			}
+			
+			createBot(
+					construct.TOKEN,
+					construct.NAME,
+					basefolder,
+					construct.COMMAND_PACKAGE,
+					languageClass,
+					construct.apikeys
+					 );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Deprecated
+	public Bot(String token, String name, String basefolder, String commandPackage, Class<? extends Language> language, HashMap<String, String> keys) {
+		
+		this.streaming = false;
+		
+		createBot(token, name, basefolder, commandPackage, language, keys);
+		
+	}
+	
+	@Deprecated
+	public Bot(String token, String name, String basefolder, String streamingurl, String commandPackage, Class<? extends Language> language, HashMap<String, String> keys) {
+		
+		this.streaming = true;
+		this.url = streamingurl;
+		
+		createBot(token, name, basefolder, commandPackage, language, keys);
+		
+	}
+	
+	private void createBot(String token, String name, String basefolder, String commandPackage, Class<? extends Language> language, HashMap<String, String> apikeys) {
+		
+		bots.add(this);
+		
+		this.name = name;
+		this.api_keys = apikeys;
+		
+		this.resourceManager = new ResourceManager(basefolder, language);
+		this.permissionManager = new PermissionManager(this);
+		this.utils = new DiscordUtils(this);
+		
+		client = createClient(token);
+		initListeners(commandPackage);
+		client.getApplicationInfo().subscribe(
+				value -> client.getUserById(value.getId()).subscribe(
+						v -> {
+							botuser = v;
+							System.out.println("Successfully got the botuser: " + botuser.getUsername());
+						},
+						Throwable:: printStackTrace
+																	),
+				Throwable:: printStackTrace,
+				() -> System.out.println("Successfully got bot id")
+											 );
+		
+		Optional<String> bondkey = getApiKey("botsondiscord");
+		bondkey.ifPresent(this :: startBotsOnDiscordInterval);
+	}
+	
+	private void startBotsOnDiscordInterval(final String key) {
+		
+		Flux.interval(Duration.ofMinutes(2), Duration.ofHours(24)).subscribe(
+				ignored -> BotsOnDiscordUtils.updateGuildCount(this, key),
+				Throwable:: printStackTrace
+																			);
+	}
+	
+	private void initListeners(String commandPackage) {
+		
+		EventDispatcher dispatcher = client.getEventDispatcher();
+		listener = new Listener(this);
+		dispatcher.on(MessageDeleteEvent.class).subscribe(listener:: onDelete);
+		dispatcher.on(ReadyEvent.class).subscribe(listener:: onReadyEvent);
+		dispatcher.on(GuildCreateEvent.class).subscribe(listener:: onJoinServer);
+		dispatcher.on(MessageCreateEvent.class).subscribe(listener:: onMessageReceivedEvent);
+		dispatcher.on(DisconnectEvent.class).subscribe(event -> {
+			System.out.println(name + " disconnected");
+		});
+		dispatcher.on(ReadyEvent.class).subscribe(event -> System.out.println(name + " logged in"));
+		
+		Reflections reflections = new Reflections(commandPackage);
+		reflections.getSubTypesOf(ICommand.class).forEach(i -> {
+			try {
+				ICommand command = i.newInstance();
+				addCommands(command);
+			} catch (Exception ignored) {
+			}
+			
+		});
+		
+	}
+	
 	public long getStartTime() {
+		
 		return startTime;
 	}
-
+	
 	public User getBotuser() {
-    	return botuser;
-    }
-
-    public boolean isStreaming() {
-        return streaming;
-    }
-
-    public ResourceManager getResourceManager() {
-        return resourceManager;
-    }
-
+		
+		return botuser;
+	}
+	
+	public boolean isStreaming() {
+		
+		return streaming;
+	}
+	
+	public ResourceManager getResourceManager() {
+		
+		return resourceManager;
+	}
+	
 	public DiscordUtils getUtils() {
+		
 		return utils;
 	}
-
+	
 	public String getUrl() {
-        return url;
-    }
-
-    public void addCommands(ICommand... command){
-        listener.addCommands(this, command);
-    }
-
-    public Poll addPoll(Poll poll){
-        listener.addPoll(poll);
-        return poll;
-    }
-
-    public List<ICommand> getCommands(){
-        return listener.getCommands();
-    }
-
-    public String getName(){
-        return name;
-    }
-    
-    public DiscordClient getClient() {
-        return client;
-    }
-    
-    public void disable() {
-        System.out.println("Disabling");
-        if (client != null)
-            client.logout();
-    }
-
-    public void login() {
-	    System.out.println("Logging in");
-    	startTime = System.currentTimeMillis();
-    	client.login().subscribe(
-            aVoid -> {},
-		    Throwable::printStackTrace
-	    );
-    }
-
-    private DiscordClient createClient(String token) {
-        DiscordClientBuilder clientBuilder = new DiscordClientBuilder(token);
-        return clientBuilder.build();
-    }
-
+		
+		return url;
+	}
+	
+	public void addCommands(ICommand... command) {
+		
+		listener.addCommands(this, command);
+	}
+	
+	public Poll addPoll(Poll poll) {
+		
+		listener.addPoll(poll);
+		return poll;
+	}
+	
+	public List<ICommand> getCommands() {
+		
+		return listener.getCommands();
+	}
+	
+	public String getName() {
+		
+		return name;
+	}
+	
+	public Optional<String> getApiKey(String api) {
+		
+		if (api_keys.containsKey(api)) {
+			return Optional.of(api_keys.get(api));
+		} else {
+			return Optional.empty();
+		}
+	}
+	
+	public DiscordClient getClient() {
+		
+		return client;
+	}
+	
+	public void disable() {
+		
+		System.out.println("Disabling");
+		if (client != null) {
+			client.logout();
+		}
+	}
+	
+	public void login() {
+		
+		System.out.println("Logging in");
+		startTime = System.currentTimeMillis();
+		client.login().subscribe(
+				aVoid -> {
+				},
+				Throwable:: printStackTrace
+								);
+	}
+	
+	private DiscordClient createClient(String token) {
+		
+		DiscordClientBuilder clientBuilder = new DiscordClientBuilder(token);
+		return clientBuilder.build();
+	}
+	
 	public PermissionManager getPermissionManager() {
+		
 		return permissionManager;
 	}
-
-
+	
+	
 	public static Bot getBotByName(String name) {
-    	if(bots.size() == 0)
-    		return null;
-    	if(name.trim().equalsIgnoreCase(""))
-    		return bots.get(0);
+		
+		if (bots.size() == 0) {
+			return null;
+		}
+		if (name.trim().equalsIgnoreCase("")) {
+			return bots.get(0);
+		}
 		return bots.stream().filter(bot -> bot.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
 	}
 }

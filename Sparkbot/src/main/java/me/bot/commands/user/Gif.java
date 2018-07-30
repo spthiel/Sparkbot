@@ -12,7 +12,7 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
-import me.bot.base.utils.DiscordUtils;
+import me.main.utils.DiscordUtils;
 import me.bot.gifs.Gifmanager;
 import me.main.Messages;
 import me.main.Prefixes;

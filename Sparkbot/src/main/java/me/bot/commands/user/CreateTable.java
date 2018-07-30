@@ -7,7 +7,7 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
-import me.bot.base.configs.HTTP;
+import me.main.utils.HTTP;
 import me.main.Prefixes;
 import me.tablecreator.Cell;
 import me.tablecreator.Grid;

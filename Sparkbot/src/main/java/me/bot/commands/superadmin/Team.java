@@ -1,6 +1,7 @@
 package me.bot.commands.superadmin;
 
 import discord4j.core.object.entity.*;
+import discord4j.core.object.util.Image;
 import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -149,7 +150,7 @@ public class Team implements ICommand {
 						else
 							ownerBuilder.append("-- None --");
 
-						String url = bot.getBotuser().getDefaultAvatarUrl();
+						String url = bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse("");
 
 						EmbedCreateSpec embed = new EmbedCreateSpec()
 								.setColor(new Color(890083))

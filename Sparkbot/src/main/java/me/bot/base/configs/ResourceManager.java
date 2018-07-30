@@ -12,13 +12,16 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ResourceManager {
-
-	private String BASE_FOLDER;
+	
 	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final HashMap<String, Language> langMapper = new HashMap<>();
+	
+	private String BASE_FOLDER;
+	private final Class<? extends Language> languageClass;
+	private final HashMap<String, Language> langMapper = new HashMap<>();
 
-	public ResourceManager(String folder, Language language) {
+	public ResourceManager(String folder, Class<? extends Language> language) {
 		this.BASE_FOLDER = folder;
+		this.languageClass = language;
 	}
 
 	public Map<String,Object> getConfig(String dir, String filename) {
@@ -62,7 +65,7 @@ public class ResourceManager {
 		}
 	}
 
-	private List<String> readFileAsList(File file) {
+	public static List<String> readFileAsList(File file) {
 		List<String> out = new ArrayList<>();
 
 		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
@@ -80,7 +83,7 @@ public class ResourceManager {
 
 	}
 
-	private String readFileAsString(File file) {
+	public static String readFileAsString(File file) {
 		StringBuilder out = new StringBuilder();
 
 		try (BufferedReader in = new BufferedReader(new FileReader(file))) {
@@ -98,7 +101,7 @@ public class ResourceManager {
 
 	}
 
-	private static void writeFile(List<String> toWrite, File file) {
+	public static void writeFile(List<String> toWrite, File file) {
 
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
 
@@ -111,7 +114,7 @@ public class ResourceManager {
 		}
 	}
 
-	private static void writeFile(String toWrite, File file) {
+	public static void writeFile(String toWrite, File file) {
 
 		try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
 

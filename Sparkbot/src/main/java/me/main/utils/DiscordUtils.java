@@ -1,4 +1,4 @@
-package me.bot.base.utils;
+package me.main.utils;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;

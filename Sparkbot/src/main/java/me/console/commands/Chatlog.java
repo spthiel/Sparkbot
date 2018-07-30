@@ -3,7 +3,7 @@ package me.console.commands;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
-import me.bot.base.utils.DiscordUtils;
+import me.main.utils.DiscordUtils;
 import me.console.ConsoleCommand;
 
 public class Chatlog implements ConsoleCommand {

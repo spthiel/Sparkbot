@@ -2,15 +2,24 @@ package me.test;
 
 public class Tester {
 	
-	public final String
-		a = "c",
-		b = "d",
-		c = "e";
+	public String
+		a,
+		b,
+		c;
 	
-	public final boolean
+	public boolean
 		bool = false;
 	
-	public final int
+	public int
 		x = 42;
 	
+	public Tester() {
+		c = "3";
+	}
+	
+	@Override
+	public String toString() {
+		
+		return "Tester: " + a + " " + b + " " + c + " " + bool + " " + x;
+	}
 }

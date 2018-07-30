@@ -21,47 +21,50 @@ public class MacroFormatter {
 		Stack<ControlElement> openelements = new Stack<>();
 
 		for (int i = 0; i < input.size(); i++) {
-
-			if(skipline == 0)
+			
+			if (skipline == 0)
 				linenumber++;
-
-			int reltabs = 0;
-			String line = input.get(i);
-
-			if(line.trim().equalsIgnoreCase("")) {
+			
+			int    reltabs = 0;
+			String line    = input.get(i);
+			
+			if (line.trim().equalsIgnoreCase("")) {
 				emptyLines++;
-				if(emptyLines > 1) {
+				if (emptyLines > 1) {
 					input.remove(i);
 					i--;
-					if(includeEditedLines)
+					if (includeEditedLines)
 						object.addEntry(linenumber);
 					continue;
 				}
 			} else {
 				emptyLines = 0;
 			}
-
-			if(line.contains(";")) {
+			
+			if (line.contains(";")) {
 				String[] splitted = line.split(";");
 				line = splitted[0];
-				if(includeEditedLines)
+				if (includeEditedLines)
 					object.addEntry(linenumber);
-				for(int j = splitted.length-1; j >= 1; j--) {
-					if(!splitted[j].trim().equalsIgnoreCase("")) {
+				for (int j = splitted.length - 1 ; j >= 1 ; j--) {
+					if (!splitted[j].trim().equalsIgnoreCase("")) {
 						skipline++;
 						input.add(i + 1, splitted[j]);
 					}
 				}
 			}
-
+			
 			line = line.trim();
-
+			
+			
 			Actions response = parseCommand(line);
-			System.out.println(line);
-			String cmd;
-			if(response != null) {
+			String  cmd;
+			if (line.startsWith("//")) {
+			
+			
+			
+			} else if(response != null) {
 				cmd = response.name().toLowerCase();
-				System.out.println(cmd);
 				/*if(!cmd.equalsIgnoreCase("")) {
 					String cmdtoput = cmd;
 					if(caps)
