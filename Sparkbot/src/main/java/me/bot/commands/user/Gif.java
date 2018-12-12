@@ -33,6 +33,10 @@ public class Gif implements ICommand {
 	public Gif() {
 		instance = this;
 	}
+	
+	public TextChannel getReportChannel() {
+		return reportChannel;
+	}
 
 	@Override
 	public CommandType getType() {

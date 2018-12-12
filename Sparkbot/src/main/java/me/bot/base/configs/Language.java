@@ -1,7 +1,11 @@
 package me.bot.base.configs;
 
 public class Language {
-
-	public String identifier;
+ 
+	public Language() {
+	   
+    }
+	
+	public String identifier = "en_us";
 
 }

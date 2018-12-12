@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+
 public class Main {
 	
 	private static ConsoleCommandManager commands;

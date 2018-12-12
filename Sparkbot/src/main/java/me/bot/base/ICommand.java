@@ -22,12 +22,13 @@ public interface ICommand {
 
 	default Mono<Boolean> hasGuildPermissions(Bot bot, Guild guild, Member author) {
 		final List<Permission> perms = getRequiredPermissions();
-		if(perms != null)
-			return bot.getPermissionManager().getPermissions(guild,author)
-				.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(perms))
-				.hasElement();
-		else
+		if(perms == null) {
 			return Mono.just(true);
+		}
+		
+		return bot.getPermissionManager().getPermissions(guild,author)
+			.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(perms))
+			.hasElement();
 	}
 
 	CommandType getType();

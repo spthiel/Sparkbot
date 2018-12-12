@@ -2,10 +2,8 @@ package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
-import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.ICommand;
-import me.bot.base.MessageAPI;
+
+import me.bot.base.*;
 import me.bot.base.polls.Bool;
 import me.bot.base.polls.Input;
 import me.bot.base.polls.Option;
@@ -14,7 +12,7 @@ import me.main.Prefixes;
 
 import java.util.*;
 
-public class Chars implements ICommand {
+public class Chars implements ICommand, IDisabledCommand {
 
 	@Override
 	public String[] getNames() {
@@ -63,10 +61,10 @@ public class Chars implements ICommand {
 								skipable.subscribe((result2,type2) -> {
 									if(type2 != PollExitType.SUCCESS)
 										return;
-									Map<String,Object> toPut = new HashMap<>();
+									HashMap<String,Object> toPut = new HashMap<>();
 									toPut.put("q", result);
 									toPut.put("s", result2);
-									Map<String,Object> object = getConfig(bot,guild.getId().asLong());
+									HashMap<String,Object> object = getConfig(bot,guild.getId().asLong());
 									object.put("questions", toPut);
 									write(bot,guild.getId().asLong(),object);
 								});
@@ -74,7 +72,7 @@ public class Chars implements ICommand {
 					});
 					break;
 				case "list":
-					Map<String,Object> object = getConfig(bot,guild.getId().asLong());
+					HashMap<String,Object> object = getConfig(bot,guild.getId().asLong());
 					if (object.containsKey("questions")) {
 						ArrayList<Object> questions = (ArrayList) object.get("questions");
 						Option option = new Option(bot, author, channel, "List of your questions:", "Use `exit` to leave the Menu", false, -1);
@@ -90,7 +88,7 @@ public class Chars implements ICommand {
 					}
 					break;
 				case "remove":
-					Map<String,Object> object2 = getConfig(bot,guild.getId().asLong());
+					HashMap<String,Object> object2 = getConfig(bot,guild.getId().asLong());
 					if (object2.containsKey("questions")) {
 						ArrayList<Object> questions = (ArrayList) object2.get("questions");
 						Option option = new Option(bot, author, channel, "List of your questions:", "Select the question you want to delete or use `exit` to leave the Menu", false, -1);
@@ -131,11 +129,11 @@ public class Chars implements ICommand {
 	public void onLoad(final Bot bot) {
 	}
 
-	private Map<String,Object> getConfig(Bot bot,long guildid) {
+	private HashMap<String,Object> getConfig(Bot bot,long guildid) {
 		return bot.getResourceManager().getConfig("configs/" + guildid + "/rp", "settings.json");
 	}
 
-	private void write(Bot bot,long guildid,Map<String,Object> object) {
+	private void write(Bot bot,long guildid,HashMap<String,Object> object) {
 		bot.getResourceManager().writeConfig("configs/" + guildid + "/rp", "settings.json", object);
 	}
 }

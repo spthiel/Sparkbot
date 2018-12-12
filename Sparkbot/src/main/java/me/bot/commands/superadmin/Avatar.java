@@ -45,8 +45,8 @@ public class Avatar implements ICommand {
 		if(args.length > 1) {
 
 			//TODO: Fix stuff
-
-
+			
+			
 //			try {
 //				RequestBuffer.request(() -> {
 //					String ending = args[1].replaceAll(".*\\.(.+?)$", "\\.$1");

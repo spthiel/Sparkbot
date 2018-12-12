@@ -1,6 +1,5 @@
 package me.bot.base;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -12,9 +11,13 @@ import discord4j.core.event.domain.lifecycle.DisconnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
+import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.entity.User;
+import discord4j.core.spec.MessageCreateSpec;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -30,8 +33,10 @@ import me.bot.base.configs.Language;
 import me.bot.base.configs.PermissionManager;
 import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
+import me.bot.commands.user.Gif;
 import me.main.utils.BotsOnDiscordUtils;
 import me.main.utils.DiscordUtils;
+import me.main.utils.ExceptionUtils;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Bot {
@@ -49,7 +54,7 @@ public class Bot {
 	private String        name;
 	private String        url;
 	
-	private HashMap<String, String> api_keys;
+	private HashMap<String, String> apiKeys;
 	
 	private boolean           streaming;
 	private ResourceManager   resourceManager;
@@ -83,7 +88,8 @@ public class Bot {
 		String json = ResourceManager.readFileAsString(file);
 		
 		try {
-			BotConstruct construct = mapper.readValue(json, new TypeReference<BotConstruct>() {});
+			BotConstruct construct = mapper.readValue(json, new TypeReference<BotConstruct>() {
+			});
 			
 			String                    languagePath  = construct.LANGUAGEPATH;
 			Class<? extends Language> languageClass = null;
@@ -98,7 +104,7 @@ public class Bot {
 				}
 			}
 			
-			if(construct.TWITCHURL.equalsIgnoreCase("OPTIONAL") || construct.TWITCHURL.equalsIgnoreCase("null")) {
+			if (construct.TWITCHURL.equalsIgnoreCase("OPTIONAL") || construct.TWITCHURL.equalsIgnoreCase("null")) {
 				this.streaming = false;
 			} else {
 				this.streaming = true;
@@ -143,7 +149,7 @@ public class Bot {
 		bots.add(this);
 		
 		this.name = name;
-		this.api_keys = apikeys;
+		this.apiKeys = apikeys;
 		
 		this.resourceManager = new ResourceManager(basefolder, language);
 		this.permissionManager = new PermissionManager(this);
@@ -182,7 +188,7 @@ public class Bot {
 		dispatcher.on(MessageDeleteEvent.class).subscribe(listener:: onDelete);
 		dispatcher.on(ReadyEvent.class).subscribe(listener:: onReadyEvent);
 		dispatcher.on(GuildCreateEvent.class).subscribe(listener:: onJoinServer);
-		dispatcher.on(MessageCreateEvent.class).subscribe(listener:: onMessageReceivedEvent);
+		setupMessageCreateListener();
 		dispatcher.on(DisconnectEvent.class).subscribe(event -> {
 			System.out.println(name + " disconnected");
 		});
@@ -192,11 +198,51 @@ public class Bot {
 		reflections.getSubTypesOf(ICommand.class).forEach(i -> {
 			try {
 				ICommand command = i.newInstance();
+				if(command instanceof IDisabledCommand) {
+				    return;
+                }
 				addCommands(command);
 			} catch (Exception ignored) {
 			}
 			
 		});
+		
+	}
+	
+	private Disposable messageCreateSubscriber = null;
+	private TextChannel reportChannel;
+	
+	public void setupMessageCreateListener() {
+		
+		
+		if (messageCreateSubscriber != null && !messageCreateSubscriber.isDisposed()) {
+			messageCreateSubscriber.dispose();
+			System.out.println("Disposed listener");
+		}
+		messageCreateSubscriber = client.getEventDispatcher().on(MessageCreateEvent.class)
+			.subscribe(
+				event -> {
+					// WARNING: Dirty code, do not use this
+					try {
+						listener.onMessageReceivedEvent(event);
+					} catch (Exception e) {
+						String stackTrace = ExceptionUtils.makePrintAble(e);
+						Gif.getInstance().getReportChannel()
+						   .createMessage(mspec -> {
+								mspec.setEmbed(
+									spec -> {
+										spec.setTitle("Exception in MessageCreateListener");
+										spec.setDescription("```\n" + stackTrace + "\n```");
+										spec.setColor(new Color(0xE84112));
+									});
+								}
+							).subscribe();
+						e.printStackTrace();
+					}
+					// END
+				}
+			);
+		System.out.println("Added listener");
 		
 	}
 	
@@ -253,8 +299,8 @@ public class Bot {
 	
 	public Optional<String> getApiKey(String api) {
 		
-		if (api_keys.containsKey(api)) {
-			return Optional.of(api_keys.get(api));
+		if (apiKeys.containsKey(api)) {
+			return Optional.of(apiKeys.get(api));
 		} else {
 			return Optional.empty();
 		}

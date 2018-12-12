@@ -58,6 +58,19 @@ public class Test implements ICommand {
 				.addField("Author name:", author.getUsername(),true)
 				.addField("Author Nickname:", author.getNickname().orElse("null"),true))
 		).subscribe();
+		
+		MessageCreateSpec spec = new MessageCreateSpec();
+		StringBuilder out = new StringBuilder();
+		
+//		for(int i = 0x10000; i < 0x10100; i++) {
+//			out.append(Character.toChars(i));
+//		}
+		
+		out.append(Character.toChars(0x1F970));
+		System.out.println(out.toString());
+		spec.setContent(out.toString());
+		channel.createMessage(spec).subscribe();
+		
 	}
 
 	private int colorToInt(String colorhex) {

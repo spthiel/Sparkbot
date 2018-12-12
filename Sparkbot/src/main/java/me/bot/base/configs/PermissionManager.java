@@ -14,10 +14,7 @@ import me.main.Entry;
 import me.main.Main;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PermissionManager {
 
@@ -32,7 +29,7 @@ public class PermissionManager {
 			filename = "botowner.json"
 	;
 
-	private Map<String,Object> config;
+	private HashMap<String,Object> config;
 
 	public Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
 		return bot.getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))

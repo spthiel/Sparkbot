@@ -45,9 +45,6 @@ public class MessageBuilder {
 	 */
 	private MessageChannel channel;
 	/**
-	 * The client the message belongs to.
-	 */
-	/**
 	 * Whether the message should use text-to-speech.
 	 */
 	private boolean tts = false;

@@ -6,10 +6,7 @@ import me.bot.base.*;
 import me.main.Prefixes;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Whitelist implements ICommand {
 	@Override
@@ -46,7 +43,7 @@ public class Whitelist implements ICommand {
 
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
-		Map<String,Object> map = getConfig(bot,guild.getId().asLong());
+		HashMap<String,Object> map = getConfig(bot,guild.getId().asLong());
 		List<String> whitelist;
 		if(map.containsKey("channels")) {
 			Object channels = map.get("channels");
@@ -88,11 +85,11 @@ public class Whitelist implements ICommand {
 
 	}
 
-	private Map<String,Object> getConfig(Bot bot, long guildid) {
+	private HashMap<String,Object> getConfig(Bot bot, long guildid) {
 		return bot.getResourceManager().getConfig("configs/" + guildid, "whitelist.json");
 	}
 
-	private void write(Bot bot,long guildid,Map<String,Object> object) {
+	private void write(Bot bot,long guildid,HashMap<String,Object> object) {
 		bot.getResourceManager().writeConfig("configs/" + guildid, "whitelist.json", object);
 	}
 }

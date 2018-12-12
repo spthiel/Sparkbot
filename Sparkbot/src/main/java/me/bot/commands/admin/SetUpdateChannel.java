@@ -5,13 +5,14 @@ import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.bot.base.IDisabledCommand;
 import me.bot.base.configs.ResourceManager;
 import me.main.Prefixes;
 
 import java.util.Collections;
 import java.util.List;
 
-public class SetUpdateChannel implements ICommand {
+public class SetUpdateChannel implements ICommand, IDisabledCommand {
 	@Override
 	public CommandType getType() {
 		return CommandType.MOD;

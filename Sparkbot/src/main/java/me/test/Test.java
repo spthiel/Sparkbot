@@ -1,22 +1,26 @@
 package me.test;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import me.main.utils.BotsOnDiscordUtils;
-import me.main.utils.HastebinUtils;
+import java.util.stream.Collectors;
 
 public class Test {
 
 	public static void main(String[] args) {
 		
+//		System.out.println(Character.toChars(0x1F970));
+
+//		StringBuilder out = new StringBuilder();
+//
+//		for(int i = 0x10000; i < 0x30000; i++) {
+//			char[] c = Character.toChars(i);
+//			out.append(Integer.toString(i,16)).append("\t").append(c).append("\n");
+//		}
+//		File file = new File("./out.txt");
+//		ResourceManager.writeFile(out.toString(),file);
 		/*ObjectMapper mapper = new ObjectMapper();
 		try {
 			Tester start = new Tester();
@@ -40,6 +44,17 @@ public class Test {
 		//System.out.println(HastebinUtils.postCode("test"));
 		//System.out.println(HastebinUtils.getUrl(null).orElse("null"));
 		
+	}
+	
+	public static boolean arrayIsSorted(int[] array) {
+		for (int i = 0; i < array.length - 1; i++) {
+			if (array[i] > array[i + 1]) return false;
+		}
+		return true;
+	}
+	
+	public static boolean listIsSorted(List<Integer> list) {
+		return list.stream().sorted().collect(Collectors.toList()).equals(list);
 	}
 	
 	private static Optional<TestMember> getArgMember(List<TestMember> members, String arg) {
