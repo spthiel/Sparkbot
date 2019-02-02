@@ -2,22 +2,27 @@ package me.bot.commands.user;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
+import me.macro.api.ResponseStruct;
 import me.main.utils.HTTP;
-import me.macro.FormatObject;
-import me.macro.MacroException;
-import me.macro.MacroFormatter;
+import me.macro.formatter.FormatObject;
+import me.macro.formatter.MacroException;
+import me.macro.formatter.MacroFormatter;
 import me.main.Entry;
 import me.main.utils.HastebinUtils;
 import me.main.Prefixes;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Macro implements ICommand {
+	
 	@Override
 	public CommandType getType() {
 		return CommandType.PUBLIC;
@@ -65,8 +70,8 @@ public class Macro implements ICommand {
 			switch (args[0]) {
 				case "format":
 					if (message.getAttachments().isEmpty() && args.length > 1) {
-						String[] code = content.replaceAll("^(?:.|\\n)*?```((?:.|\\n)+?)```(?:.|\\n)*?$","$1").trim().split("\n");
-
+						String[] code = content.replaceAll("^(?:.*|\\n)*?```((?:.*|\\n)+?)```(?:.*|\\n)*?$","$1").trim().split("\n");
+						System.out.println("[AAA] Gets here");
 						boolean fullcheck = false;
 						boolean linenumbers = false;
 						boolean debug = false;
@@ -100,6 +105,9 @@ public class Macro implements ICommand {
 					break;
 				case "help":
 					sendHelp(channel);
+					break;
+				case "info":
+					execInfo(bot,author,channel,guild,message,command,args,content);
 			}
 		} else {
 			sendHelp(channel);
@@ -115,7 +123,7 @@ public class Macro implements ICommand {
 
 		MessageBuilder builder = new MessageBuilder();
 		builder.withChannel(channel)
-				.appendContent("Formatted scriptfile:");
+				.appendContent("Formatted scriptfile: ");
 		if(object.checksIndepth()) {
 			builder.appendContent("\nFound " + object.getExceptions().size() + " errors.");
 			if(debug)
@@ -202,5 +210,38 @@ public class Macro implements ICommand {
 		}
 
 		return true;
+	}
+	
+	private void execInfo(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, String[] args, final String content) {
+		
+		if(args.length < 2) {
+			sendHelp(channel);
+		}
+		
+		
+	}
+	
+	private EmbedCreateSpec buildEmbed(ResponseStruct struct) {
+	
+		EmbedCreateSpec spec = new EmbedCreateSpec();
+		spec.setTitle(struct.extendedName);
+		spec.setDescription("Direct Url: [$NAME$]($URL$) | Category: [$CATEGORY$]($CATURL$)\n\u00FF"
+						   .replace("$NAME$",struct.name)
+							.replace("$URL$", "http://beta.mkb.gorlem.ml/" + struct.resource.replace("/api/",""))
+							.replace("$CATEGORY$", struct.category)
+							.replace("$CATURL$", "http://beta.mkb.gorlem.ml/docs/" + struct.type.getUrl() + "#" + struct.category)
+						   );
+		spec.setColor(new Color(0xEF6578));
+		spec.setFooter("https://spthiel.github.io/files/704612_gear_512x512.png","Since v" + struct.version.major + "." + struct.version.minor + "." + struct.version.patch);
+		spec.setAuthor("Macromod", null, ""); //TODO
+		
+		spec.addField("Description", struct.description, true);
+		if(struct.permission != null) {
+			spec.addField("Permission", struct.permission, true);
+		}
+		if(struct.example != null) {
+			spec.addField("Example", "```" + struct.example.replace("\n","\\n") + "```", false);
+		}
+		return spec;
 	}
 }

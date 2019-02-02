@@ -197,7 +197,7 @@ public class Gif implements ICommand {
 	@Override
 	public void onLoad(Bot bot) {
 
-		Map<String,Object> config = bot.getResourceManager().getConfig("configs/main","gifs.json");
+		HashMap<String,Object> config = bot.getResourceManager().getConfig("configs/main","gifs.json");
 		if(config.keySet().isEmpty())
 			bot.getResourceManager().writeConfig("configs/main","gifs.json",config);
 

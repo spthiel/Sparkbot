@@ -1,0 +1,135 @@
+package me.macro.api;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
+
+public class ResponseStruct {
+    
+    private static ObjectMapper mapper = new ObjectMapper();
+    
+    public ResponseStruct(@JsonProperty("type") String _type) {
+        
+        type = Types.getTypeByName(_type);
+        fullyCached = false;
+    }
+    
+    public Types   type;
+    public boolean fullyCached;
+    
+    public String       resource;
+    public String       name         = "missing";
+    public String       extendedName = "missing";
+    public String       category;
+    public String       permission;
+    public String       description;
+    public String       example;
+    @JsonProperty("sinceVersion")
+    public SinceVersion version;
+    public List<Related> related;
+    public List<Link> links;
+    
+    public void overwriteNull(ResponseStruct struct) {
+        
+        fullyCached = true;
+        
+        if (type == null) { type = struct.type; }
+        if (resource == null) { resource = struct.resource; }
+        if (name.equals("missing")) { name = struct.name; }
+        if (extendedName.equals("missing")) { extendedName = struct.extendedName; }
+        if (category == null) { category = struct.category; }
+        if (permission == null) { permission = struct.permission; }
+        if (description == null) { description = struct.description; }
+        if (example == null) { example = struct.example; }
+        if (version == null) { version = struct.version; }
+        if (related == null) { related = struct.related; }
+        if (links == null) { links = struct.links; }
+        
+    }
+    
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class Related {
+        
+        public Related(@JsonProperty("type") String _type) {
+        
+            type = Types.getTypeByName(_type);
+        }
+        
+        public Types type;
+        public String name;
+        public String resource;
+        
+    }
+    
+    public static class SinceVersion {
+        
+        public SinceVersion(@JsonProperty("name") String _name, @JsonProperty("major") int _major, @JsonProperty("minor") int _minor, @JsonProperty("patch") int _patch) {
+            name = "v" + _major + "." + _minor + "." + _patch;
+            major = _major;
+            minor = _minor;
+            patch = _patch;
+        }
+        
+        public String name;
+        public int    major = 0, minor = 0, patch = 0;
+        
+    }
+    
+    public static class Link {
+        
+        public String url;
+        public String title;
+        
+    }
+    
+    public enum Types {
+        
+        ACTION("action", "actions"),
+        VARIABLE("variable", "variables"),
+        EVENT("event", "events"),
+        ITERATOR("iterator", "iterators");
+        
+        private final String name;
+        private final String url;
+        
+        Types(String name, String url) {
+            
+            this.name = name;
+            this.url = url;
+        }
+        
+        public String getName() {
+            
+            return name;
+        }
+        
+        public String getUrl() {
+            
+            return url;
+        }
+        
+        private static Types getTypeByName(String name) {
+            
+            for (Types t : Types.values()) {
+                if (t.getName().equalsIgnoreCase(name)) {
+                    return t;
+                }
+            }
+            return null;
+        }
+    }
+    
+    @Override
+    public String toString() {
+        
+        try {
+            return mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "Error";
+        }
+    }
+}

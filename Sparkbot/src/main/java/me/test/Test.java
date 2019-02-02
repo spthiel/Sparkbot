@@ -1,5 +1,7 @@
 package me.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,9 +9,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import me.macro.api.MacroCache;
+import me.macro.api.ResponseStruct;
+import me.macro.formatter.FormatObject;
+import me.macro.formatter.MacroFormatter;
+import me.main.utils.HTTP;
+
 public class Test {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		
 //		System.out.println(Character.toChars(0x1F970));
 
@@ -44,6 +52,14 @@ public class Test {
 		//System.out.println(HastebinUtils.postCode("test"));
 		//System.out.println(HastebinUtils.getUrl(null).orElse("null"));
 		
+		//new MacroCache();
+        String url = "https://beta.mkb.gorlem.ml/api/docs/actions/trace";
+        
+        ObjectMapper mapper = new ObjectMapper();
+        
+        String everything = HTTP.getAsString(url);
+        ResponseStruct cache = mapper.readValue(everything, ResponseStruct.class);
+        System.out.println(cache);
 	}
 	
 	public static boolean arrayIsSorted(int[] array) {

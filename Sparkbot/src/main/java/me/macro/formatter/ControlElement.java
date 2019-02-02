@@ -1,4 +1,4 @@
-package me.macro;
+package me.macro.formatter;
 
 @SuppressWarnings("unused")
 public enum ControlElement {

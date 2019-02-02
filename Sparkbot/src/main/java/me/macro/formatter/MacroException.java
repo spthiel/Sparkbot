@@ -1,4 +1,4 @@
-package me.macro;
+package me.macro.formatter;
 
 public class MacroException extends Exception {
 

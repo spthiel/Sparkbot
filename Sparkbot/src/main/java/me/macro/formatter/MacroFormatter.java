@@ -1,11 +1,7 @@
-package me.macro;
+package me.macro.formatter;
 
-import me.main.Entry;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.regex.Matcher;
 
 public class MacroFormatter {
 
@@ -111,11 +107,11 @@ public class MacroFormatter {
 
 							String argstring = response.getValue();
 							if(argstring != null) {
-								EffectiveTypes[] types = a.getArgs();
+								EffectiveTypes[] type = a.getArgs();
 								String prev = line;
 								List<String> args = parseArgs(line.replaceAll(".+?\\((.+)\\)", "$1"));
-								for (int i1 = 0; i1 < types.length; i1++) {
-									EffectiveTypes t = types[i1];
+								for (int i1 = 0; i1 < type.length; i1++) {
+									EffectiveTypes t = type[i1];
 									try {
 										args.set(i1, t.format(args.get(i1)));
 									} catch (IndexOutOfBoundsException e1) {

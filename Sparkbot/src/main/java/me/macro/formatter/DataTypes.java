@@ -1,6 +1,6 @@
-package me.macro;
+package me.macro.formatter;
 
-import me.macro.MacroException.MacroExceptionTypes;
+import me.macro.formatter.MacroException.MacroExceptionTypes;
 
 public enum DataTypes {
 

@@ -1,4 +1,4 @@
-package me.macro;
+package me.macro.formatter;
 
 import me.main.Entry;
 
