@@ -1,4 +1,4 @@
-package me.bot.commands.admin;
+package me.bot.commands.moderation;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;

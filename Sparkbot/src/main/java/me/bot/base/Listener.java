@@ -8,13 +8,17 @@ import discord4j.core.object.entity.*;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
 import discord4j.core.object.util.Permission;
+import discord4j.core.object.util.PermissionSet;
 import discord4j.core.object.util.Snowflake;
 import reactor.core.publisher.Flux;
 
 import me.bot.base.polls.Poll;
 
+import reactor.core.publisher.Mono;
+
 import java.time.Duration;
 import java.util.*;
+import java.util.function.Predicate;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Listener {
@@ -35,6 +39,7 @@ public class Listener {
                                     .getLastInteraction()) {
                                 polls.remove(i).onInactiv();
                             } else if (poll.ended()) {
+                                //noinspection SuspiciousListRemoveInLoop
                                 polls.remove(i);
                             }
                         }
@@ -164,71 +169,48 @@ public class Listener {
             return;
         }
         
-        commands.forEach(command -> {
-            
-            if (!isOnWhitelist && command.getType().equals(CommandType.PUBLIC)) {
-                return;
-            }
-            
-            for (String prefix : command.getPrefixes(guild)) {
-                
-                if (message.startsWith(prefix)) {
-                    
-                    String   messageWithoutPrefix = message.substring(prefix.length());
-                    String[] args                 = messageWithoutPrefix.split(" ");
-                    
-                    if (args.length == 0) {
-                        continue;
-                    }
-                    
-                    for (String name : command.getNames()) {
-                        
-                        
-                        if (!args[0].equalsIgnoreCase(name)) {
-                            continue;
-                        }
-                        
-                        command.hasPermission(bot, guild, member).subscribe(
-                            hasPermissions -> {
-                                if (hasPermissions) {
-                                    if (command.requiredBotPermissions() != null) {
-                                        List<Permission> required = requiredPermissions(guild, command.requiredBotPermissions());
-                                        
-                                        if (required != null && required.size() != 0) {
-                                            MessageAPI.sendAndDeleteMessageLater(
-                                                channel,
-                                                "<:red_cross:398120014974287873> **| I need `" + permsToString(required) + "` permissions to perfom that command.**",
-                                                5000L
-                                            );
-                                            return;
-                                        }
-                                    }
-                                    
-                                    System.out.println(member.getUsername() + " issued " + message);
-                                    command.run(
-                                            bot,
-                                            member,
-                                            channel,
-                                            guild,
-                                            event.getMessage(),
-                                            args[0],
-                                            Arrays.copyOfRange(args, 1, args.length),
-                                            message
-                                               );
-                                } else {
-                                    System.out.println(member.getUsername() + " failed to issue " + message);
-                                    MessageAPI.sendAndDeleteMessageLater(
-                                            channel,
-                                            "<:red_cross:398120014974287873> | **" + member.getUsername() + "** You don't have enough permissions to perform that command.",
-                                            5000L
-                                    );
-                                }
-                            }
-                        );
-                    }
-                }
-            }
-        });
+        commands
+                .stream()
+                .filter(command -> !(!isOnWhitelist && command.getType().equals(CommandType.PUBLIC)))
+                .forEach(command -> Arrays.stream(command.getPrefixes(guild))
+                                          .filter(message :: startsWith)
+                                          .map(prefix -> message.substring(prefix.length()))
+                                          .map(messageWithoutPrefix -> messageWithoutPrefix.split(" "))
+                                          .filter(args -> args.length > 0)
+                                          .forEach(
+                                                  args ->
+                                                          Arrays.stream(command.getNames())
+                                                                .filter(name -> args[0].equalsIgnoreCase(name))
+                                                                .findFirst()
+                                                                .ifPresent(ignored -> finalProcessing(event, command, guild, member, args, message, channel))
+                                                  ));
+        
+    }
+    
+    private void finalProcessing(final MessageCreateEvent event, final ICommand command, final Guild guild, final Member member, final String[] args, final String message, final TextChannel channel) {
+        command.hasPermission(bot, guild, member)
+               .subscribe(bool -> {
+                   if(!bool) {
+                       System.out.println(member.getUsername() + " failed to issue " + message);
+                       MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| " + member.getUsername() + "** You don't have enough permissions to perform that command.", 5000L);
+                   } else {
+                       Mono.just(true)
+                           .flatMap(ignored -> {
+                               if (command.requiredBotPermissions() == null) {
+                                   return Mono.just(Collections.<Permission>emptyList());
+                               }
+                               return requiredPermissions(channel, command.requiredBotPermissions());
+                           }).subscribe(list -> {
+                               if(list.size() != 0) {
+                                   System.out.println(member.getUsername() + " failed to issue " + message);
+                                   MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(list) + "` permissions to perfom that command.**", 5000L);
+                               } else {
+                                   System.out.println(member.getUsername() + " issued " + message);
+                                   command.run(bot, member, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
+                               }
+                           });
+                   }
+               });
     }
     
     private boolean isOnWhitelist(Bot bot, long guildid, Channel channel) {
@@ -241,29 +223,30 @@ public class Listener {
         
         Map<String, Object> map = bot.getResourceManager().getConfig("configs/" + guildid, "whitelist.json");
         
-        if(!map.containsKey("channels")) {
+        if (!map.containsKey("channels")) {
             return null;
         }
         
         Object channels = map.get("channels");
         
-        if(!(channels instanceof List)) {
+        if (!(channels instanceof List)) {
             return null;
         }
         
-        if(((List)channels).size() == 0) {
+        if (((List) channels).size() == 0) {
             return null;
         }
         
-        if(!(((List)channels).get(0) instanceof String)) {
+        if (!(((List) channels).get(0) instanceof String)) {
             return null;
         }
-        
+    
+        //noinspection unchecked
         return (List<String>) map.get("channels");
     }
     
     private void sendNotAValidPollRespond(MessageChannel channel) {
-    
+        MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| That's not a valid response to the poll.", 5000L);
     }
     
     private Poll getPollOfPlayer(long userid) {
@@ -272,6 +255,7 @@ public class Listener {
         for (int i = 0 ; i < polls.size() ; i++) {
             Poll poll = polls.get(i);
             if (poll.ended()) {
+                //noinspection SuspiciousListRemoveInLoop
                 polls.remove(i);
             } else if (now - poll.getLastInteraction() > poll.getTimeUntilInactive() && poll.getTimeUntilInactive() >= 0) {
                 polls.remove(i).onInactiv();
@@ -284,25 +268,17 @@ public class Listener {
     }
     
     //TODO: Add permission check
-    private List<Permission> requiredPermissions(Guild guild, List<Permission> perms) {
+    private Mono<List<Permission>> requiredPermissions(TextChannel channel, List<Permission> perms) {
         
-        return null;
-        //		EnumSet<Permission> set = bot.getBotuser();
-        //		if (set.contains(Permission.ADMINISTRATOR))
-        //			return null;
-        //		else {
-        //			List<Permission> out = null;
-        //			for (Permission perm : perms) {
-        //				if (!set.contains(perm))
-        //					if (out == null) {
-        //						out = new ArrayList<>();
-        //						out.add(perm);
-        //					} else
-        //						out.add(perm);
-        //
-        //			}
-        //			return out;
-        //		}
+        Flux<Permission> permissions = channel
+                .getEffectivePermissions(bot.getBotuser().getId())
+                .flatMapMany(Flux :: fromIterable);
+        Mono<Boolean>    isAdmin     = permissions.filter(perm -> perm.equals(Permission.ADMINISTRATOR)).hasElements();
+        
+        return isAdmin.filter(Predicate.isEqual(Boolean.TRUE))
+                      .flatMap((ignored) -> Mono.just(Collections.<Permission> emptyList()))
+                      .switchIfEmpty(Mono.just(perms))
+                      .filterWhen(perm -> permissions.any(permission -> permissions.equals(perm)).map(bool -> !bool));
     }
     
     private String permsToString(List<Permission> perms) {

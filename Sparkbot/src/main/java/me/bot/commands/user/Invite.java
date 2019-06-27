@@ -47,7 +47,7 @@ public class Invite implements ICommand {
 
     @Override
     public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
-       channel.createMessage(new MessageCreateSpec().setContent("Hello, <@" + author.getId().asLong() + "> you can invite me with <" + LINK + ">")).subscribe();
+       channel.createMessage(spec -> spec.setContent("Hello, <@" + author.getId().asLong() + "> you can invite me with <" + LINK + ">")).subscribe();
 
     }
 

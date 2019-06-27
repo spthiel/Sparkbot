@@ -1,10 +1,9 @@
-package me.bot.commands.admin;
+package me.bot.commands.moderation;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import me.bot.base.*;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 

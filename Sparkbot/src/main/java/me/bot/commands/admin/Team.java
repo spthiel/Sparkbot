@@ -1,22 +1,23 @@
-package me.bot.commands.superadmin;
+package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Image;
 import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
+
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Entry;
-import me.bot.base.configs.PermissionManager;
 import me.main.Prefixes;
 import reactor.core.publisher.Flux;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Consumer;
 
+@SuppressWarnings("WeakerAccess")
 public class Team implements ICommand {
 
 	@Override
@@ -62,6 +63,8 @@ public class Team implements ICommand {
 				case "get":
 					logGet(bot,channel,guild);
 					break;
+				default:
+					break;
 			}
 
 		} else {
@@ -91,7 +94,7 @@ public class Team implements ICommand {
 
 					String out = (returned ? "Successfully added <@" + id + "> to bot admins." : "Failed to add <@" + id + "> to bot admins.");
 
-					channel.createMessage(new MessageCreateSpec().setContent(out));
+					channel.createMessage(spec -> spec.setContent(out)).subscribe();
 
 					break;
 				case "remove":
@@ -111,7 +114,7 @@ public class Team implements ICommand {
 
 					out = (returned ? "Successfully removed <@" + id + "> to bot admins." : "Failed to remove <@" + id + "> to bot admins.");
 
-					channel.createMessage(new MessageCreateSpec().setContent(out));
+					channel.createMessage(spec -> spec.setContent(out)).subscribe();
 
 					break;
 			}
@@ -152,14 +155,14 @@ public class Team implements ICommand {
 
 						String url = bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse("");
 
-						EmbedCreateSpec embed = new EmbedCreateSpec()
+						Consumer<EmbedCreateSpec> embed = (e) -> e
 								.setColor(new Color(890083))
 								.setThumbnail(url)
 								.setAuthor("Sparkbot Team","","")
 								.addField("Owners", ownerBuilder.toString(), true)
 								.addField("Admins", adminsBuilder.toString(), true);
 
-						channel.createMessage(new MessageCreateSpec().setEmbed(embed)).subscribe();
+						channel.createMessage(spec -> spec.setEmbed(embed)).subscribe();
 					}
 		);
 

@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Stats implements ICommand {
 
@@ -58,16 +59,20 @@ public class Stats implements ICommand {
 			guildcount ->{
 				Instant jointime = guild.getJoinTime().orElse(null);
 				String formattedTime = jointime == null ? "Error" : DateTimeFormatter.ofPattern("hh:mm:ss a dd.MMM.yy").withZone(ZoneId.of("UTC")).format(jointime);
-				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec()
-						.setColor(new Color(0xDC143C))
-						.setThumbnail(bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse(""))
-						.addField("Creator", "spthiel#1317", true)
-						.addField("Guilds", guildcount + "", true)
-						.addField("Join time", formattedTime, true)
-						.addField("Uptime",uptime(bot),true)
-					)
-				).subscribe();
+				channel.createMessage(spec -> spec.setEmbed(getEmbed(bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse(""), guildcount, formattedTime, uptime(bot)))).subscribe();
 			});
+	}
+
+	private Consumer<EmbedCreateSpec> getEmbed(String avatarurl, Long guildcount, String formattedTime, String uptime) {
+		return (spec) ->
+			spec
+					.setColor(new Color(0xDC143C))
+					.setThumbnail(avatarurl)
+					.addField("Creator", "spthiel#1317", true)
+					.addField("Guilds", guildcount + "", true)
+					.addField("Join time", formattedTime, true)
+					.addField("Uptime", uptime,true)
+		;
 	}
 
 	private String uptime(Bot bot) {

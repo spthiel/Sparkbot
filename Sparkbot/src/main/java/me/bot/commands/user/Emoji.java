@@ -11,7 +11,6 @@ import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.bot.base.MessageBuilder;
 import me.main.Prefixes;
 import reactor.util.function.Tuples;
 
@@ -20,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,14 +62,18 @@ public class Emoji implements ICommand {
 			String emoji = args[0];
 			if(emoji.matches("<:.+?:\\d+>")) {
 				emoji = emoji.replaceAll("<:.+?:(\\d+)>","$1");
-				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji + ".png?v=1"))).subscribe();
+				String finalEmoji = emoji;
+				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji + ".png?v=1"))).subscribe();
 			} else if(emoji.matches("<a:.+?:\\d+>")) {
 				emoji = emoji.replaceAll("<a:.+?:(\\d+)>","$1");
-				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji + ".gif?v=1"))).subscribe();
+				String finalEmoji1 = emoji;
+				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji1 + ".gif?v=1"))).subscribe();
 			} else if(emoji.matches("a\\d{8,}")) {
-				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji.replace("a","") + ".gif?v=1"))).subscribe();
+				String finalEmoji2 = emoji;
+				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji2.replace("a","") + ".gif?v=1"))).subscribe();
 			} else if(emoji.matches("\\d{8,}")) {
-				channel.createMessage(new MessageCreateSpec().setEmbed(new EmbedCreateSpec().setImage("https://cdn.discordapp.com/emojis/" + emoji + ".png?v=1"))).subscribe();
+				String finalEmoji3 = emoji;
+				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji3 + ".png?v=1"))).subscribe();
 			} else {
 				List<String> argsList = Arrays.asList(args);
 				int ofMessageIndex = argsList.indexOf("of");
@@ -94,28 +98,25 @@ public class Emoji implements ICommand {
 				Snowflake channelFlake = (channelID != null ? Snowflake.of(channelID) : channel.getId());
 
 				bot.getClient().getMessageById(channelFlake,messageFlake).subscribe(
-					message1 -> message1.getAuthor().subscribe(
+					message1 -> message1.getAuthor().ifPresent(
 						messageAuthor -> {
 							String c = message1.getContent().orElse("");
 							Matcher m = pattern.matcher(c);
 
-							MessageBuilder builder = new MessageBuilder();
-							EmbedCreateSpec embed = new EmbedCreateSpec();
-							embed.setTitle("Emojis of " + messageAuthor.getUsername() + "'s message")
-									.setColor(new Color(0xdc143c));
-							builder.withChannel(channel);
+							Consumer<EmbedCreateSpec> embed = e -> {
+								e.setTitle("Emojis of " + messageAuthor.getUsername() + "'s message")
+										.setColor(new Color(0xdc143c));
 
-							int counter = 1;
-
-							while (m.find()) {
-								embed.addField(" - " + counter + ". " + m.group(1),m.group(2),false);
-								counter++;
-							}
-
-							builder.withEmbed(embed).send().subscribe();
+								int counter = 1;
+								while (m.find()) {
+									e.addField(" - " + counter + ". " + m.group(1),m.group(2),false);
+									counter++;
+								}
+							};
+							channel.createMessage(spec -> spec.setEmbed(embed)).subscribe();
 						}
 					),
-					error -> channel.createMessage(new MessageCreateSpec().setContent("An error occured whilst getting the message.")).subscribe()
+					error -> channel.createMessage(spec -> spec.setContent("An error occured whilst getting the message.")).subscribe()
 				);
 			}
 		}

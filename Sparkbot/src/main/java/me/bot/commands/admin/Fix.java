@@ -1,4 +1,4 @@
-package me.bot.commands.superadmin;
+package me.bot.commands.admin;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
@@ -6,8 +6,6 @@ import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
-import discord4j.core.spec.MessageCreateSpec;
 
 import java.util.List;
 
@@ -57,7 +55,7 @@ public class Fix implements ICommand {
 	@Override
 	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
 		
-		channel.createMessage(new MessageCreateSpec().setContent("It was working.. why u do dis to me?")).subscribe();
+		channel.createMessage(spec -> spec.setContent("It was working.. why u do dis to me?")).subscribe();
 	}
 	
 	@Override
@@ -67,7 +65,7 @@ public class Fix implements ICommand {
 			.getEventDispatcher()
 			.on(MessageCreateEvent.class)
 			.subscribe(
-				event -> {
+				event ->
 					event.getMessage().getChannel()
 						.filter(messageChannel -> event.getMember().isPresent() && !event.getMember().get().isBot())
 						.subscribe(
@@ -78,8 +76,8 @@ public class Fix implements ICommand {
 									bot.setupMessageCreateListener();
 								}
 							}
-						);
-				},
+						)
+				,
 				Throwable:: printStackTrace
 			);
 	}

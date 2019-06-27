@@ -13,7 +13,7 @@ import java.time.Duration;
 public class MessageAPI {
 
     public static void sendAndDeleteMessageLater(final MessageChannel channel , final String content, long lifetime) {
-        deleteLater(channel.createMessage(new MessageCreateSpec().setContent(content)),lifetime);
+        deleteLater(channel.createMessage(spec -> spec.setContent(content)),lifetime);
     }
 
 	public static void sendAndDeleteMessageLater(final MessageBuilder content, long lifetime) {

@@ -51,7 +51,7 @@ public class Choice implements ICommand {
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		if(args.length > 0) {
 			String rndchoice = args[RANDOM.nextInt(args.length)];
-			channel.createMessage(new MessageCreateSpec().setContent("I choose " + rndchoice)).subscribe();
+			channel.createMessage(spec -> spec.setContent("I choose " + rndchoice)).subscribe();
 		}
 	}
 

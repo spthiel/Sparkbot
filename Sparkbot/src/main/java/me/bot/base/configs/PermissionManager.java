@@ -9,15 +9,29 @@ import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.PermissionSet;
 import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
+import me.bot.base.CommandType;
 import me.bot.base.configs.ResourceManager;
 import me.main.Entry;
 import me.main.Main;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 public class PermissionManager {
-
+	
+	public static Mono<Boolean> hasGuildPermissions(Member author, List<Permission> perms) {
+		if(perms == null) {
+			return Mono.just(true);
+		}
+		
+		return author.getBasePermissions()
+				  .filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(perms))
+				  .hasElement();
+	}
+	
 	private Bot bot;
 
 	public PermissionManager(Bot bot) {
@@ -31,29 +45,29 @@ public class PermissionManager {
 
 	private HashMap<String,Object> config;
 
-	public Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
-		return bot.getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))
-				.flatMapMany(Member::getRoles)
-				.map(Role::getPermissions)
-				.map(PermissionSet::asEnumSet)
-				.reduce((set0, set1) -> {
-					EnumSet<Permission> copy = EnumSet.copyOf(set0);
-					copy.addAll(set1);
-					return copy;
-				});
-	}
-
-	public Mono<EnumSet<Permission>> getPermissions(Guild guild, User user) {
-		return bot.getClient().getMemberById(guild.getId(), user.getId())
-				.flatMapMany(Member::getRoles)
-				.map(Role::getPermissions)
-				.map(PermissionSet::asEnumSet)
-				.reduce((set0, set1) -> {
-					EnumSet<Permission> copy = EnumSet.copyOf(set0);
-					copy.addAll(set1);
-					return copy;
-				});
-	}
+//	public Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
+//		return bot.getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))
+//				.flatMapMany(Member::getRoles)
+//				.map(Role::getPermissions)
+//				.map(PermissionSet::asEnumSet)
+//				.reduce((set0, set1) -> {
+//					EnumSet<Permission> copy = EnumSet.copyOf(set0);
+//					copy.addAll(set1);
+//					return copy;
+//				});
+//	}
+//
+//	public Mono<EnumSet<Permission>> getPermissions(Guild guild, User user) {
+//		return bot.getClient().getMemberById(guild.getId(), user.getId())
+//				.flatMapMany(Member::getRoles)
+//				.map(Role::getPermissions)
+//				.map(PermissionSet::asEnumSet)
+//				.reduce((set0, set1) -> {
+//					EnumSet<Permission> copy = EnumSet.copyOf(set0);
+//					copy.addAll(set1);
+//					return copy;
+//				});
+//	}
 
 	public void setupPermfile() {
 
@@ -152,10 +166,12 @@ public class PermissionManager {
 	public boolean removeBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
+			//noinspection unchecked
 			List<Object> toPut = (ArrayList)config.get("Admins");
 			for (int i = 0; i < toPut.size(); i++) {
 				Object object = toPut.get(i);
 				if (id == (Long) object) {
+					//noinspection Duplicates
 					toPut.remove(i);
 				}
 
@@ -167,6 +183,7 @@ public class PermissionManager {
 		}
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isBotOwner(User user) {
 
 		final long id = user.getId().asLong();
@@ -218,10 +235,11 @@ public class PermissionManager {
 	public boolean removeBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			List<Object> toPut = (ArrayList)config.get("Owners");
+			ArrayList toPut = (ArrayList)config.get("Owners");
 			for (int i = 0; i < toPut.size(); i++) {
 				Object object = toPut.get(i);
 				if (id == (Long) object) {
+					//noinspection Duplicates
 					toPut.remove(i);
 				}
 

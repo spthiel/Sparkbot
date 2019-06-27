@@ -4,16 +4,15 @@ import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import me.bot.base.*;
 import me.main.Prefixes;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ModHelp implements ICommand {
+public class SuperAdminHelp implements ICommand {
 	@Override
 	public CommandType getType() {
-		return CommandType.MOD;
+		return CommandType.ADMIN;
 	}
 
 	@Override
@@ -23,12 +22,13 @@ public class ModHelp implements ICommand {
 
 	@Override
 	public String[] getNames() {
+		
 		return new String[]{"help","h"};
 	}
 
 	@Override
 	public String[] getPrefixes(Guild guild) {
-		return Prefixes.getAdminPrefixesFor(guild);
+		return new String[]{Prefixes.getSuperAdminPrefix()};
 	}
 
 	@Override
@@ -43,17 +43,14 @@ public class ModHelp implements ICommand {
 
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
-
 		ArrayList<String> out = new ArrayList<>();
-		final String serverprefix = Prefixes.getAdminPrefixFor(guild);
-		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.MOD)).collect(Collectors.toList()).forEach(iCommand -> {
-			out.add("`" + serverprefix + "" + iCommand.getNames()[0] + "` - " + iCommand.getHelp());
-		});
+		final String serverprefix = Prefixes.getSuperAdminPrefix();
+		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.ADMIN)).collect(Collectors.toList()).forEach(iCommand -> out.add("`" + serverprefix + "" + iCommand.getNames()[0] + "` - " + iCommand.getHelp()));
 
 		MessageBuilder builder = new MessageBuilder();
 
 		builder.withChannel(channel);
-		builder.appendContent("Moderator Commands:\n");
+		builder.appendContent("Superadmin Commands:\n");
 		out.forEach(msg -> builder.appendContent(msg + "\n"));
 		builder.send().subscribe();
 

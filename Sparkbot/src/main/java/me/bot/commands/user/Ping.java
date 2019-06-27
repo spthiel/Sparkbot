@@ -49,17 +49,17 @@ public class Ping implements ICommand {
     @Override
     public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
         Instant invoker = message.getTimestamp();
-        channel.createMessage(new MessageCreateSpec().setContent("**Pong!**")).subscribe(
+        channel.createMessage(spec -> spec.setContent("**Pong!**")).subscribe(
             message1 -> {
                 Instant messgeTimestamp = message1.getTimestamp();
                 long delay = messgeTimestamp.toEpochMilli()-invoker.toEpochMilli();
 
-                message1.edit(new MessageEditSpec().setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message.")).subscribe(
+                message1.edit(spec -> spec.setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me " + delay + "ms to read your message.")).subscribe(
                         message2 -> {
                             Instant edited = message2.getEditedTimestamp().orElse(null);
                             if(edited != null) {
                                 long delay2 = edited.toEpochMilli()-messgeTimestamp.toEpochMilli();
-                                message2.edit(new MessageEditSpec().setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me **" + delay + "**ms to read your message and **" + delay2 + "**ms to edit it again.")).subscribe();
+                                message2.edit(spec -> spec.setContent("**Pong!** Hey <@" + author.getId().asLong() + "> it took me **" + delay + "**ms to read your message and **" + delay2 + "**ms to edit it again.")).subscribe();
                             }
                         }
                 );

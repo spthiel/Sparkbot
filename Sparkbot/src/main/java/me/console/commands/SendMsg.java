@@ -10,8 +10,8 @@ import me.console.ConsoleCommand;
 public class SendMsg implements ConsoleCommand {
 	@Override
 	public String[] getNames() {
-		String[] out = {"send"};
-		return out;
+		
+		return new String[]{"send"};
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class SendMsg implements ConsoleCommand {
 
 			MessageChannel channel = DiscordUtils.getMessageChannelOfChannel(Bot.getBotByName(args[0]).getClient().getChannelById(Snowflake.of(id)).block());
 			if(channel != null)
-				channel.createMessage(new MessageCreateSpec().setContent(message.toString().trim()));
+				channel.createMessage(spec -> spec.setContent(message.toString().trim()));
 			else
 				System.out.println("Couldn't find that channel.");
 		}

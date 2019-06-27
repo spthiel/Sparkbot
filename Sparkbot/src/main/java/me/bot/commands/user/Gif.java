@@ -17,10 +17,10 @@ import me.bot.gifs.Gifmanager;
 import me.main.Messages;
 import me.main.Prefixes;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Gif implements ICommand {
 
@@ -74,15 +74,15 @@ public class Gif implements ICommand {
 			if(args.length > 0) {
 				if(args[0].equalsIgnoreCase("report")) {
 					if(!lastGifs.containsKey(author.getId())) {
-						channel.createMessage(new MessageCreateSpec().setContent(Messages.Emoji.RED_CROSS.toString() + " | **You haven't used the gif command yet**")).subscribe();
+						channel.createMessage(spec -> spec.setContent(Messages.Emoji.RED_CROSS.toString() + " | **You haven't used the gif command yet**")).subscribe();
 						return;
 					}
 
 					String image = lastGifs.get(author.getId());
 					String m = "[IMAGE REPORT] From " + author.getUsername() + "#" + author.getDiscriminator() + " " + image;
 
-					EmbedCreateSpec reportSpec = new EmbedCreateSpec();
-					reportSpec.setColor(new Color(0xE84112))
+					Consumer<EmbedCreateSpec> reportSpec = embed -> embed
+							.setColor(new Color(0xE84112))
 							.setTitle("**`IMAGE REPORT`**")
 							.setThumbnail(image)
 							.addField("Reporter",author.getUsername() + "#" + author.getDiscriminator(),true)
@@ -94,13 +94,13 @@ public class Gif implements ICommand {
 					String successfull = "Successfully reported <" + image + ">";
 					if(reportChannel == null) {
 						System.out.println(m);
-						channel.createMessage(new MessageCreateSpec().setContent(successfull)).subscribe();
+						channel.createMessage(spec -> spec.setContent(successfull)).subscribe();
 					} else {
-						reportChannel.createMessage(new MessageCreateSpec().setEmbed(reportSpec)).subscribe(
-								ignored -> channel.createMessage(new MessageCreateSpec().setContent(successfull)).subscribe(),
+						reportChannel.createMessage(spec -> spec.setEmbed(reportSpec)).subscribe(
+								ignored -> channel.createMessage(spec -> spec.setContent(successfull)).subscribe(),
 								ignored -> {
 									System.out.println(m);
-									channel.createMessage(new MessageCreateSpec().setContent(successfull)).subscribe();
+									channel.createMessage(spec -> spec.setContent(successfull)).subscribe();
 								}
 						);
 					}
@@ -114,7 +114,7 @@ public class Gif implements ICommand {
 		}
 	}
 
-	private void parseCommand(Bot bot, Guild guild, TextChannel channel, Member author, String command, @Nullable String arg) {
+	private void parseCommand(Bot bot, Guild guild, TextChannel channel, Member author, String command, String arg) {
 		String authorname = author.getDisplayName();
 		if(arg == null) {
 			Gifmanager manager = getGifmanager(command);
@@ -160,7 +160,7 @@ public class Gif implements ICommand {
 							else
 								name = member.getDisplayName();
 
-							sendImage(manager,channel,author,authorname,member.getDisplayName());
+							sendImage(manager,channel,author,authorname,name);
 						}
 					}
 			);
@@ -168,7 +168,7 @@ public class Gif implements ICommand {
 
 	}
 
-	private void sendImage(@Nullable Gifmanager manager,TextChannel channel, Member member, String executor, String username) {
+	private void sendImage(Gifmanager manager,TextChannel channel, Member member, String executor, String username) {
 		if(manager != null) {
 			String img = manager.run(channel, executor, username);
 			lastGifs.put(member.getId(), img);
@@ -226,11 +226,13 @@ public class Gif implements ICommand {
 
 		for(String key : config.keySet()) {
 			try {
-
+				
+				//noinspection unchecked
 				Map<String,Object> entry = (Map<String, Object>) config.get(key);
 
 				String replacer = (String)entry.get("repl");
-
+				
+				//noinspection unchecked
 				ArrayList<String> gifs = (ArrayList<String>) entry.get("gifs");
 
 				addGifmanager(new Gifmanager(key, gifs.toArray(new String[gifs.size()]), replacer));

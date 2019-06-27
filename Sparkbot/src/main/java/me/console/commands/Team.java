@@ -10,7 +10,9 @@ import me.bot.base.configs.PermissionManager;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Objects;
 
+@SuppressWarnings("WeakerAccess")
 public class Team implements ConsoleCommand {
 
 	@Override
@@ -31,6 +33,7 @@ public class Team implements ConsoleCommand {
 				case "get":
 					logGet(Bot.getBotByName(args[0]));
 					break;
+				default:
 			}
 
 		} else {
@@ -51,8 +54,8 @@ public class Team implements ConsoleCommand {
 					}
 
 					long id = Long.parseLong(idstring);
-					if(bot.getPermissionManager().isBotAdmin(id)) {
-						System.out.println("User is already admin");
+					if(Objects.requireNonNull(bot).getPermissionManager().isBotAdmin(id)) {
+						System.out.println("User is already moderation");
 						return;
 					}
 
@@ -70,7 +73,7 @@ public class Team implements ConsoleCommand {
 						return;
 					}
 					id = Long.parseLong(idstring);
-					if(bot.getPermissionManager().isBotOwner(id)) {
+					if(Objects.requireNonNull(bot).getPermissionManager().isBotOwner(id)) {
 						return;
 					}
 

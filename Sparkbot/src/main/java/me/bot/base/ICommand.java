@@ -9,28 +9,19 @@ import java.security.Permissions;
 import java.util.List;
 
 public interface ICommand {
-
+	
+	
 	default Mono<Boolean> hasPermission(Bot bot, Guild guild, Member author) {
-
+		
 		if (bot.getPermissionManager().isBotAdmin(author))
 			return Mono.just(true);
 		else if(getType() != CommandType.ADMIN)
-			return hasGuildPermissions(bot, guild, author);
+			return PermissionManager.hasGuildPermissions(author, getRequiredPermissions());
 		else
 			return Mono.just(false);
 	}
-
-	default Mono<Boolean> hasGuildPermissions(Bot bot, Guild guild, Member author) {
-		final List<Permission> perms = getRequiredPermissions();
-		if(perms == null) {
-			return Mono.just(true);
-		}
-		
-		return bot.getPermissionManager().getPermissions(guild,author)
-			.filter(permissions -> permissions.contains(Permission.ADMINISTRATOR) || permissions.containsAll(perms))
-			.hasElement();
-	}
-
+	
+	
 	CommandType getType();
 	String getHelp();
 	String[] getNames();

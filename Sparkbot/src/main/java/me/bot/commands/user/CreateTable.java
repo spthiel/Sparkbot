@@ -6,16 +6,21 @@ import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
-import me.bot.base.MessageBuilder;
 import me.main.utils.HTTP;
 import me.main.Prefixes;
 import me.tablecreator.Cell;
 import me.tablecreator.Grid;
 import me.tablecreator.TCreator;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class CreateTable implements ICommand {
 	@Override
@@ -63,7 +68,6 @@ public class CreateTable implements ICommand {
 						object = TCreator.parseString(new ArrayList<>(Arrays.asList(code)),1);
 					else
 						object = TCreator.parseString(new ArrayList<>(Arrays.asList(code)),0);
-					System.out.println(object.getGrid().length + "x" + object.getGrid()[0].length);
 					generateAndSendGridAsCssAndMD(object, channel);
 				} else {
 					getAttachment(message.getAttachments().iterator().next(), channel);
@@ -78,16 +82,13 @@ public class CreateTable implements ICommand {
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-			channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).subscribe();
+			channel.createMessage(spec -> spec.setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).subscribe();
 		}
 	}
 
 	private void sendHelp(TextChannel channel) {
-		MessageBuilder builder = new MessageBuilder();
-		builder.withChannel(channel);
-		builder.appendContent("**Table creator help**")
-				.appendContent("\n`s!table` will run the command. You need to attach the table as .txt file or in a codeblock.");
-		builder.send().subscribe();
+		Consumer<MessageCreateSpec> spec = s -> s.setContent("**Table creator help**\n`s!table` will run the command. You need to attach the table as .txt file or in a codeblock.");
+		channel.createMessage(spec).subscribe();
 	}
 
 	@Override
@@ -104,10 +105,10 @@ public class CreateTable implements ICommand {
 				generateAndSendGridAsCssAndMD(object,channel);
 
 			} catch (Exception e) {
-				channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).subscribe();
+				channel.createMessage(spec -> spec.setContent("<:red_cross:398120014974287873> **| Something went wrong.**")).subscribe();
 			}
 		} else {
-			channel.createMessage(new MessageCreateSpec().setContent("<:red_cross:398120014974287873> **| Please attach a txt file.**")).subscribe();
+			channel.createMessage(spec -> spec.setContent("<:red_cross:398120014974287873> **| Please attach a txt file.**")).subscribe();
 		}
 
 	}
@@ -135,49 +136,52 @@ public class CreateTable implements ICommand {
 			} else {
 				md = md.replace("%ROW%",ROW_MARKDOWN.replace("%HEADER%"," table-header"));
 			}
-
-			for (int x = 0; x < cells.length; x++) {
-
-				Cell cell = cells[x][y];
+			
+			for (Cell[] cell1 : cells) {
+				
+				Cell cell = cell1[y];
 				if (cell == null) {
-
+					
 					md = md.replace("%CELL%", CELL_MARKDOWN
 							.replace("%CONTENT%", "a")
-							.replace("%CLASS%"," empty"));
-
+							.replace("%CLASS%", " empty"));
+					
 				} else if (cell.getHover() != null) {
-
+					
 					index++;
 					String elementclass = BASECLASS + index;
 					md = md.replace("%CELL%", CELL_MARKDOWN
 							.replace("%CONTENT%", cell.getMessage())
 							.replace("%CLASS%", " " + elementclass));
 					css.add("." + elementclass + ":after{ content: \"" + cell.getHover() + "\"}");
-
+					
 				} else {
 					md = md.replace("%CELL%", CELL_MARKDOWN
-							.replace("%CONTENT%",cell.getMessage())
-							.replace("%CLASS%",""));
+							.replace("%CONTENT%", cell.getMessage())
+							.replace("%CLASS%", ""));
 				}
-
-
-
+				
+				
 			}
 			md = md.replace("%CELL%","");
 		}
 		md = md.replace("%ROW%","");
 
-		MessageBuilder markdown = new MessageBuilder();
-		markdown.withChannel(channel);
-		markdown.appendContent("**The markdown:**")
-				.withAttachment("table.md",md)
-				.send().subscribe();
+		InputStream mdStream = new ByteArrayInputStream(md.getBytes(StandardCharsets.UTF_8));
+		InputStream cssStream = new ByteArrayInputStream(String.join("\n",css).getBytes(StandardCharsets.UTF_8));
 
-		MessageBuilder builder = new MessageBuilder();
-		builder.withChannel(channel);
-		builder.appendContent("**The CSS:**")
-				.withAttachment("theme.css",String.join("\n",css))
-				.send().subscribe();
 
+		Consumer<MessageCreateSpec> mdSpec = s -> {
+			s.setContent("**The markdown:**");
+			s.addFile("table.md", mdStream);
+		};
+
+		Consumer<MessageCreateSpec> cssSpec = s -> {
+			s.setContent("**The CSS:**");
+			s.addFile("theme.css", cssStream);
+		};
+
+		channel.createMessage(mdSpec).subscribe();
+		channel.createMessage(cssSpec).subscribe();
 	}
 }

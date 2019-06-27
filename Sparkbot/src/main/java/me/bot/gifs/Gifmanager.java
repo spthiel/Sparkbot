@@ -1,17 +1,19 @@
 package me.bot.gifs;
 
+import discord4j.core.object.Embed;
 import discord4j.core.object.entity.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 
 import java.awt.*;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class Gifmanager {
 
 	private String name;
 	private String[] gifs;
-	private int count = 0;
+	private int count;
 	private String replacer;
 	private static Random random = new Random();
 
@@ -24,12 +26,15 @@ public class Gifmanager {
 
 	public String run(TextChannel channel, String executor, String username) {
 		String image = getRandomImage();
-		EmbedCreateSpec embed = new EmbedCreateSpec();
-		embed.setColor(new Color(511973));
-		embed.setImage(image);
-		embed.setTitle(replacer.replace("%user",username).replace("%executor",executor));
-		channel.createMessage(new MessageCreateSpec().setEmbed(embed)).subscribe();
+		channel.createMessage(spec -> spec.setEmbed(specConsumer(image, executor, username))).subscribe();
 		return image;
+	}
+
+	private Consumer<EmbedCreateSpec> specConsumer(String image, String executor, String username) {
+		return spec ->
+			spec.setColor(new Color(511973))
+			.setImage(image)
+			.setTitle(replacer.replace("%user",username).replace("%executor",executor));
 	}
 
 	private String getRandomImage() {

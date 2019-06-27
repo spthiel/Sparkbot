@@ -1,4 +1,4 @@
-package me.bot.commands.admin;
+package me.bot.commands.moderation;
 
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
@@ -7,7 +7,6 @@ import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.util.Permission;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import me.bot.base.Bot;

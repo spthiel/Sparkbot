@@ -1,15 +1,18 @@
-package me.bot.commands.superadmin;
+package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
+
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
-public class Avatar implements ICommand {
+public class Test implements ICommand {
 	@Override
 	public CommandType getType() {
 		return CommandType.ADMIN;
@@ -17,12 +20,12 @@ public class Avatar implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Changes bot's Avatar";
+		return "Testcommand";
 	}
 
 	@Override
 	public String[] getNames() {
-		return new String[]{"avatar","changeavatar"};
+		return new String[]{"test"};
 	}
 
 	@Override
@@ -42,26 +45,24 @@ public class Avatar implements ICommand {
 
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
-		if(args.length > 1) {
 
-			//TODO: Fix stuff
-			
-			
-//			try {
-//				RequestBuffer.request(() -> {
-//					String ending = args[1].replaceAll(".*\\.(.+?)$", "\\.$1");
-//					System.out.println(ending);
-//					bot.getClient().changeAvatar(Image.forUrl(ending, args[1]));
-//				}).get();
-//				RequestBuffer.request(() -> {
-//					message.getChannel().sendMessage("Successfully changed the avatar of the bot to " + bot.getClient().getOurUser().getAvatarURL());
-//				});
-//			} catch (DiscordException e) {
-//				RequestBuffer.request(() -> {
-//					message.getChannel().sendMessage("Failed to change the avatar of the bot.");
-//				});
-//			}
-		}
+		channel.createMessage(mspec -> mspec.setEmbed(spec -> spec
+				.setColor(new Color(colorToInt("#2409E9")))
+				.addField("Command",command,true)
+				.addField("Args", Arrays.toString(args),true)
+				.addField("Content","`" + content + "`",true)
+				.addField("Channel",channel.getName(),true)
+				.addField("Guild",guild.getName(),true)
+				.addField("Author", "<@" + author.getId().asLong() + ">",true)
+				.addField("Author name:", author.getUsername(),true)
+				.addField("Author Nickname:", author.getNickname().orElse("null"),true))
+		).subscribe();
+
+		
+	}
+
+	private int colorToInt(String colorhex) {
+		return Integer.parseInt(colorhex.replace("#",""),16);
 	}
 
 	@Override

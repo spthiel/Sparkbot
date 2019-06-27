@@ -1,4 +1,4 @@
-package me.bot.commands.admin;
+package me.bot.commands.moderation;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
@@ -74,6 +74,7 @@ public class Chars implements ICommand, IDisabledCommand {
 				case "list":
 					HashMap<String,Object> object = getConfig(bot,guild.getId().asLong());
 					if (object.containsKey("questions")) {
+						//noinspection unchecked
 						ArrayList<Object> questions = (ArrayList) object.get("questions");
 						Option option = new Option(bot, author, channel, "List of your questions:", "Use `exit` to leave the Menu", false, -1);
 						for (Object q : questions) {
@@ -90,6 +91,7 @@ public class Chars implements ICommand, IDisabledCommand {
 				case "remove":
 					HashMap<String,Object> object2 = getConfig(bot,guild.getId().asLong());
 					if (object2.containsKey("questions")) {
+						//noinspection unchecked
 						ArrayList<Object> questions = (ArrayList) object2.get("questions");
 						Option option = new Option(bot, author, channel, "List of your questions:", "Select the question you want to delete or use `exit` to leave the Menu", false, -1);
 						List<String> qs = new ArrayList<>();

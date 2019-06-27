@@ -4,17 +4,37 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.scene.control.TextFormatter;
 
 import java.util.List;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ResponseStruct {
     
-    private static ObjectMapper mapper = new ObjectMapper();
-    
-    public ResponseStruct(@JsonProperty("type") String _type) {
+    private transient static ObjectMapper mapper = new ObjectMapper();
+    @SuppressWarnings("StaticInitializerReferencesSubClass")
+    public transient static  NullStruct   NULL   = new NullStruct();
+
+    ResponseStruct() {}
+
+    public ResponseStruct(@JsonProperty("type") String _type, @JsonProperty("changelog") List<Changelog> _changelog) {
         
         type = Types.getTypeByName(_type);
         fullyCached = false;
+        if(_changelog != null) {
+            _changelog.sort((c1, c2) -> {
+                int o1 = Integer.compare(c1.version.major, c2.version.major);
+                if (o1 != 0) {
+                    return o1;
+                }
+                int o2 = Integer.compare(c1.version.minor, c2.version.minor);
+                if (o2 != 0) {
+                    return o2;
+                }
+                return Integer.compare(c1.version.patch, c2.version.patch);
+            });
+        }
+        changelog = _changelog;
     }
     
     public Types   type;
@@ -31,8 +51,9 @@ public class ResponseStruct {
     public SinceVersion version;
     public List<Related> related;
     public List<Link> links;
-    
-    public void overwriteNull(ResponseStruct struct) {
+    public List<Changelog> changelog;
+
+    public ResponseStruct overwriteNull(ResponseStruct struct) {
         
         fullyCached = true;
         
@@ -47,7 +68,9 @@ public class ResponseStruct {
         if (version == null) { version = struct.version; }
         if (related == null) { related = struct.related; }
         if (links == null) { links = struct.links; }
-        
+        if (changelog == null) { changelog = struct.changelog; }
+
+        return this;
     }
     
     @JsonIgnoreProperties(ignoreUnknown=true)
@@ -74,8 +97,15 @@ public class ResponseStruct {
         }
         
         public String name;
-        public int    major = 0, minor = 0, patch = 0;
-        
+        public String minecraft;
+        public String url;
+        public int api;
+        public int    major, minor , patch;
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
     
     public static class Link {
@@ -84,13 +114,23 @@ public class ResponseStruct {
         public String title;
         
     }
+
+    public static class Changelog {
+
+        public SinceVersion version;
+        public String type;
+        public String message;
+
+    }
     
     public enum Types {
         
         ACTION("action", "actions"),
         VARIABLE("variable", "variables"),
         EVENT("event", "events"),
-        ITERATOR("iterator", "iterators");
+        ITERATOR("iterator", "iterators"),
+        COMMAND("command","commands"),
+        PARAMETER("parameter", "parameters");
         
         private final String name;
         private final String url;
@@ -119,6 +159,15 @@ public class ResponseStruct {
                 }
             }
             return null;
+        }
+
+        public static Types getTypeOfString(String str) {
+            for(Types type : Types.values()) {
+                if(type.name().toLowerCase().startsWith(str.toLowerCase())) {
+                    return type;
+                }
+            }
+            throw new MacroTypeNotFoundException();
         }
     }
     
