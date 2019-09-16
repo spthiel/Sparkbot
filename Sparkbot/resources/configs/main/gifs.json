@@ -214,6 +214,34 @@
 		],
 		"repl": "%executor dances with %user"	
 	},
+	"kiss": {
+		"gifs": [
+			"https://media.giphy.com/media/bGm9FuBCGg4SY/giphy.gif",
+			"http://giphygifs.s3.amazonaws.com/media/FqBTvSNjNzeZG/giphy.gif",
+			"https://media.tenor.com/images/197df534507bd229ba790e8e1b5f63dc/tenor.gif",
+			"https://thumbs.gfycat.com/FondEvergreenIcterinewarbler-max-1mb.gif",
+			"https://acegif.com/wp-content/uploads/anime-kiss-m.gif",
+			"https://media.giphy.com/media/ZRSGWtBJG4Tza/giphy.gif",
+			"https://i.pinimg.com/originals/f5/34/19/f53419e78c719c313b64378168fa94cc.gif",
+			"https://66.media.tumblr.com/5d51b3bbd64ccf1627dc87157a38e59f/tumblr_n5rfnvvj7H1t62gxao1_500.gif",
+			"https://media1.tenor.com/images/ba1841e4aeb5328e41530d3289616f46/tenor.gif?itemid=14240425",
+			"http://66.media.tumblr.com/56614f2adbcecd04ab527ce1a067f297/tumblr_mn64lwbR0w1rsbc8eo1_500.gif",
+			"https://data.whicdn.com/images/228889623/original.gif",
+			"https://66.media.tumblr.com/cdf6f138283845178803826e1cd85a54/tumblr_njzzdsIXpu1uo1owvo1_400.gif",
+			"https://i.imgur.com/eisk88U.gif",
+			"https://78.media.tumblr.com/3d93be7699a2ba8b4bc13a29a37b84ad/tumblr_odt2geMkpc1t86l7wo1_500.gif",
+			"https://media.giphy.com/media/vUrwEOLtBUnJe/giphy.gif",
+			"http://66.media.tumblr.com/a8b3e9f706d5a509b09000fd736b9467/tumblr_n3qrm4N3S31siyfwio1_500.gif",
+			"https://66.media.tumblr.com/ee3291bd540fa76515983a1ab258a5af/tumblr_pcstu8tPyU1wucl3to1_400.gif",
+			"https://thumbs.gfycat.com/InconsequentialMeaslyFly-size_restricted.gif",
+			"https://gifimage.net/wp-content/uploads/2017/09/anime-gif-kiss-9.gif",
+			"https://i.imgur.com/cWnyExp.gif",
+			"https://66.media.tumblr.com/3a416d5c991dbef68b6eaf8a06682d3d/tumblr_inline_ol29wgtBjL1u0103a_500.gif",
+			"http://66.media.tumblr.com/bbdd36b04d52c1972c198ac7e048681e/tumblr_myqs1bnxJ21rveihgo1_500.gif",
+			"https://image.myanimelist.net/ui/ueRS3W4eVdEzb4WVsqz9NxBo25yJVku-ri2_mvkY-SrkN7e-3YTp3fGdi55z6VrR1MTSuwHXBwpzxICV-cnl_ysKguczd91OxZ5vGBUfmEA6jEG31BH2TBo2maisnvQE"
+		],
+		"repl": "%executor kisses %user"	
+	},
 	"noimages": {
 		"gifs": [
 			"",
