@@ -1,27 +1,260 @@
 {
-  "wave": {
-    "gifs": [
-      "https://media1.tenor.com/images/943a3f95936d66dc0c78fd445893431e/tenor.gif?itemid=9060940"
-    ],
-    "repl": "%executor waves at %user"
-  },
-  "hug": {
-    "gifs": [
-      "https://media3.giphy.com/media/3M4NpbLCTxBqU/giphy.gif",
-      "https://media.tenor.com/images/7db5f172665f5a64c1a5ebe0fd4cfec8/tenor.gif"
-    ],
-    "repl": "%executor hugs %user"
-  },
-  "blush": {
-    "gifs": [
-      "http://66.media.tumblr.com/01d11c6bcf340db8bc307f1beeb2f8fb/tumblr_ogsqu35lLv1vemg2qo1_500.gif"
-    ],
-    "repl": "%executor blushes"
-  },
-  "angry": {
-    "gifs": [
-      "https://media.tenor.com/images/ad5544c0cc1b04622cc3413ddd1fe63a/tenor.gif"
-    ],
-    "repl": "%executor is angry"
-  }
+	"wave": {
+		"gifs": [
+			"https://media1.tenor.com/images/943a3f95936d66dc0c78fd445893431e/tenor.gif?itemid=9060940",
+			"https://vignette.wikia.nocookie.net/spongebob/images/2/25/Pikachu_waving.gif",
+			"https://78.media.tumblr.com/0ff48dce2689bd713c215bc6794ee479/tumblr_o328lujnMO1tydz8to1_500.gif",
+			"https://upload.wikimedia.org/wikipedia/commons/c/c2/Hello-waving-gif.gif",
+			"https://vignette.wikia.nocookie.net/creepypasta/images/a/ae/Derpy_wave.gif",
+			"https://media1.tenor.com/images/1dcff4d126fa7a8cbec85d45d454109c/tenor.gif?itemid=9236480",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-waving-gif-7.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-girl-waving-gif-4.gif",
+			"http://windiegardie.files.wordpress.com/2014/03/waving.gif"
+		],
+		"repl": "%executor waves at %user"
+	},
+	"hug": {
+		"gifs": [
+			"https://media3.giphy.com/media/3M4NpbLCTxBqU/giphy.gif",
+			"https://media.tenor.com/images/7db5f172665f5a64c1a5ebe0fd4cfec8/tenor.gif",
+			"https://78.media.tumblr.com/3cf422fb8bf717938ecf07ab81da08ec/tumblr_oqf1m5mG4D1v8hcteo1_500.gif",
+			"http://25.media.tumblr.com/2916300da0dda1fe8c214b1cde52a3ec/tumblr_mznf1dS1An1rgi7odo1_400.gif",
+			"https://media1.tenor.com/images/0be55a868e05bd369606f3684d95bf1e/tenor.gif?itemid=7939558",
+			"https://78.media.tumblr.com/5dfb67d0a674fe5f81950478f5b2d4ed/tumblr_ofd4e2h8O81ub9qlao1_500.gif",
+			"https://i.gifer.com/Y4Pm.gif",
+			"https://i.gifer.com/8WPN.gif",
+			"https://cdn54.picsart.com/180477805001202.gif?r1024x1024",
+			"https://data.whicdn.com/images/274281308/original.gif",
+			"http://45.media.tumblr.com/95c248c0f04707b92fbd78cc84b0f9c4/tumblr_muu49tCLTO1qggcr5o3_r1_500.gif",
+			"https://cdn.discordapp.com/attachments/410646817756151808/474527417302777856/2.gif"
+		],
+		"repl": "%executor hugs %user"
+	},
+	"blush": {
+		"gifs": [
+			"http://66.media.tumblr.com/01d11c6bcf340db8bc307f1beeb2f8fb/tumblr_ogsqu35lLv1vemg2qo1_500.gif",
+			"https://i.gifer.com/AIUD.gif",
+			"https://media1.tenor.com/images/9eba52d0506b552b7ef6a1981c0cfcff/tenor.gif?itemid=8680309",
+			"https://media.giphy.com/media/1gbQIeNzZxcSk/giphy.gif",
+			"https://i.pinimg.com/originals/15/44/2e/15442e3bb3a042d5348e860557225d8a.gif",
+			"https://media1.tenor.com/images/fc6b82c2c8c045a0b1e6fc91294292c5/tenor.gif?itemid=6215889",
+			"https://i.gifer.com/8TJX.gif",
+			"https://media3.giphy.com/media/FzvuJwrxc6jza/giphy.gif",
+			"https://i.gifer.com/79GJ.gif",
+			"https://68.media.tumblr.com/ed0403053c04ddb8280331115661a9ea/tumblr_ofn6hi0NEL1tydz8to1_500.gif",
+			"https://vignette.wikia.nocookie.net/infinite-stratos/images/e/e4/Personal_Deathmanstratos_Lara_Charle_boop.gif/revision/latest?cb=20131126190549"
+		],
+		"repl": "%executor blushes"
+	},
+	"angry": {
+		"gifs": [
+			"https://media1.tenor.com/images/fd46d903c4a20a7e82519a78f15b2750/tenor.gif?itemid=8562185",
+			"https://media.tenor.com/images/ad5544c0cc1b04622cc3413ddd1fe63a/tenor.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-angry-gif-12.gif",
+			"https://78.media.tumblr.com/6dac8a095c475639b589cbe7fd583eaa/tumblr_ot5y5r3B391w7cvmoo1_500.gif",
+			"https://thumbs.gfycat.com/QuickSecondaryAnteater-size_restricted.gif",
+			"https://media1.tenor.com/images/23632985df417dd0faf2fe7f1e5e80d3/tenor.gif?itemid=9180783",
+			"https://vignette.wikia.nocookie.net/totally-accurate-battle-simulator/images/c/c1/Another_angry_face.gif",
+			"https://i2.wp.com/pa1.narvii.com/6119/bd51869c9e3bb834571359421c78495c421e7b03_hq.gif?w=780",
+			"https://i.imgur.com/SR8YJgB.gif",
+			"https://i.redd.it/30hcur1k3mvz.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-girl-angry-gif-8.gif",
+			"http://33.media.tumblr.com/39a9f6cf5a334f5bb85ac7196d409351/tumblr_mtpdluc9Hj1qfbz1so1_500.gif"
+		],
+		"repl": "%executor is angry"
+	},
+	"cuddle": {
+		"gifs": [
+			"https://i.imgur.com/nrdYNtL.gif",
+			"https://media1.tenor.com/images/506aa95bbb0a71351bcaa753eaa2a45c/tenor.gif?itemid=7552075",
+			"https://media.giphy.com/media/C4gbG94zAjyYE/giphy.gif",
+			"https://media1.tenor.com/images/9917c221691759f3f464e8ce8522ac0e/tenor.gif?itemid=6502610",
+			"https://media1.tenor.com/images/d0c2e7382742f1faf8fcb44db268615f/tenor.gif?itemid=5853736",
+			"http://mrwgifs.com/wp-content/uploads/2013/04/Snuggling-Cuddling-Anime-Girls-Gif-.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-cuddle-gif-13.gif",
+			"https://i.gifer.com/8X6d.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-cuddle-gif-6.gif",
+			"https://media1.tenor.com/images/f855a0348c55a6d0469f34135510bcb2/tenor.gif?itemid=5690234"
+		],
+		"repl": "%executor cuddles %user"	
+	},
+	"excited": {
+		"gifs": [
+			"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjhdol6tRWvfWwvkTTV9UZGE5E755r8x2nmvTwkX24A38SBN3Vww",
+			"https://i.gifer.com/5EPe.gif",
+			"https://i.gifer.com/3Wvr.gif",
+			"http://gifimage.net/wp-content/uploads/2017/07/anime-excited-gif-8.gif",
+			"https://media1.tenor.com/images/4f8c3b6db8eed790852bb4ccb96cc2e6/tenor.gif?itemid=5967731",
+			"http://i.imgur.com/sBFu1Kp.gif",
+			"https://media2.giphy.com/media/ivibkKm68n3a/giphy.gif",
+			"http://3.bp.blogspot.com/-vQLya0Z6Y7w/Udg1qh-nA2I/AAAAAAAAAy4/K6ZMQa0kSL0/s1600/original.gif",
+			"https://media1.tenor.com/images/0f9847a5f258da9a3bdccc3860f91eb5/tenor.gif?itemid=9188246",
+			"https://i.gifer.com/Yk9l.gif"
+		],
+		"repl": "%executor is excited"	
+	},
+	"boop": {
+		"gifs": [
+			"https://media1.tenor.com/images/cbf38a2e97a348a621207c967a77628a/tenor.gif?itemid=6287077",
+			"http://i.imgur.com/fZmUTgw.gif",
+			"https://media1.tenor.com/images/8fe23ec8e2c5e44964e5c11983ff6f41/tenor.gif?itemid=5600215",
+			"https://media.giphy.com/media/LhIfr7B8EvToc/giphy.gif",
+			"https://media1.tenor.com/images/1e0ea8b241a7db2b9c03775133138733/tenor.gif?itemid=10064326",
+			"https://i.chzbgr.com/full/8098209024/hD3A6A877.gif",
+			"https://media1.tenor.com/images/1236e0d70c6ee3ea91d414bcaf9f3aa4/tenor.gif?itemid=5015314",
+			"https://cdn.vox-cdn.com/uploads/chorus_asset/file/7411417/boop.gif",
+			"https://i.pinimg.com/originals/f3/94/fe/f394fecadd26158828ebf9ae4de3b3b4.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-sleeping-gif-11.gif",
+			"https://derpicdn.net/img/view/2018/7/1/1770194.gif"
+		],
+		"repl": "%executor boops %user"	
+	},
+	"sleeping": {
+		"gifs": [
+			"http://i.imgur.com/XndVflg.gif",
+			"http://getdrawings.com/image/anime-drawing-gif-65.gif",
+			"https://media1.tenor.com/images/0d78943ec2d800847bfe98c0a5e03cd3/tenor.gif?itemid=11081269",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-sleeping-gif-10.gif",
+			"http://i0.kym-cdn.com/photos/images/original/001/115/759/095.gif",
+			"https://vignette.wikia.nocookie.net/kancolle/images/0/08/Umaru_sleeping.gif/revision/latest?cb=20161209020902",
+			"https://media.giphy.com/media/AebNPktTHrdYc/giphy.gif",
+			"http://i0.kym-cdn.com/photos/images/original/001/003/466/fb5.gif",
+			"https://i.pinimg.com/originals/38/ea/30/38ea307e561aff8b6e662e8e59aeb845.gif",
+			"https://vignette.wikia.nocookie.net/kancolle/images/0/05/Chino_sleeping.gif/revision/latest?cb=20170211223644"
+		],
+		"repl": "%executor is sleeping"	
+	},
+	"slap": {
+		"gifs": [
+			"https://media.giphy.com/media/jLeyZWgtwgr2U/giphy.gif",
+			"https://media1.tenor.com/images/1cf84bf514d2abd2810588caf7d9fd08/tenor.gif?itemid=7679403",
+			"https://media1.tenor.com/images/fb17a25b86d80e55ceb5153f08e79385/tenor.gif?itemid=7919028",
+			"https://i.gifer.com/8Z0s.gif",
+			"https://i.imgur.com/o2SJYUS.gif",
+			"http://i0.kym-cdn.com/photos/images/newsfeed/000/940/326/086.gif",
+			"https://i.imgur.com/oOCq3Bt.gif",
+			"https://i.pinimg.com/originals/4e/9e/a1/4e9ea150354ad3159339b202cbc6cad9.gif",
+			"http://gifimage.net/wp-content/uploads/2017/07/anime-slap-gif-9.gif",
+			"https://i.pinimg.com/originals/46/b0/a2/46b0a213e3ea1a9c6fcc060af6843a0e.gif"
+		],
+		"repl": "%executor slaps %user"	
+	},
+	"cry": {
+		"gifs": [
+			"https://media1.tenor.com/images/75edc9882e5175f86c2af777ffbb14a6/tenor.gif?itemid=5755232",
+			"https://media2.giphy.com/media/ROF8OQvDmxytW/giphy.gif",
+			"https://gifimage.net/wp-content/uploads/2017/10/cry-anime-gif-13.gif",
+			"http://gifimage.net/wp-content/uploads/2017/10/cry-anime-gif-11.gif",
+			"http://i.imgur.com/k5B1CBd.jpg",
+			"https://media1.giphy.com/media/8YutMatqkTfSE/giphy.gif",
+			"http://i0.kym-cdn.com/photos/images/original/000/980/628/a33.gif",
+			"https://i.pinimg.com/originals/5b/29/66/5b2966626f2aa1585f44942da099d6f9.gif",
+			"https://data.whicdn.com/images/196161066/original.gif",
+			"https://i.pinimg.com/originals/81/a7/ea/81a7ea006840684c525ed00fed8f6a0c.gif"
+		],
+		"repl": "%executor cries"	
+	},
+	"pat": {
+		"gifs": [
+			"https://78.media.tumblr.com/c1462cd42efe9ad99de5674b3aeb722a/tumblr_ononzbfplN1uz6bnko1_500.gif",
+			"https://media.giphy.com/media/REwolzD4SjNvO/source.gif",
+			"https://thumbs.gfycat.com/AgileHeavyGecko-max-1mb.gif",
+			"https://media1.tenor.com/images/bf646b7164b76efe82502993ee530c78/tenor.gif?itemid=7394758",
+			"https://vignette.wikia.nocookie.net/cardfight/images/b/ba/Izumi_Reina_pat.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-head-pat-gif-3.gif",
+			"https://i.pinimg.com/originals/a0/6d/65/a06d65ad49f019aaae3f30fb872df619.gif",
+			"http://gifimage.net/wp-content/uploads/2017/09/anime-pat-gif-5.gif",
+			"https://media1.tenor.com/images/1e92c03121c0bd6688d17eef8d275ea7/tenor.gif?itemid=9920853",
+			"https://i.pinimg.com/originals/06/6d/57/066d573fa2b6876f2e8dbf36b68fa061.gif"
+		],
+		"repl": "%executor pats %user"	
+	},
+	"smokeweed": {
+		"gifs": [
+			"https://pa1.narvii.com/5761/99f5032ebe1e938e07c7a32c5916c014b2b8eff5_hq.gif",
+			"https://media.giphy.com/media/ACkn9IAG5QNQQ/giphy.gif",
+			"https://i.gifer.com/gmr.gif",
+			"https://i.gifer.com/FREq.gif"
+		],
+		"repl": "%executor smokes some weed"	
+	},
+	"fusion": {
+		"gifs": [
+			"http://i.imgur.com/5NmVb15.gif"
+		],
+		"repl": "%executor performs a fusion dance with %user"	
+	},
+	"dance": {
+		"gifs": [
+			"https://media.giphy.com/media/yRaooHq6zm2WI/giphy.gif",
+			"https://media.tenor.com/images/158cb79ee04d16790852b2fbb5f1eba8/tenor.gif",
+			"https://thumbs.gfycat.com/MealyFavorableKite-small.gif",
+			"https://66.media.tumblr.com/9bc3b579d14b65d45c16f7f48ab08f15/tumblr_orprpaDbI21qzxv73o1_400.gif",
+			"http://images2.fanpop.com/image/photos/10900000/shana-s-dance-shakugan-no-shana-10955698-200-124.gif",
+			"https://cdn.discordapp.com/attachments/437149644431032320/437150143998066698/Gif_1.gif",
+			"https://i.pinimg.com/originals/ed/52/7e/ed527e2e52c51a4138d91c8824530d3e.gif",
+			"http://data.whicdn.com/images/108190405/large.gif",
+			"https://media.giphy.com/media/D2q3HltRG9oK4/giphy.gif",
+			"https://media.giphy.com/media/11lxCeKo6cHkJy/giphy.gif"
+		],
+		"repl": "%executor dances"	
+	},
+	"duodance": {
+		"gifs": [
+			"https://media.tenor.com/images/5f4a923689e868c41038636bde585987/tenor.gif",
+			"https://media.giphy.com/media/euMGM3uD3NHva/giphy.gif",
+			"https://i.pinimg.com/originals/3e/45/c1/3e45c1e7fe5d4415349e07672ca995a6.gif",
+			"https://66.media.tumblr.com/93a8499e09c26c22990964804c1903eb/tumblr_nfjpkgwTJT1tfilc6o1_400.gif",
+			"https://media.giphy.com/media/9gxhLXyJXqAhi/giphy-downsized-large.gif",
+			"http://images6.fanpop.com/image/photos/33500000/anime-dancer-msyugioh123-33558535-500-223.gif",
+			"https://cdn45.picsart.com/175301596000202.gif",
+			"https://data.whicdn.com/images/86167127/original.gif",
+			"https://i.kym-cdn.com/photos/images/newsfeed/000/934/874/b59.gif",
+			"https://data.whicdn.com/images/75795953/original.gif"
+		],
+		"repl": "%executor dances with %user"	
+	},
+	"kiss": {
+		"gifs": [
+			"https://media.giphy.com/media/bGm9FuBCGg4SY/giphy.gif",
+			"http://giphygifs.s3.amazonaws.com/media/FqBTvSNjNzeZG/giphy.gif",
+			"https://media.tenor.com/images/197df534507bd229ba790e8e1b5f63dc/tenor.gif",
+			"https://thumbs.gfycat.com/FondEvergreenIcterinewarbler-max-1mb.gif",
+			"https://acegif.com/wp-content/uploads/anime-kiss-m.gif",
+			"https://media.giphy.com/media/ZRSGWtBJG4Tza/giphy.gif",
+			"https://i.pinimg.com/originals/f5/34/19/f53419e78c719c313b64378168fa94cc.gif",
+			"https://66.media.tumblr.com/5d51b3bbd64ccf1627dc87157a38e59f/tumblr_n5rfnvvj7H1t62gxao1_500.gif",
+			"https://media1.tenor.com/images/ba1841e4aeb5328e41530d3289616f46/tenor.gif?itemid=14240425",
+			"http://66.media.tumblr.com/56614f2adbcecd04ab527ce1a067f297/tumblr_mn64lwbR0w1rsbc8eo1_500.gif",
+			"https://data.whicdn.com/images/228889623/original.gif",
+			"https://66.media.tumblr.com/cdf6f138283845178803826e1cd85a54/tumblr_njzzdsIXpu1uo1owvo1_400.gif",
+			"https://i.imgur.com/eisk88U.gif",
+			"https://78.media.tumblr.com/3d93be7699a2ba8b4bc13a29a37b84ad/tumblr_odt2geMkpc1t86l7wo1_500.gif",
+			"https://media.giphy.com/media/vUrwEOLtBUnJe/giphy.gif",
+			"http://66.media.tumblr.com/a8b3e9f706d5a509b09000fd736b9467/tumblr_n3qrm4N3S31siyfwio1_500.gif",
+			"https://66.media.tumblr.com/ee3291bd540fa76515983a1ab258a5af/tumblr_pcstu8tPyU1wucl3to1_400.gif",
+			"https://thumbs.gfycat.com/InconsequentialMeaslyFly-size_restricted.gif",
+			"https://gifimage.net/wp-content/uploads/2017/09/anime-gif-kiss-9.gif",
+			"https://i.imgur.com/cWnyExp.gif",
+			"https://66.media.tumblr.com/3a416d5c991dbef68b6eaf8a06682d3d/tumblr_inline_ol29wgtBjL1u0103a_500.gif",
+			"http://66.media.tumblr.com/bbdd36b04d52c1972c198ac7e048681e/tumblr_myqs1bnxJ21rveihgo1_500.gif",
+			"https://image.myanimelist.net/ui/ueRS3W4eVdEzb4WVsqz9NxBo25yJVku-ri2_mvkY-SrkN7e-3YTp3fGdi55z6VrR1MTSuwHXBwpzxICV-cnl_ysKguczd91OxZ5vGBUfmEA6jEG31BH2TBo2maisnvQE"
+		],
+		"repl": "%executor kisses %user"	
+	},
+	"noimages": {
+		"gifs": [
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			""
+		],
+		"repl": "%executor uses a dumb command"	
+	}
 }
