@@ -6,6 +6,7 @@ import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.bot.base.IDisabledCommand;
 import me.main.utils.HTTP;
 import me.main.Prefixes;
 import me.tablecreator.Cell;
@@ -22,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class CreateTable implements ICommand {
+public class CreateTable implements ICommand, IDisabledCommand {
 	@Override
 	public CommandType getType() {
 		return CommandType.PUBLIC;

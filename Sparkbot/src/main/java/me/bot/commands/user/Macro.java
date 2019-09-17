@@ -166,7 +166,7 @@ public class Macro implements ICommand {
                 .appendContent("\n`--diff` will include the amount of changed lines")
                 .appendContent("\n`--debug` will display the cause of errors. Might exceed 2000 char limit, use it wisely.")
                 .appendContent("\n`--file` will return the result as attachment instead of as file.");
-        channel.createMessage(builder.build(null)).subscribe();
+        channel.createMessage(builder.build()).subscribe();
     }
 
     private boolean format(TextChannel channel, String message, Attachment attachment) {
@@ -313,16 +313,18 @@ public class Macro implements ICommand {
                 }
                 spec.addField("Links", links.toString(), true);
             }
+            ResponseStruct.SinceVersion last = null;
             if (struct.changelog != null && struct.changelog.size() > 0) {
                 StringBuilder changelogBuilder = new StringBuilder();
                 for (ResponseStruct.Changelog changelog : struct.changelog) {
                     String toAppend = "";
-                    if (changelog.version != null) {
+                    if (changelog.version != null && !changelog.version.equals(last)) {
                         if (changelog.version.url != null) {
-                            toAppend = "\\([" + changelog.version.name + "](" + changelog.version.url + ")\\)";
+                            toAppend = String.format("[**Version %s \\(for minecraft %s\\)**](%s)\n",changelog.version.name.replace("v",""), changelog.version.minecraft, changelog.version.url);
                         } else {
-                            toAppend = "\\(" + changelog.version.name + "\\)";
+                            toAppend = String.format("**Version %s \\(for minecraft %s\\)**\n",changelog.version.name.replace("v",""), changelog.version.minecraft);
                         }
+                        last = changelog.version;
                     }
 
                     if (changelog.type.equalsIgnoreCase("Added")) {

@@ -3,6 +3,8 @@ package me.bot.base;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import me.bot.base.configs.PermissionManager;
+import me.main.Main;
+
 import reactor.core.publisher.Mono;
 
 import java.security.Permissions;
@@ -15,7 +17,10 @@ public interface ICommand {
 		
 		if (bot.getPermissionManager().isBotAdmin(author))
 			return Mono.just(true);
-		else if(getType() != CommandType.ADMIN)
+		if(Main.testInstance) {
+			return Mono.just(false);
+		}
+		if(getType() != CommandType.ADMIN)
 			return PermissionManager.hasGuildPermissions(author, getRequiredPermissions());
 		else
 			return Mono.just(false);

@@ -26,6 +26,11 @@ public class ResourceManager {
         this.languageClass = language;
     }
     
+    public String getBaseFolder() {
+        
+        return BASE_FOLDER;
+    }
+    
     public HashMap<String, Object> getConfig(String dir, String filename) {
         
         

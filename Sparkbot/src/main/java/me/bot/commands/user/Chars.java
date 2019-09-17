@@ -6,6 +6,7 @@ import discord4j.core.object.util.Permission;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.bot.base.IDisabledCommand;
 import me.bot.base.polls.Input;
 import me.bot.base.polls.PollExitType;
 import me.main.Prefixes;
@@ -13,7 +14,7 @@ import me.main.Prefixes;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class Chars implements ICommand {
+public class Chars implements ICommand, IDisabledCommand {
     
     @Override
     public CommandType getType() {

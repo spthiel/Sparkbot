@@ -7,6 +7,7 @@ import reactor.core.publisher.Hooks;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
@@ -15,10 +16,18 @@ import org.slf4j.Logger;
 public class Main {
 	
 	private static ConsoleCommandManager commands;
+	public static boolean testInstance = false;
 	
 	public static void main(String[] args) {
 		
-		System.out.println("Stuff");
+		for(String s : args) {
+			if(s.equalsIgnoreCase("-test")) {
+				testInstance = true;
+				break;
+			}
+		}
+		
+		System.out.println("Starting " + (testInstance ? "test" : "normal") + " instance");
 		
 		commands = new ConsoleCommandManager();
 		

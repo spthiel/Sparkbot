@@ -47,6 +47,7 @@ public class ReloadGifs implements ICommand {
 	@Override
 	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
 		Gif.getInstance().loadGiffmanager(bot);
+		channel.createMessage("Reloaded gifmanagers").subscribe();
 	}
 
 	@Override

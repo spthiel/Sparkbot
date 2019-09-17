@@ -1,15 +1,11 @@
 package me.macro.api;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Optional;
-
-import me.bot.base.Bot;
-import me.main.utils.HTTP;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+import me.main.utils.HTTP;
 
 public class MacroCache {
 
@@ -18,7 +14,6 @@ public class MacroCache {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private List<ResponseStruct> cache;
-    private Bot                  bot;
     
     public MacroCache() {
 
@@ -37,6 +32,7 @@ public class MacroCache {
         }
     }
 
+    @SuppressWarnings("unused")
     public Mono<ResponseStruct> getEntry(String name) {
         return getEntry(null, name);
     }

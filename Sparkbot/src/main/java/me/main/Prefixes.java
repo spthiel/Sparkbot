@@ -5,10 +5,18 @@ import discord4j.core.object.entity.Guild;
 
 public class Prefixes {
 
-    private static final String
+    private static String
             NORMAL_PREFIX = "s!",
             ADMIN_PREFIX = "s&",
             SUPERADMIN_PREFIX = "s$";
+    
+    static {
+        if(Main.testInstance) {
+            NORMAL_PREFIX = "s!!";
+            ADMIN_PREFIX = "s&&";
+            SUPERADMIN_PREFIX = "s$$";
+        }
+    }
 
     public static String[] getNormalPrefixesFor(Guild guild) {
 

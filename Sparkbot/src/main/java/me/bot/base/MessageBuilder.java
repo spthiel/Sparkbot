@@ -73,7 +73,7 @@ public class MessageBuilder {
      * @return The builder instance.
      */
     public MessageBuilder appendContent(String content) {
-        if(content == null) {
+        if(this.content == null) {
             this.content = "";
         }
         this.content += content;

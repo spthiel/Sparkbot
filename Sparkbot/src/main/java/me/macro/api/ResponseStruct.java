@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.scene.control.TextFormatter;
 
 import java.util.List;
 
@@ -105,6 +104,18 @@ public class ResponseStruct {
         @Override
         public String toString() {
             return name;
+        }
+        
+        @Override
+        public boolean equals(Object o) {
+            if(o == null) {
+                return false;
+            }
+            if(!(o instanceof SinceVersion)) {
+                return false;
+            }
+            SinceVersion obj = (SinceVersion)o;
+            return major == obj.major && minor == obj.minor && patch == obj.patch;
         }
     }
     

@@ -3,6 +3,8 @@ package me.main.utils;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -73,6 +75,30 @@ public class DiscordUtils {
 		}
 	}
 
-
-
+	public static Mono<Optional<Role>> getRoleByName(Bot bot, Guild guild, String rolename) {
+		String lcase = rolename.toLowerCase();
+		return guild.getRoles().filter(role -> role.getName().equalsIgnoreCase(rolename.replace('_',' ')))
+					.switchIfEmpty(guild.getRoles().filter(role -> role.getName().toLowerCase().startsWith(lcase)))
+					.map(Optional::of)
+					.defaultIfEmpty(Optional.empty()).single();
+	}
+	
+	public static Mono<Optional<Role>> getRoleById(Bot bot, Guild guild, String id) {
+		return guild.getRoleById(Snowflake.of(id)).map(Optional::of).defaultIfEmpty(Optional.empty());
+	}
+	
+	public static Flux<Member> getRoleMembers(Guild guild, Optional<Role> oRole, final long count) {
+		if(!oRole.isPresent()) {
+			return Flux.empty();
+		}
+		Role role = oRole.get();
+		return guild.getMembers().filterWhen(member -> member.getRoles().any(r -> r.equals(role)))
+					.take(count);
+	}
+	
+	public static Flux<Member> getRoleMembers(Guild guild, Role role, final long count) {
+		return guild.getMembers().filterWhen(member -> member.getRoles().any(r -> r.equals(role)))
+					.take(count);
+	}
+	
 }

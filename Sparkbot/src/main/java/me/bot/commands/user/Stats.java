@@ -58,7 +58,7 @@ public class Stats implements ICommand {
 		bot.getClient().getGuilds().count().subscribe(
 			guildcount ->{
 				Instant jointime = guild.getJoinTime().orElse(null);
-				String formattedTime = jointime == null ? "Error" : DateTimeFormatter.ofPattern("hh:mm:ss a dd.MMM.yy").withZone(ZoneId.of("UTC")).format(jointime);
+				String formattedTime = jointime == null ? "Error" : DateTimeFormatter.ofPattern("hh:mm:ss a dd.MMM.yyyy").withZone(ZoneId.of("UTC")).format(jointime);
 				channel.createMessage(spec -> spec.setEmbed(getEmbed(bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse(""), guildcount, formattedTime, uptime(bot)))).subscribe();
 			});
 	}
