@@ -242,6 +242,36 @@
 		],
 		"repl": "%executor kisses %user"	
 	},
+	"kick": {
+		"gifs": [
+			"https://media.giphy.com/media/u2LJ0n4lx6jF6/giphy.gif",
+			"https://media.giphy.com/media/wOly8pa4s4W88/giphy.gif",
+			"https://media1.tenor.com/images/15a74d10bb6dce11476acfdefe614540/tenor.gif",
+			"https://media.giphy.com/media/11sctbYIQPR280/giphy-downsized-large.gif",
+			"https://media1.tenor.com/images/3f997ab2772b82a5717c024fa5b9cb35/tenor.gif",
+			"https://66.media.tumblr.com/ccfb562515974aafd5e879b75439ff18/tumblr_nece2jUD3p1tsd042o1_500.gif",
+			"https://media.giphy.com/media/ZZOk6QUSiwk1i/giphy.gif",
+			"https://media.giphy.com/media/3ohhwCqLY68iA1kHRe/giphy.gif",
+			"https://i.gifer.com/Kr66.gif",
+			"https://i.pinimg.com/originals/f7/46/e5/f746e534d9507a98d326c9f08eaeb249.gif"
+		],
+		"repl": "%executor kicks %user"	
+	},
+	"giggle": {
+		"gifs": [
+			"https://media.tenor.com/images/340f46af15900c3b5685f73f73bc6f17/tenor.gif",
+			"https://thumbs.gfycat.com/SillyAnyCranefly-size_restricted.gif",
+			"https://gifimage.net/wp-content/uploads/2018/11/giggling-anime-gif-7.gif",
+			"https://66.media.tumblr.com/cb92905bf90c83d50befbf02c836331c/tumblr_orbhu7okBc1vajy96o1_400.gifv",
+			"https://i.gifer.com/MjZr.gif",
+			"https://66.media.tumblr.com/cce8d3c4f08dcaaa1a5b9603ef76fb2a/tumblr_opgbhx5LHe1vajy96o1_400.gifv",
+			"https://media3.giphy.com/media/SK8ElRImnev3a/source.gif",
+			"https://i.pinimg.com/originals/72/e9/8a/72e98aea5f204628d848b8b6b3657e8d.gif",
+			"https://66.media.tumblr.com/c6edcfe657c6e25bc51b74cd039882c4/tumblr_mkwwb5zrnG1s6krrko1_400.gif",
+			"https://archive-media-0.nyafuu.org/c/image/1394/90/1394904508377.gif"
+		],
+		"repl": "%executor giggles"	
+	},
 	"noimages": {
 		"gifs": [
 			"",
