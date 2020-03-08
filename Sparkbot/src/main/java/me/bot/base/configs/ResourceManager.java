@@ -50,7 +50,7 @@ public class ResourceManager {
         try {
             HashMap<String, Object> map = mapper.readValue(
                     readFileAsString(fileToEdit),
-                    new TypeReference<Map<String, Object>>() {
+                    new TypeReference<HashMap<String, Object>>() {
                     }
                                                           );
             configMapper.put(fileToEdit, map);
@@ -62,41 +62,44 @@ public class ResourceManager {
     }
     
     public void saveAll() {
+    
+        System.out.println("Called " + configMapper.toString());
         
         for (File location : configMapper.keySet()) {
             
-            File folder = location.getParentFile();
-            
-            if (!folder.exists()) {
-                if (!folder.mkdirs()) {
-                    throw new RuntimeException("Couldn't create folder");
-                }
-            }
-            
-            if (!location.exists()) {
-                try {
-                    if (!location.createNewFile()) {
-                        throw new RuntimeException("Couldn't create file");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            
-            try {
-                writeFile(mapper.writeValueAsString(configMapper.get(location)), location);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+            saveConfig(location, configMapper.get(location));
         }
     }
     
-    private void saveConfig(String location, HashMap<String, Object> config) {
+    private void saveConfig(File file, HashMap<String, Object> config) {
     
+        File folder = file.getParentFile();
+    
+        if (!folder.exists()) {
+            if (!folder.mkdirs()) {
+                throw new RuntimeException("Couldn't create folder");
+            }
+        }
+    
+        if (!file.exists()) {
+            try {
+                if (!file.createNewFile()) {
+                    throw new RuntimeException("Couldn't create file");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    
+        try {
+            writeFile(mapper.writeValueAsString(config), file);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
     
     public void writeConfig(String dir, String filename, HashMap<String, Object> config) {
-        
+    
         File fileToEdit = new File(BASE_FOLDER + dir + "/" + filename);
         configMapper.put(fileToEdit, config);
         
@@ -114,7 +117,7 @@ public class ResourceManager {
                 out.add(line);
             }
             
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         
         }
         

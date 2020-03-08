@@ -73,7 +73,7 @@ public class MacroFormatter {
 						break;
 					}
 				}*/
-
+				System.out.println("DEBUG: " + line);
 				if (!openelements.isEmpty() && openelements.peek().isEnd(cmd)) {
 					openelements.pop();
 					tabs--;
@@ -81,6 +81,7 @@ public class MacroFormatter {
 					reltabs--;
 				} else {
 					ControlElement element = ControlElement.isStart(cmd);
+					System.out.println(element);
 					if (element != null) {
 						openelements.push(element);
 						tabs++;

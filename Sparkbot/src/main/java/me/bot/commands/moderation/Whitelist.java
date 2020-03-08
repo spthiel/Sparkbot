@@ -8,6 +8,7 @@ import me.main.Prefixes;
 import java.util.*;
 
 public class Whitelist implements ICommand {
+	
 	@Override
 	public CommandType getType() {
 		return CommandType.MOD;

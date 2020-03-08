@@ -1,7 +1,9 @@
 package me.bot.base;
 
 import discord4j.core.event.domain.guild.GuildCreateEvent;
+import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.event.domain.lifecycle.ReconnectStartEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.*;
@@ -16,6 +18,7 @@ import me.bot.base.polls.Poll;
 
 import reactor.core.publisher.Mono;
 
+import java.sql.SQLOutput;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
@@ -76,6 +79,18 @@ public class Listener {
         //	    }
     }
     
+    public void onConnectEvent(ConnectEvent event) {
+    
+        System.out.println("Event: Connect");
+        updatePresence();
+    }
+    
+    public void onReconnectSartEvent(ReconnectStartEvent event) {
+    
+        System.out.println("Reconnect Start");
+        updatePresence();
+    }
+    
     public void onReadyEvent(ReadyEvent event) {
         
         System.out.println("Ready");
@@ -85,7 +100,7 @@ public class Listener {
     
     public void onJoinServer(GuildCreateEvent event) {
         
-        System.out.println("Join server");
+        System.out.println("Joined server " + event.getGuild().getName() + " (" + event.getGuild().getId().asString() + ")");
         //		updatePresence();
     }
     
@@ -170,21 +185,39 @@ public class Listener {
         }
         
         commands
-                .stream()
-                .filter(command -> !(!isOnWhitelist && command.getType().equals(CommandType.PUBLIC)))
-                .forEach(command -> Arrays.stream(command.getPrefixes(guild))
-                                          .filter(message :: startsWith)
-                                          .map(prefix -> message.substring(prefix.length()))
-                                          .map(messageWithoutPrefix -> messageWithoutPrefix.split(" "))
-                                          .filter(args -> args.length > 0)
-                                          .forEach(
-                                                  args ->
-                                                          Arrays.stream(command.getNames())
-                                                                .filter(name -> args[0].equalsIgnoreCase(name))
-                                                                .findFirst()
-                                                                .ifPresent(ignored -> finalProcessing(event, command, guild, member, args, message, channel))
-                                                  ));
+            .stream()
+            .filter(command -> !(!isOnWhitelist && command.getType().equals(CommandType.PUBLIC)))
+            .forEach(command -> Arrays.stream(command.getPrefixes(guild))
+                  .filter(message :: startsWith)
+                  .map(prefix -> message.substring(prefix.length()))
+                  .map(messageWithoutPrefix -> messageWithoutPrefix.split(" "))
+                  .map(this::removeEmpty)
+                  .filter(args -> args.length > 0)
+                  .forEach(
+                          args ->
+                                  Arrays.stream(command.getNames())
+                                        .filter(name -> args[0].equalsIgnoreCase(name))
+                                        .findFirst()
+                                        .ifPresent(ignored -> finalProcessing(event, command, guild, member, args, message, channel))
+                          ));
         
+    }
+    
+    private String[] removeEmpty(String[] strings) {
+        int empty = 0;
+        for(String s : strings) {
+            if(s.isEmpty()) {
+                empty++;
+            }
+        }
+        String[] out = new String[strings.length-empty];
+        int idx = 0;
+        for (String string : strings) {
+            if(!string.isEmpty()) {
+                out[idx++] = string;
+            }
+        }
+        return out;
     }
     
     private void finalProcessing(final MessageCreateEvent event, final ICommand command, final Guild guild, final Member member, final String[] args, final String message, final TextChannel channel) {

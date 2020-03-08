@@ -29,6 +29,8 @@ public enum ControlElement {
 	}	
 	
 	public static ControlElement isStart(String line) {
+		
+		System.out.println("DEBUG2: " + line);
 		for(ControlElement element : ControlElement.values())
 			for(String str : element.open)
 				if(line.toLowerCase().startsWith(str.toLowerCase()))

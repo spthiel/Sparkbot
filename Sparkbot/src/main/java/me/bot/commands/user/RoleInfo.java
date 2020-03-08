@@ -55,7 +55,10 @@ public class RoleInfo implements ICommand {
     
     @Override
     public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
-        if(args[0].matches("\\d+")) {
+        
+        if(args.length == 0) {
+            channel.createMessage("<:red_cross:398120014974287873> **| Please specify a role by id, ping or name.**").subscribe();
+        } else if(args[0].matches("\\d+")) {
             DiscordUtils.getRoleById(bot, guild, args[0]).subscribe(role -> printRole(channel, role));
         } else if(args[0].matches("<@&\\d+>")) {
             message.getRoleMentions().single().subscribe(role -> printRole(channel, Optional.of(role)));

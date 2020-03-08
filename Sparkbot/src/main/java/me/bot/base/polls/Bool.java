@@ -34,7 +34,6 @@ public class Bool extends Poll<Boolean> {
 		}
 
 		onEnd(lcase.matches(TRUE_REGEX));
-		deleteLastMessage();
 		return true;
 	}
 
@@ -61,7 +60,7 @@ public class Bool extends Poll<Boolean> {
 	@Override
 	public void deleteLastMessage() {
 		if(lastMessage != null) {
-			lastMessage.delete();
+			lastMessage.delete().subscribe((ignored) -> {}, Throwable::printStackTrace, () -> {});
 		}
 
 	}

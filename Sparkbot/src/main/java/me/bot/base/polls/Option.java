@@ -67,7 +67,7 @@ public class Option extends Poll<Integer>{
 
 			onEnd(page * 7 + option - 1);
 
-			lastMessage.delete();
+			deleteLastMessage();
 		}
 
 
@@ -78,7 +78,7 @@ public class Option extends Poll<Integer>{
 	public void sendMessage() {
 
 		if(lastMessage != null)
-			lastMessage.delete();
+			deleteLastMessage();
 
 		start = System.currentTimeMillis();
 

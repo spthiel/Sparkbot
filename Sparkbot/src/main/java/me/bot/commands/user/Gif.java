@@ -6,11 +6,7 @@ import discord4j.core.object.entity.*;
 import discord4j.core.object.util.Permission;
 import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import javax.xml.soap.Text;
 
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
@@ -183,6 +179,9 @@ public class Gif implements ICommand {
 		}
 		if(containsThem) {
             names.addFirst("themself");
+		}
+		if(names.size() == 0) {
+			names.addFirst("me");
 		}
 		Iterator<String> it = names.iterator();
 		for (int i = 0 ; i < names.size() ; i++) {

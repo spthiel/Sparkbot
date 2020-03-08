@@ -1,6 +1,7 @@
 package me.main;
 
 import me.bot.base.Bot;
+import me.bot.base.configs.ResourceManager;
 import me.console.ConsoleCommandManager;
 
 import reactor.core.publisher.Hooks;
@@ -64,6 +65,8 @@ public class Main {
 	
 	public static void exit() {
 		
+		Bot.foreach(bot -> bot.getResourceManager().saveAll());
+		System.out.println("Yep");
 		System.out.close();
 		System.err.close();
 		System.exit(1);
