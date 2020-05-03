@@ -12,6 +12,8 @@ import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
+
+import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
 import java.awt.*;
@@ -62,24 +64,35 @@ public class Emoji implements ICommand {
 			String emoji = args[0];
 			if(emoji.matches("<:.+?:\\d+>")) {
 				emoji = emoji.replaceAll("<:.+?:(\\d+)>","$1");
-				String finalEmoji = emoji;
+				final String finalEmoji = emoji;
 				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji + ".png?v=1"))).subscribe();
 			} else if(emoji.matches("<a:.+?:\\d+>")) {
 				emoji = emoji.replaceAll("<a:.+?:(\\d+)>","$1");
-				String finalEmoji1 = emoji;
-				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji1 + ".gif?v=1"))).subscribe();
+				final String finalEmoji = emoji;
+				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji + ".gif?v=1"))).subscribe();
 			} else if(emoji.matches("a\\d{8,}")) {
-				String finalEmoji2 = emoji;
-				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji2.replace("a","") + ".gif?v=1"))).subscribe();
+				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + args[0].replace("a","") + ".gif?v=1"))).subscribe();
 			} else if(emoji.matches("\\d{8,}")) {
-				String finalEmoji3 = emoji;
-				channel.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + finalEmoji3 + ".png?v=1"))).subscribe();
+				channel
+						.createMessage(s -> s.setEmbed(spec -> spec.setImage("https://cdn.discordapp.com/emojis/" + args[0] + ".png?v=1")))
+						.subscribe();
+			} else if(args.length == 1) {
+				final String finalEmoji = emoji;
+				guild.getEmojis()
+					 .filter(e -> e.getName().equalsIgnoreCase(finalEmoji))
+					 .map(e -> e.getImageUrl())
+					 .take(1)
+					 .switchIfEmpty(Mono.just(""))
+					 .subscribe(emojiURL -> {
+					 	if(emojiURL.length() == 0) {
+					 		return;
+						}
+						 channel.createMessage(s -> s.setEmbed(spec -> spec.setImage(emojiURL))).subscribe();
+					 });
 			} else {
 				List<String> argsList = Arrays.asList(args);
 				int ofMessageIndex = argsList.indexOf("of");
 				int inChannelIndex = argsList.indexOf("in");
-
-				System.out.println("Index: " + ofMessageIndex + " " + inChannelIndex);
 
 				if(ofMessageIndex < 0)
 					return;

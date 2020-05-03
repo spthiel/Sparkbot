@@ -205,15 +205,17 @@ public class Listener {
     
     private String[] removeEmpty(String[] strings) {
         int empty = 0;
-        for(String s : strings) {
-            if(s.isEmpty()) {
+        for (int i = 1 ; i < strings.length ; i++) {
+            String s = strings[i];
+            if (s.isEmpty()) {
                 empty++;
             }
         }
         String[] out = new String[strings.length-empty];
         int idx = 0;
-        for (String string : strings) {
-            if(!string.isEmpty()) {
+        for (int i = 0 ; i < strings.length ; i++) {
+            String string = strings[i];
+            if (i == 0 || !string.isEmpty()) {
                 out[idx++] = string;
             }
         }

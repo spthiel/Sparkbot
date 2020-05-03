@@ -120,10 +120,10 @@ public class Kick implements ICommand {
                                 dm.createMessage(text)
                                   .subscribe(
                                           (ignored) -> {
-                                              kickMember(member, reason.toString(), channel, member.getUsername());
+                                              kickMember(member, reason.toString(), channel, author);
                                           },
                                           (ignored) -> {
-                                              kickMember(member, reason.toString(), channel, member.getUsername());
+                                              kickMember(member, reason.toString(), channel, author);
                                           }
                                             );
                             });
@@ -136,14 +136,18 @@ public class Kick implements ICommand {
         
     }
     
-    private void kickMember(Member member, String reason, TextChannel kickchannel, String username) {
+    private void kickMember(Member member, String reason, TextChannel kickchannel, Member kicker) {
         
         member.kick(reason).subscribe(
                 (ignored) -> {},
                 (ignored) -> {},
                 () -> {
-                    String r = reason.length() > 0 ? " for ```\n" + reason + "\n```" : "";
-                    kickchannel.createMessage(username + " (" + member.getId().asString() + ") has successfully been kicked" + r)
+                    StringBuilder message = new StringBuilder();
+                    message.append(String.format("<@!%d> successfully kicked %s (%s)", kicker.getId().asLong(), member.getUsername(), member.getId().asString()));
+                    if(reason.length() > 0) {
+                        message.append(String.format("for ```\n%s\n```", reason));
+                    }
+                    kickchannel.createMessage(message.toString())
                             .subscribe();
                 });
     }

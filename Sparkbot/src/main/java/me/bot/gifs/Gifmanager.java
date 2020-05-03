@@ -1,11 +1,11 @@
 package me.bot.gifs;
 
-import discord4j.core.object.Embed;
 import discord4j.core.object.entity.TextChannel;
+import discord4j.core.object.util.Snowflake;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.core.spec.MessageCreateSpec;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -16,6 +16,8 @@ public class Gifmanager {
 	private int count;
 	private String replacer;
 	private static Random random = new Random();
+	
+	private static HashMap<Snowflake, Integer> sent = new HashMap<>();
 
 	public Gifmanager(String name, String[] gifs, String replacer) {
 		this.name = name;
@@ -25,7 +27,8 @@ public class Gifmanager {
 	}
 
 	public String run(TextChannel channel, String executor, String username) {
-		String image = getRandomImage();
+		sent.compute(channel.getId(), (key, value) -> value == null ? random.nextInt(100) : value+1);
+		String image = getImage(channel.getId());
 		channel.createMessage(spec -> spec.setEmbed(specConsumer(image, executor, username))).subscribe();
 		return image;
 	}
@@ -37,9 +40,8 @@ public class Gifmanager {
 			.setTitle(replacer.replace("%user",username).replace("%executor",executor));
 	}
 
-	private String getRandomImage() {
-		int rnd = random.nextInt(gifs.length);
-		return gifs[rnd];
+	private String getImage(Snowflake channel) {
+		return gifs[sent.get(channel)%gifs.length];
 	}
 
 	public int length() {
