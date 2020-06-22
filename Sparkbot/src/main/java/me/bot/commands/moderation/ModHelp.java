@@ -1,13 +1,20 @@
 package me.bot.commands.moderation;
 
-import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
-import me.bot.base.*;
-import me.main.Prefixes;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import me.bot.base.Bot;
+import me.bot.base.CommandType;
+import me.bot.base.ICommand;
+import me.bot.base.MessageBuilder;
+import me.main.Prefixes;
 
 public class ModHelp implements ICommand {
 	@Override

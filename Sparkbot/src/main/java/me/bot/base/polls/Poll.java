@@ -1,24 +1,23 @@
 package me.bot.base.polls;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
-import me.bot.base.Bot;
-import me.main.Triplet;
+import discord4j.core.object.entity.channel.MessageChannel;
 
 import java.util.ArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+
+import me.bot.base.Bot;
 
 public abstract class Poll<T> {
 
-	private Bot bot;
-	private User user;
+	private Bot            bot;
+	private User           user;
 	private MessageChannel channel;
-	private boolean skipable;
-	private long timeUntilInactive;
-	private boolean ended;
-	private long lastInteraction;
+	private boolean        skipable;
+	private long           timeUntilInactive;
+	private boolean        ended;
+	private long           lastInteraction;
 
 	private ArrayList<BiConsumer<T,PollExitType>> simpleSubscribers;
 

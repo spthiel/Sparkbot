@@ -1,11 +1,10 @@
 package me.bot.commands.user;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import me.bot.base.Bot;
@@ -13,10 +12,11 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+import discord4j.rest.util.Color;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -110,15 +110,15 @@ public class Emoji implements ICommand {
 				Snowflake messageFlake = Snowflake.of(messageID);
 				Snowflake channelFlake = (channelID != null ? Snowflake.of(channelID) : channel.getId());
 
-				bot.getClient().getMessageById(channelFlake,messageFlake).subscribe(
+				bot.getGateway().getMessageById(channelFlake,messageFlake).subscribe(
 					message1 -> message1.getAuthor().ifPresent(
 						messageAuthor -> {
-							String c = message1.getContent().orElse("");
+							String c = message1.getContent();
 							Matcher m = pattern.matcher(c);
 
 							Consumer<EmbedCreateSpec> embed = e -> {
 								e.setTitle("Emojis of " + messageAuthor.getUsername() + "'s message")
-										.setColor(new Color(0xdc143c));
+										.setColor(Color.of(0xdc143c));
 
 								int counter = 1;
 								while (m.find()) {

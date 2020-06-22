@@ -1,18 +1,22 @@
 package me.bot.commands.moderation;
 
-import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
-import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.ICommand;
-import me.bot.base.MessageAPI;
-import me.main.Prefixes;
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import me.bot.base.Bot;
+import me.bot.base.CommandType;
+import me.bot.base.ICommand;
+import me.bot.base.MessageAPI;
+import me.main.Prefixes;
 
 public class Delete implements ICommand {
 

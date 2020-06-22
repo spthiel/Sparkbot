@@ -1,18 +1,16 @@
 package me.bot.base.polls;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.MessageCreateSpec;
-import me.bot.base.Bot;
-import me.bot.base.MessageBuilder;
-import me.main.Triplet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+
+import me.bot.base.Bot;
+import me.bot.base.MessageBuilder;
 
 @SuppressWarnings("unused")
 public class Option extends Poll<Integer>{
@@ -25,7 +23,7 @@ public class Option extends Poll<Integer>{
 	private int page;
 	private long start = 0;
 
-	public Option (Bot bot, User user, MessageChannel channel, String head, String tail, boolean skipable, long timeUntilInactive) {
+	public Option(Bot bot, User user, MessageChannel channel, String head, String tail, boolean skipable, long timeUntilInactive) {
 		super(bot,user,channel,skipable,timeUntilInactive);
 		this.head = head.replace("```\\w+|`","");
 		this.tail = tail;
@@ -37,7 +35,7 @@ public class Option extends Poll<Integer>{
 	@Override
 	public boolean onTrigger(Message message) {
 
-		String input = message.getContent().orElse("").trim().replaceAll("```\\w*|`|\\*|~|_","");
+		String input = message.getContent().trim().replaceAll("```\\w*|`|\\*|~|_","");
 
 		if(!input.matches("\\d+"))
 			return false;

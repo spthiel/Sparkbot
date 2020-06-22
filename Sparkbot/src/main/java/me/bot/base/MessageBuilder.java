@@ -1,9 +1,9 @@
 package me.bot.base;
 
-import discord4j.core.DiscordClient;
+import discord4j.common.util.Snowflake;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import reactor.core.publisher.Mono;
@@ -22,7 +22,7 @@ public class MessageBuilder {
     /**
      * The raw content of the message.
      */
-    private String content;
+    private String         content;
     /**
      * Whether the message should use text-to-speech.
      */
@@ -106,8 +106,9 @@ public class MessageBuilder {
      * @param channelID The channel the message will be sent in.
      * @return The builder instance.
      */
-    public Mono<MessageChannel> withChannel(DiscordClient client, long channelID) {
-
+    public Mono<MessageChannel> withChannel(GatewayDiscordClient client, long channelID) {
+        
+        
         return client.getChannelById(Snowflake.of(channelID))
                 .filter(channel -> channel instanceof MessageChannel)
                 .map(channel -> (MessageChannel)channel)

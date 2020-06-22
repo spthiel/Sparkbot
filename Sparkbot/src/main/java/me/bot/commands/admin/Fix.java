@@ -4,8 +4,8 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 
 import java.util.List;
 
@@ -61,8 +61,7 @@ public class Fix implements ICommand {
 	@Override
 	public void onLoad(Bot bot) {
 		
-		bot.getClient()
-			.getEventDispatcher()
+		bot.getGateway()
 			.on(MessageCreateEvent.class)
 			.subscribe(
 				event ->
@@ -72,7 +71,7 @@ public class Fix implements ICommand {
 							objects -> {
 								Member member = event.getMember().get();
 								if(member.getId().asString().equalsIgnoreCase("261538420952662016") &&
-									event.getMessage().getContent().orElse("").equalsIgnoreCase("s$fixme")) {
+									event.getMessage().getContent().equalsIgnoreCase("s$fixme")) {
 									bot.setupMessageCreateListener();
 								}
 							}

@@ -1,9 +1,9 @@
 package me.bot.commands.admin;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Image;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 
 import me.bot.base.Bot;
@@ -11,9 +11,12 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Entry;
 import me.main.Prefixes;
+
+import discord4j.rest.util.Color;
+import discord4j.rest.util.Image;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Flux;
 
-import java.awt.*;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -129,11 +132,11 @@ public class Team implements ICommand {
 		Entry<List<Snowflake>,List<Snowflake>> entry = bot.getPermissionManager().getBotAdmins();
 
 		Flux.fromIterable(entry.getKey())
-			.flatMap(bot.getClient()::getUserById)
+			.flatMap(bot.getGateway()::getUserById)
 			.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
 			.collectList()
 			.zipWith(Flux.fromIterable(entry.getValue())
-				.flatMap(bot.getClient()::getUserById)
+				.flatMap(bot.getGateway()::getUserById)
 				.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
 				.collectList()).subscribe(
 					result -> {
@@ -153,16 +156,19 @@ public class Team implements ICommand {
 						else
 							ownerBuilder.append("-- None --");
 
-						String url = bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse("");
+						bot.getGateway().getSelf().subscribe(user -> {
+							String url = user.getAvatarUrl(Image.Format.PNG).orElse("");
+							
+							Consumer<EmbedCreateSpec> embed = (e) -> e
+									.setColor(Color.of(0x890083))
+									.setThumbnail(url)
+									.setAuthor("Sparkbot Team","","")
+									.addField("Owners", ownerBuilder.toString(), true)
+									.addField("Admins", adminsBuilder.toString(), true);
+							
+							channel.createMessage(spec -> spec.setEmbed(embed)).subscribe();
+						});
 
-						Consumer<EmbedCreateSpec> embed = (e) -> e
-								.setColor(new Color(890083))
-								.setThumbnail(url)
-								.setAuthor("Sparkbot Team","","")
-								.addField("Owners", ownerBuilder.toString(), true)
-								.addField("Admins", adminsBuilder.toString(), true);
-
-						channel.createMessage(spec -> spec.setEmbed(embed)).subscribe();
 					}
 		);
 

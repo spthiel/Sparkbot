@@ -1,14 +1,16 @@
 package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
+import discord4j.rest.util.Permission;
 
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,9 +47,9 @@ public class Test implements ICommand {
 
 	@Override
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
-
+		
 		channel.createMessage(mspec -> mspec.setEmbed(spec -> spec
-				.setColor(new Color(colorToInt("#2409E9")))
+				.setColor(Color.of(0x2409E9))
 				.addField("Command",command,true)
 				.addField("Args", Arrays.toString(args),true)
 				.addField("Content","`" + content + "`",true)
@@ -59,10 +61,6 @@ public class Test implements ICommand {
 		).subscribe();
 
 		
-	}
-
-	private int colorToInt(String colorhex) {
-		return Integer.parseInt(colorhex.replace("#",""),16);
 	}
 
 	@Override

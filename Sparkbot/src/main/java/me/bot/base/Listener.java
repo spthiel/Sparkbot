@@ -1,5 +1,6 @@
 package me.bot.base;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
@@ -7,18 +8,18 @@ import discord4j.core.event.domain.lifecycle.ReconnectStartEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.*;
+import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.object.entity.channel.MessageChannel;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.PermissionSet;
-import discord4j.core.object.util.Snowflake;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Flux;
 
 import me.bot.base.polls.Poll;
 
 import reactor.core.publisher.Mono;
 
-import java.sql.SQLOutput;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
@@ -108,14 +109,14 @@ public class Listener {
         
         String message = "s!help";
         if (!bot.isStreaming()) {
-            bot.getClient().updatePresence(Presence.online(Activity.playing(message))).subscribe(
+            bot.getGateway().updatePresence(Presence.online(Activity.playing(message))).subscribe(
                     aVoid -> {
                     },
                     Throwable :: printStackTrace,
                     () -> System.out.println("Changed playing presence")
                                                                                                 );
         } else {
-            bot.getClient().updatePresence(Presence.online(Activity.streaming(message, bot.getUrl()))).subscribe(
+            bot.getGateway().updatePresence(Presence.online(Activity.streaming(message, bot.getUrl()))).subscribe(
                     aVoid -> System.out.println("Changed streaming presence"),
                     Throwable :: printStackTrace,
                     () -> System.out.println("Changed streaming presence")
@@ -153,7 +154,7 @@ public class Listener {
         
         final Poll poll = getPollOfPlayer(member.getId().asLong());
         if (poll != null) {
-            final String messagecontent = message.getContent().orElse("");
+            final String messagecontent = message.getContent();
             
             if (messagecontent.startsWith("skip")) {
                 
@@ -178,9 +179,9 @@ public class Listener {
     
     private void processCommand(final Member member, final Guild guild, final TextChannel channel, final MessageCreateEvent event, final boolean isOnWhitelist) {
         
-        String message = event.getMessage().getContent().orElse(null);
+        String message = event.getMessage().getContent();
         
-        if (channel == null || message == null) {
+        if (channel == null || message.length() == 0) {
             return;
         }
         
@@ -306,7 +307,7 @@ public class Listener {
     private Mono<List<Permission>> requiredPermissions(TextChannel channel, List<Permission> perms) {
         
         Flux<Permission> permissions = channel
-                .getEffectivePermissions(bot.getBotuser().getId())
+                .getEffectivePermissions(bot.getGateway().getSelfId())
                 .flatMapMany(Flux :: fromIterable);
         Mono<Boolean>    isAdmin     = permissions.filter(perm -> perm.equals(Permission.ADMINISTRATOR)).hasElements();
         

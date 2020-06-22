@@ -1,7 +1,7 @@
 package me.console.commands;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
-import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
 import me.console.ConsoleCommand;
 import me.main.Entry;
@@ -104,11 +104,11 @@ public class Team implements ConsoleCommand {
 		Entry<java.util.List<Snowflake>,java.util.List<Snowflake>> entry = bot.getPermissionManager().getBotAdmins();
 
 		Flux.fromIterable(entry.getKey())
-				.flatMap(bot.getClient()::getUserById)
+				.flatMap(bot.getGateway()::getUserById)
 				.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
 				.collectList()
 				.zipWith(Flux.fromIterable(entry.getValue())
-						.flatMap(bot.getClient()::getUserById)
+						.flatMap(bot.getGateway()::getUserById)
 						.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
 						.collectList()).subscribe(
 				result -> {

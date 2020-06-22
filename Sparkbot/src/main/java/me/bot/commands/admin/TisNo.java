@@ -3,8 +3,8 @@ package me.bot.commands.admin;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 
 import java.util.Collections;
 import java.util.List;

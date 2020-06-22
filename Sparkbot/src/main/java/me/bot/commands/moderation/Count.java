@@ -1,16 +1,19 @@
 package me.bot.commands.moderation;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 
 import java.util.Arrays;
 import java.util.List;
 
-import me.bot.base.*;
+import me.bot.base.Bot;
+import me.bot.base.CommandType;
+import me.bot.base.ICommand;
+import me.bot.base.MessageAPI;
 import me.main.Prefixes;
 
 public class Count implements ICommand {

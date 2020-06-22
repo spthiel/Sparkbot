@@ -1,19 +1,18 @@
 package me.bot.base.configs;
 
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.User;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.PermissionSet;
-import discord4j.core.object.util.Snowflake;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.configs.ResourceManager;
 import me.main.Entry;
 import me.main.Main;
 
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

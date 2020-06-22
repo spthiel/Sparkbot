@@ -1,16 +1,18 @@
 package me.bot.commands.user;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Image;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import discord4j.rest.util.Color;
+import discord4j.rest.util.Image;
+import discord4j.rest.util.Permission;
+
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
-import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -57,16 +59,21 @@ public class Stats implements ICommand {
 	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
 		bot.getClient().getGuilds().count().subscribe(
 			guildcount ->{
-				Instant jointime = guild.getJoinTime().orElse(null);
-				String formattedTime = jointime == null ? "Error" : DateTimeFormatter.ofPattern("hh:mm:ss a dd.MMM.yyyy").withZone(ZoneId.of("UTC")).format(jointime);
-				channel.createMessage(spec -> spec.setEmbed(getEmbed(bot.getBotuser().getAvatarUrl(Image.Format.PNG).orElse(""), guildcount, formattedTime, uptime(bot)))).subscribe();
+				Instant jointime = guild.getJoinTime();
+				String formattedTime = DateTimeFormatter.ofPattern("hh:mm:ss a dd.MMM.yyyy").withZone(ZoneId.of("UTC")).format(jointime);
+				bot.getGateway().getSelf().subscribe(
+						self -> {
+							String avatarUrl = self.getAvatarUrl(Image.Format.PNG).orElse("");
+							channel.createMessage(spec -> spec.setEmbed(getEmbed(avatarUrl, guildcount, formattedTime, uptime(bot)))).subscribe();
+						}
+													);
 			});
 	}
 
 	private Consumer<EmbedCreateSpec> getEmbed(String avatarurl, Long guildcount, String formattedTime, String uptime) {
 		return (spec) ->
 			spec
-					.setColor(new Color(0xDC143C))
+					.setColor(Color.of(0xDC143C))
 					.setThumbnail(avatarurl)
 					.addField("Creator", "spthiel#1317", true)
 					.addField("Guilds", guildcount + "", true)

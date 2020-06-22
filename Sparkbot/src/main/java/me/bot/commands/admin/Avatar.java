@@ -1,13 +1,16 @@
 package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
+
+import java.util.List;
+
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
-import java.util.List;
 
 public class Avatar implements ICommand {
 	@Override

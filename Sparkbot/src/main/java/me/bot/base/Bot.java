@@ -3,21 +3,22 @@ package me.bot.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.DisconnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.entity.User;
-import discord4j.core.spec.MessageCreateSpec;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Color;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -49,7 +50,7 @@ public class Bot {
 	}
 	
 	private DiscordClient client;
-	private User          botuser;
+	private GatewayDiscordClient gateway;
 	private Listener      listener;
 	private String        name;
 	private String        url;
@@ -157,17 +158,6 @@ public class Bot {
 		
 		client = createClient(token);
 		initListeners(commandPackage);
-		client.getApplicationInfo().subscribe(
-				value -> client.getUserById(value.getId()).subscribe(
-						v -> {
-							botuser = v;
-							System.out.println("Successfully got the botuser: " + botuser.getUsername());
-						},
-						Throwable:: printStackTrace
-																	),
-				Throwable:: printStackTrace,
-				() -> System.out.println("Successfully got bot id")
-											 );
 		
 		Optional<String> bondkey = getApiKey("botsondiscord");
 		bondkey.ifPresent(this :: startBotsOnDiscordInterval);
@@ -183,16 +173,16 @@ public class Bot {
 	
 	private void initListeners(String commandPackage) {
 		
-		EventDispatcher dispatcher = client.getEventDispatcher();
+		gateway = client.login().block();
 		listener = new Listener(this);
-		dispatcher.on(MessageDeleteEvent.class).subscribe(listener:: onDelete);
-		dispatcher.on(ReadyEvent.class).subscribe(listener:: onReadyEvent);
-		dispatcher.on(GuildCreateEvent.class).subscribe(listener:: onJoinServer);
+		gateway.on(MessageDeleteEvent.class).subscribe(listener:: onDelete);
+		gateway.on(ReadyEvent.class).subscribe(listener:: onReadyEvent);
+		gateway.on(GuildCreateEvent.class).subscribe(listener:: onJoinServer);
 		setupMessageCreateListener();
-		dispatcher.on(DisconnectEvent.class).subscribe(event -> {
+		gateway.on(DisconnectEvent.class).subscribe(event -> {
 			System.out.println(name + " disconnected");
 		});
-		dispatcher.on(ReadyEvent.class).subscribe(event -> System.out.println(name + " logged in"));
+		gateway.on(ReadyEvent.class).subscribe(event -> System.out.println(name + " logged in"));
 		
 		Reflections reflections = new Reflections(commandPackage);
 		reflections.getSubTypesOf(ICommand.class).forEach(i -> {
@@ -209,7 +199,7 @@ public class Bot {
 		
 	}
 	
-	private Disposable messageCreateSubscriber = null;
+	private Disposable  messageCreateSubscriber = null;
 	private TextChannel reportChannel;
 	
 	public void setupMessageCreateListener() {
@@ -219,7 +209,7 @@ public class Bot {
 			messageCreateSubscriber.dispose();
 			System.out.println("Disposed listener");
 		}
-		messageCreateSubscriber = client.getEventDispatcher().on(MessageCreateEvent.class)
+		messageCreateSubscriber = gateway.on(MessageCreateEvent.class)
 			.subscribe(
 				event -> {
 					// WARNING: Dirty code, do not use this
@@ -233,7 +223,7 @@ public class Bot {
 									spec -> {
 										spec.setTitle("Exception in MessageCreateListener");
 										spec.setDescription("```\n" + stackTrace + "\n```");
-										spec.setColor(new Color(0xE84112));
+										spec.setColor(Color.of(0xE84112));
 									});
 								}
 							).subscribe();
@@ -249,11 +239,6 @@ public class Bot {
 	public long getStartTime() {
 		
 		return startTime;
-	}
-	
-	public User getBotuser() {
-		
-		return botuser;
 	}
 	
 	public boolean isStreaming() {
@@ -315,7 +300,7 @@ public class Bot {
 		
 		System.out.println("Disabling");
 		if (client != null) {
-			client.logout();
+			gateway.logout().subscribe();
 		}
 	}
 	
@@ -332,8 +317,7 @@ public class Bot {
 	
 	private DiscordClient createClient(String token) {
 		
-		DiscordClientBuilder clientBuilder = new DiscordClientBuilder(token);
-		return clientBuilder.build();
+		return DiscordClient.create(token);
 	}
 	
 	public PermissionManager getPermissionManager() {
@@ -341,6 +325,10 @@ public class Bot {
 		return permissionManager;
 	}
 	
+	public GatewayDiscordClient getGateway() {
+		
+		return gateway;
+	}
 	
 	public static Bot getBotByName(String name) {
 		

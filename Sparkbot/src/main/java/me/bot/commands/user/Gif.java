@@ -2,34 +2,37 @@ package me.bot.commands.user;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
-import me.main.utils.DiscordUtils;
 import me.bot.gifs.Gifmanager;
 import me.main.Messages;
 import me.main.Prefixes;
+import me.main.utils.DiscordUtils;
 import me.main.utils.HTTP;
-
-import java.awt.*;
-import java.util.*;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class Gif implements ICommand {
 
-	private static Gif instance;
-	private List<Gifmanager> gifmanager;
-	private String commands = "gif";
+	private static Gif                instance;
+	private List<Gifmanager>          gifmanager;
+	private String                    commands = "gif";
 	private HashMap<Snowflake,String> lastGifs;
-	private TextChannel reportChannel;
+	private TextChannel               reportChannel;
 
 	public Gif() {
 		instance = this;
@@ -83,7 +86,7 @@ public class Gif implements ICommand {
 					String m = "[IMAGE REPORT] From " + author.getUsername() + "#" + author.getDiscriminator() + " " + image;
 
 					Consumer<EmbedCreateSpec> reportSpec = embed -> embed
-							.setColor(new Color(0xE84112))
+							.setColor(Color.of(0xE84112))
 							.setTitle("**`IMAGE REPORT`**")
 							.setThumbnail(image)
 							.addField("Reporter",author.getUsername() + "#" + author.getDiscriminator(),true)
@@ -164,7 +167,7 @@ public class Gif implements ICommand {
 		boolean containsThem = false;
 		for (int i = 0 ; i < members.size() ; i++) {
 			Member member = members.get(i);
-			if(member.getId().equals(bot.getBotuser().getId()))
+			if(member.getId().equals(bot.getGateway().getSelfId()))
 				containsMe = true;
 			else if (member.getId().equals(author.getId()))
 				containsThem = true;
@@ -273,7 +276,7 @@ public class Gif implements ICommand {
 
 		loadGiffmanager(bot);
 
-		bot.getClient().getChannelById(Snowflake.of(459658855144488960L))
+		bot.getGateway().getChannelById(Snowflake.of(459658855144488960L))
 				.filter(channel -> channel instanceof TextChannel)
 				.map(channel -> (TextChannel)channel)
 				.subscribe(

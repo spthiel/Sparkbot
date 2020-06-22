@@ -1,27 +1,30 @@
 package me.bot.commands.user;
 
-import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.Attachment;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.MessageCreateSpec;
-import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.ICommand;
-import me.bot.base.IDisabledCommand;
-import me.main.utils.HTTP;
-import me.main.Prefixes;
-import me.tablecreator.Cell;
-import me.tablecreator.Grid;
-import me.tablecreator.TCreator;
+import discord4j.rest.util.Permission;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+
+import me.bot.base.Bot;
+import me.bot.base.CommandType;
+import me.bot.base.ICommand;
+import me.bot.base.IDisabledCommand;
+import me.main.Prefixes;
+import me.main.utils.HTTP;
+import me.tablecreator.Cell;
+import me.tablecreator.Grid;
+import me.tablecreator.TCreator;
 
 public class CreateTable implements ICommand, IDisabledCommand {
 	@Override

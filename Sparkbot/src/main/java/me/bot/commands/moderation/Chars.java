@@ -1,7 +1,12 @@
 package me.bot.commands.moderation;
 
-import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
+
+import java.util.*;
 
 import me.bot.base.*;
 import me.bot.base.polls.Bool;
@@ -9,8 +14,6 @@ import me.bot.base.polls.Input;
 import me.bot.base.polls.Option;
 import me.bot.base.polls.PollExitType;
 import me.main.Prefixes;
-
-import java.util.*;
 
 public class Chars implements ICommand, IDisabledCommand {
 

@@ -1,14 +1,15 @@
 package me.bot.base;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
 import me.bot.base.configs.PermissionManager;
 import me.main.Main;
 
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 
-import java.security.Permissions;
 import java.util.List;
+
 
 public interface ICommand {
 	

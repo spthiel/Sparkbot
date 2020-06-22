@@ -1,13 +1,15 @@
 package me.bot.commands.user;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.MessageCreateSpec;
 import discord4j.core.spec.MessageEditSpec;
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
+
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;

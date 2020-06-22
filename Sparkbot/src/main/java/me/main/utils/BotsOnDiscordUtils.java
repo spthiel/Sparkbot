@@ -20,7 +20,7 @@ public class BotsOnDiscordUtils {
 						header.put("Content-Type","application/json");
 						System.out.println("Sending guidcount: " + count + " to Bots.onDiscord.xyz");
 						HTTP.post(
-								BASE_URL + GUILD_ENDPOINT.replace("$ID$", bot.getBotuser().getId().asString()),
+								BASE_URL + GUILD_ENDPOINT.replace("$ID$", bot.getGateway().getSelfId().asString()),
 								GUILD_PAYLOAD.replace("$COUNT$", count.toString()),
 								header
 								 );

@@ -2,13 +2,11 @@ package me.bot.base.polls;
 
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.MessageChannel;
+
 import me.bot.base.Bot;
 import me.bot.base.MessageBuilder;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class Input extends Poll<String> {
 
@@ -17,7 +15,7 @@ public class Input extends Poll<String> {
 
 	private Message lastMessage;
 
-	public Input(Bot bot, User user, MessageChannel channel,String question, String tail, boolean skipable, long inactiveTime) {
+	public Input(Bot bot, User user, MessageChannel channel, String question, String tail, boolean skipable, long inactiveTime) {
 		super(bot,user,channel,skipable,inactiveTime);
 		this.question = question.replace("```\\w+|`","");
 		this.tail = tail;
@@ -25,7 +23,7 @@ public class Input extends Poll<String> {
 
 	@Override
 	public boolean onTrigger(Message message) {
-		onEnd(message.getContent().orElse(""));
+		onEnd(message.getContent());
 		deleteLastMessage();
 		return true;
 	}

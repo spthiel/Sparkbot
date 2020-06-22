@@ -1,50 +1,33 @@
 package me.macro.formatter;
 
-import me.main.Entry;
-
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import me.main.Entry;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class FormatObject {
 
-	private List<Integer> diff;
-	private List<Entry<Integer,MacroException>> exceptions;
-	private List<String> formatted;
-	private List<Integer> criticalErrors;
+	private LinkedList<Entry<Integer,MacroException>> exceptions;
+	private LinkedList<String>                        formatted;
+	private LinkedList<Integer>                       criticalErrors;
 	private boolean
-		indepthcheck,
-		inculdediff;
+													  indepthcheck;
 
-	public FormatObject(boolean indepthcheck, boolean includediff) {
-		formatted = new ArrayList<>();
-		criticalErrors = new ArrayList<>();
+	public FormatObject(boolean indepthcheck) {
+		formatted = new LinkedList<>();
+		criticalErrors = new LinkedList<>();
 
 		this.indepthcheck = indepthcheck;
 		if(indepthcheck)
-			exceptions = new ArrayList<>();
+			exceptions = new LinkedList<>();
 		else
 			exceptions = null;
 
-		this.inculdediff = includediff;
-		if(includediff)
-			diff = new ArrayList<>();
-		else
-			diff = null;
-	}
-
-	public boolean inculdesDiff() {
-		return inculdediff;
 	}
 
 	public boolean checksIndepth() {
 		return indepthcheck;
-	}
-
-	public void addEntry(int line) {
-		if(diff != null)
-			if(!diff.contains(line))
-				diff.add(line);
 	}
 
 	public void addCriticalError(int line) {
@@ -53,16 +36,14 @@ public class FormatObject {
 
 	public void addException(int line,MacroException exception) {
 		if(exceptions != null)
-			exceptions.add(new Entry<>(line,exception));
+			exceptions.add(new Entry<>(line, exception));
 	}
 
 	public void addLine(String line) {
 		formatted.add(line);
 	}
 
-
-
-	public List<String> getFormatted() {
+	public LinkedList<String> getFormatted() {
 		return formatted;
 	}
 
@@ -70,11 +51,18 @@ public class FormatObject {
 		return exceptions;
 	}
 
-	public List<Integer> getChangedLines() {
-		return diff;
-	}
-
 	public List<Integer> getCriticalErrors() {
 		return criticalErrors;
+	}
+	
+	@Override
+	public String toString() {
+		
+		return "FormatObject{" +
+				"exceptions=" + exceptions +
+				", formatted=" + formatted +
+				", criticalErrors=" + criticalErrors +
+				", indepthcheck=" + indepthcheck +
+				'}';
 	}
 }

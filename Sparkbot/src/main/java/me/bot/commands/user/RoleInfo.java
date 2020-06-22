@@ -1,8 +1,8 @@
 package me.bot.commands.user;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 
 import java.awt.*;

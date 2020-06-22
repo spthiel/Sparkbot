@@ -1,7 +1,9 @@
 package me.bot.commands.moderation;
 
 import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
+
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;

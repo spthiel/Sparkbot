@@ -1,10 +1,10 @@
 package me.bot.gifs;
 
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.util.Snowflake;
+import discord4j.common.util.Snowflake;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.function.Consumer;
@@ -35,7 +35,7 @@ public class Gifmanager {
 
 	private Consumer<EmbedCreateSpec> specConsumer(String image, String executor, String username) {
 		return spec ->
-			spec.setColor(new Color(511973))
+			spec.setColor(Color.of(511973))
 			.setImage(image)
 			.setTitle(replacer.replace("%user",username).replace("%executor",executor));
 	}

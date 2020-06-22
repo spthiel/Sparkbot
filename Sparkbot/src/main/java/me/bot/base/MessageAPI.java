@@ -1,10 +1,7 @@
 package me.bot.base;
 
-import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.spec.MessageCreateSpec;
+import discord4j.core.object.entity.channel.MessageChannel;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;

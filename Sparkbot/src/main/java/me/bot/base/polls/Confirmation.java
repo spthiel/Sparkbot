@@ -1,8 +1,8 @@
 package me.bot.base.polls;
 
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.MessageChannel;
 
 import me.bot.base.Bot;
 
@@ -21,7 +21,7 @@ public class Confirmation extends Bool {
     @Override
     public boolean onTrigger(Message message) {
         
-        String content = message.getContent().orElse("");
+        String content = message.getContent();
         String lcase = content.toLowerCase();
         
         if(!lcase.matches(TRUE_REGEX) && !lcase.matches(FALSE_REGEX)) {

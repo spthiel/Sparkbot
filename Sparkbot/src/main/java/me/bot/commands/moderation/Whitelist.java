@@ -1,11 +1,18 @@
 package me.bot.commands.moderation;
 
-import discord4j.core.object.entity.*;
-import discord4j.core.object.util.Permission;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 import me.bot.base.*;
 import me.main.Prefixes;
-
-import java.util.*;
 
 public class Whitelist implements ICommand {
 	

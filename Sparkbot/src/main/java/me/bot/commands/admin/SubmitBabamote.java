@@ -1,15 +1,15 @@
 package me.bot.commands.admin;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.Snowflake;
+import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
+import discord4j.rest.util.Permission;
 import reactor.core.publisher.Mono;
 
-import java.awt.*;
 import java.util.List;
 
 import me.bot.base.Bot;
@@ -25,7 +25,7 @@ public class SubmitBabamote implements ICommand {
         if(bot == null) {
             return Mono.empty();
         }
-        return bot.getClient().getChannelById(Snowflake.of(584408017404166144L)).filter(channel -> channel instanceof TextChannel).map(channel -> (TextChannel)channel);
+        return bot.getGateway().getChannelById(Snowflake.of(584408017404166144L)).filter(channel -> channel instanceof TextChannel).map(channel -> (TextChannel)channel);
     }
     
     @Override
@@ -78,7 +78,7 @@ public class SubmitBabamote implements ICommand {
         }
     }
     
-    private final Color color = new Color(255, 142, 228);
+    private final Color color = Color.of(255, 142, 228);
     
     private void createEmbed(EmbedCreateSpec spec, String emojiid, String emojiname, String fileformat) {
         
