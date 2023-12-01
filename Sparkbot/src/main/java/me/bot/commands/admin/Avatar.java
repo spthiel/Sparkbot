@@ -12,6 +12,7 @@ import me.bot.base.ICommand;
 import me.main.Prefixes;
 
 
+@SuppressWarnings("unused")
 public class Avatar implements ICommand {
 	@Override
 	public CommandType getType() {
@@ -20,9 +21,10 @@ public class Avatar implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Changes bot's Avatar";
+		return "Changes bots Avatar";
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
 	@Override
 	public String[] getNames() {
 		return new String[]{"avatar","changeavatar"};
@@ -44,7 +46,7 @@ public class Avatar implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 		if(args.length > 1) {
 
 			//TODO: Fix stuff

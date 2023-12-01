@@ -7,10 +7,13 @@ import java.util.List;
 
 import me.main.utils.HTTP;
 
+@SuppressWarnings({"CallToPrintStackTrace", "unused"})
 public class MacroCache {
 
-    private static final String URL = "https://beta.mkb.gorlem.ml/";
-    private static final String API = "api/docs";
+    // TODO: Rework macro cache
+    
+    private static final String URL = "https://mkb.ddoerr.com";
+    private static final String API = "/api/docs";
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private List<ResponseStruct> cache;
@@ -60,7 +63,7 @@ public class MacroCache {
                 }
             }
         }
-        return Mono.just(ResponseStruct.NULL);
+        return Mono.just(new NullStruct());
     }
 
     private static boolean typeAccepts(ResponseStruct.Types type, ResponseStruct struct) {

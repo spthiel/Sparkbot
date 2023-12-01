@@ -14,6 +14,7 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class Fix implements ICommand {
 	
 	@Override
@@ -53,9 +54,9 @@ public class Fix implements ICommand {
 	}
 	
 	@Override
-	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
 		
-		channel.createMessage(spec -> spec.setContent("It was working.. why u do dis to me?")).subscribe();
+		channel.createMessage("It was working.. why u do dis to me?").subscribe();
 	}
 	
 	@Override
@@ -69,6 +70,7 @@ public class Fix implements ICommand {
 						.filter(messageChannel -> event.getMember().isPresent() && !event.getMember().get().isBot())
 						.subscribe(
 							objects -> {
+								//noinspection OptionalGetWithoutIsPresent
 								Member member = event.getMember().get();
 								if(member.getId().asString().equalsIgnoreCase("261538420952662016") &&
 									event.getMessage().getContent().equalsIgnoreCase("s$fixme")) {

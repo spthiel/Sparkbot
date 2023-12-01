@@ -1,38 +1,38 @@
-package me.bot.commands.user;
+package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.rest.util.Permission;
 
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
-import discord4j.rest.util.Permission;
-
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class Invite implements ICommand {
+public class RemoteLogout implements ICommand {
+
 
     @Override
     public CommandType getType() {
-        return CommandType.PUBLIC;
+        return CommandType.ADMIN;
     }
 
     @Override
     public String getHelp() {
-        return "Gets the link to Invite the bot to your Server";
+        return "Remote logout of all instances";
     }
 
     @Override
     public String[] getNames() {
-	    return new String[]{"invite","link"};
+        return new String[]{"logout"};
     }
 
     @Override
     public String[] getPrefixes(Guild guild) {
-        return Prefixes.getNormalPrefixesFor(guild);
+        return new String[]{Prefixes.getSuperAdminPrefix()};
     }
 
     @Override
@@ -45,12 +45,9 @@ public class Invite implements ICommand {
         return null;
     }
 
-    private static final String LINK = "https://bit.ly/invSparkbot";
-
     @Override
     public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
-       channel.createMessage("Hello, " + author.getMention() + " you can invite me with <" + LINK + ">").subscribe();
-
+        bot.disable();
     }
 
     @Override

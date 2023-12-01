@@ -2,15 +2,17 @@ package me.console;
 
 import org.reflections.Reflections;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class ConsoleCommandManager implements Runnable{
-
-    private Scanner scanner;
-    private List<ConsoleCommand> commands;
+    
+    @SuppressWarnings("FieldCanBeLocal")
+    private       Scanner              scanner;
+    private final List<ConsoleCommand> commands;
 
     public ConsoleCommandManager() {
-        commands = new ArrayList<ConsoleCommand>();
+        commands = new ArrayList<>();
         new Thread(this).start();
     }
 
@@ -28,22 +30,23 @@ public class ConsoleCommandManager implements Runnable{
         Reflections reflections = new Reflections("me.console.commands");
         reflections.getSubTypesOf(ConsoleCommand.class).forEach(i -> {
             try {
-	            ConsoleCommand command = i.newInstance();
+	            ConsoleCommand command = i.getDeclaredConstructor().newInstance();
 	            addCommand(command);
-            } catch (InstantiationException | IllegalAccessException ignored) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
             }
         });
+        //noinspection InfiniteLoopStatement
         while(true) {
             scanner = new Scanner(System.in);
             String line = scanner.nextLine().trim();
-	        String cmdname = line.replaceAll("^(.*?)(?: .*)?$","$1");
+	        String commandName = line.replaceAll("^(.*?)(?: .*)?$","$1");
 	        String[] args = line.replaceAll("^.*?(?: (.*))?$","$1").split(" ");
             boolean worked = false;
             for (ConsoleCommand command : commands) {
 
                 boolean bool = false;
                 for(String name : command.getNames())
-                    if(name.equalsIgnoreCase(cmdname)) {
+                    if(name.equalsIgnoreCase(commandName)) {
                         bool = true;
                         break;
                     }
@@ -51,12 +54,12 @@ public class ConsoleCommandManager implements Runnable{
                 if (bool) {
                     worked = true;
                     command.run(args);
-                    System.out.println("");
+                    System.out.println();
                 }
             } 
             if (!worked) {
-                System.out.println("Uh oh, '" + cmdname + "' wasn't found as a command!");
-                System.out.println("");
+                System.out.println("Uh oh, '" + commandName + "' wasn't found as a command!");
+                System.out.println();
             }
         }
     }

@@ -8,15 +8,16 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import me.bot.base.Bot;
 import me.bot.base.MessageBuilder;
 
+@SuppressWarnings("unused")
 public class Input extends Poll<String> {
 
-	private String question;
-	private String tail;
+	private final String question;
+	private final String tail;
 
 	private Message lastMessage;
 
-	public Input(Bot bot, User user, MessageChannel channel, String question, String tail, boolean skipable, long inactiveTime) {
-		super(bot,user,channel,skipable,inactiveTime);
+	public Input(Bot bot, User user, MessageChannel channel, String question, String tail, boolean skippable, long inactiveTime) {
+		super(user, channel, skippable, inactiveTime);
 		this.question = question.replace("```\\w+|`","");
 		this.tail = tail;
 	}

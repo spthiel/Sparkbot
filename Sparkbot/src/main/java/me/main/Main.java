@@ -1,20 +1,19 @@
 package me.main;
 
 import me.bot.base.Bot;
-import me.bot.base.configs.ResourceManager;
 import me.console.ConsoleCommandManager;
 
 import reactor.core.publisher.Hooks;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
+	
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 	
 	private static ConsoleCommandManager commands;
 	public static boolean testInstance = false;
@@ -23,6 +22,7 @@ public class Main {
 		
 		for(String s : args) {
 			if(s.equalsIgnoreCase("-test")) {
+				System.out.println("Detected test flag, starting in test mode");
 				testInstance = true;
 				break;
 			}
@@ -46,7 +46,7 @@ public class Main {
 			PrintStream err = new PrintStream(new File(base, "/errors.txt"));
 			System.setOut(new Printer(System.out, out));
 			System.setErr(new Printer(System.err, err));
-			System.out.println("Basefile: " + base);
+			System.out.println("Base-file: " + base);
 			new Bot(
 					base,
 					"sparkbot.config"
@@ -57,8 +57,7 @@ public class Main {
 			Bot.foreach(Bot:: login);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Exit main with error");
+			logger.error("Exit main with error", e);
 		}
 		
 	}

@@ -3,18 +3,14 @@ package me.bot.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
-import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
-import discord4j.core.event.EventDispatcher;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
 import discord4j.core.event.domain.lifecycle.DisconnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageDeleteEvent;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.gateway.intent.Intent;
+import discord4j.gateway.intent.IntentSet;
 import discord4j.rest.util.Color;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -29,6 +25,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import me.bot.base.configs.Language;
 import me.bot.base.configs.PermissionManager;
@@ -36,13 +34,12 @@ import me.bot.base.configs.ResourceManager;
 import me.bot.base.polls.Poll;
 import me.bot.commands.user.Gif;
 import me.main.utils.BotsOnDiscordUtils;
-import me.main.utils.DiscordUtils;
 import me.main.utils.ExceptionUtils;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
 public class Bot {
 	
-	private static List<Bot> bots = new ArrayList<>();
+	private static final List<Bot> bots = new ArrayList<>();
+	private static final Logger logger = LoggerFactory.getLogger(Bot.class);
 	
 	public static void foreach(Consumer<? super Bot> consumer) {
 		
@@ -60,12 +57,11 @@ public class Bot {
 	private boolean           streaming;
 	private ResourceManager   resourceManager;
 	private PermissionManager permissionManager;
-	private DiscordUtils      utils;
 	private long              startTime;
 	
-	public Bot(String basefolder, String configfile) {
+	public Bot(String baseFolder, String configFile) {
 		
-		File         file   = new File(basefolder, configfile);
+		File         file   = new File(baseFolder, configFile);
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		
@@ -75,21 +71,23 @@ public class Bot {
 				folder.mkdirs();
 			}
 			try {
-				file.createNewFile();
+				if (!file.createNewFile()) {
+					throw new IllegalStateException("Bot config file does not exist at " + file.getPath() + " and couldn't create a new one.");
+				}
 				BotConstruct exampleConstruct = new BotConstruct();
 				String       json             = mapper.writeValueAsString(exampleConstruct);
 				ResourceManager.writeFile(json, file);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Bot config file does not exist at " + file.getPath() + " and couldn't write to it.", e);
 			}
 			
-			throw new NullPointerException("Bot config file does not exist: " + file.getPath() + " | Create example file.");
+			throw new IllegalStateException("Bot config file does not exist at " + file.getPath() + " but created example file.");
 		}
 		
 		String json = ResourceManager.readFileAsString(file);
 		
 		try {
-			BotConstruct construct = mapper.readValue(json, new TypeReference<BotConstruct>() {
+			BotConstruct construct = mapper.readValue(json, new TypeReference<>() {
 			});
 			
 			String                    languagePath  = construct.LANGUAGEPATH;
@@ -98,10 +96,11 @@ public class Bot {
 				try {
 					Class<?> clazz = Class.forName(languagePath);
 					if (clazz.isAssignableFrom(Language.class)) {
+						//noinspection unchecked
 						languageClass = (Class<? extends Language>) clazz;
 					}
 				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
+					logger.error("Couldn't find language class.", e);
 				}
 			}
 			
@@ -115,52 +114,52 @@ public class Bot {
 			createBot(
 					construct.TOKEN,
 					construct.NAME,
-					basefolder,
+					baseFolder,
 					construct.COMMAND_PACKAGE,
 					languageClass,
-					construct.apikeys
+					construct.apiKeys
 					 );
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Encountered issues while trying to setup the bot.", e);
 		}
 		
 	}
 	
 	@Deprecated
-	public Bot(String token, String name, String basefolder, String commandPackage, Class<? extends Language> language, HashMap<String, String> keys) {
+	public Bot(String token, String name, String baseFolder, String commandPackage, Class<? extends Language> language, HashMap<String, String> keys) {
 		
 		this.streaming = false;
 		
-		createBot(token, name, basefolder, commandPackage, language, keys);
+		createBot(token, name, baseFolder, commandPackage, language, keys);
 		
 	}
 	
 	@Deprecated
-	public Bot(String token, String name, String basefolder, String streamingurl, String commandPackage, Class<? extends Language> language, HashMap<String, String> keys) {
+	public Bot(String token, String name, String baseFolder, String streamingURL, String commandPackage, Class<? extends Language> language, HashMap<String, String> keys) {
 		
 		this.streaming = true;
-		this.url = streamingurl;
+		this.url = streamingURL;
 		
-		createBot(token, name, basefolder, commandPackage, language, keys);
+		createBot(token, name, baseFolder, commandPackage, language, keys);
 		
 	}
 	
-	private void createBot(String token, String name, String basefolder, String commandPackage, Class<? extends Language> language, HashMap<String, String> apikeys) {
+	private void createBot(String token, String name, String baseFolder, String commandPackage, Class<? extends Language> language, HashMap<String, String> apiKeys) {
 		
 		bots.add(this);
 		
 		this.name = name;
-		this.apiKeys = apikeys;
+		this.apiKeys = apiKeys;
 		
-		this.resourceManager = new ResourceManager(basefolder, language);
+		this.resourceManager = new ResourceManager(baseFolder, language);
 		this.permissionManager = new PermissionManager(this);
-		this.utils = new DiscordUtils(this);
 		
 		client = createClient(token);
 		initListeners(commandPackage);
 		
-		Optional<String> bondkey = getApiKey("botsondiscord");
-		bondkey.ifPresent(this :: startBotsOnDiscordInterval);
+		//noinspection SpellCheckingInspection
+		Optional<String> BonDKey = getApiKey("botsondiscord");
+		BonDKey.ifPresent(this :: startBotsOnDiscordInterval);
 	}
 	
 	private void startBotsOnDiscordInterval(final String key) {
@@ -173,21 +172,27 @@ public class Bot {
 	
 	private void initListeners(String commandPackage) {
 		
-		gateway = client.login().block();
+		gateway = client.gateway()
+						.setEnabledIntents(
+							IntentSet.of(
+								Intent.GUILD_MESSAGES,
+								Intent.GUILD_MODERATION,
+								Intent.GUILD_MEMBERS
+							)
+						)
+						.login()
+						.block();
 		listener = new Listener(this);
-		gateway.on(MessageDeleteEvent.class).subscribe(listener:: onDelete);
 		gateway.on(ReadyEvent.class).subscribe(listener:: onReadyEvent);
 		gateway.on(GuildCreateEvent.class).subscribe(listener:: onJoinServer);
 		setupMessageCreateListener();
-		gateway.on(DisconnectEvent.class).subscribe(event -> {
-			System.out.println(name + " disconnected");
-		});
+		gateway.on(DisconnectEvent.class).subscribe(event -> System.out.println(name + " disconnected"));
 		gateway.on(ReadyEvent.class).subscribe(event -> System.out.println(name + " logged in"));
 		
 		Reflections reflections = new Reflections(commandPackage);
 		reflections.getSubTypesOf(ICommand.class).forEach(i -> {
 			try {
-				ICommand command = i.newInstance();
+				ICommand command = i.getDeclaredConstructor().newInstance();
 				if(command instanceof IDisabledCommand) {
 				    return;
                 }
@@ -200,7 +205,6 @@ public class Bot {
 	}
 	
 	private Disposable  messageCreateSubscriber = null;
-	private TextChannel reportChannel;
 	
 	public void setupMessageCreateListener() {
 		
@@ -218,16 +222,14 @@ public class Bot {
 					} catch (Exception e) {
 						String stackTrace = ExceptionUtils.makePrintAble(e);
 						Gif.getInstance().getReportChannel()
-						   .createMessage(mspec -> {
-								mspec.setEmbed(
-									spec -> {
-										spec.setTitle("Exception in MessageCreateListener");
-										spec.setDescription("```\n" + stackTrace + "\n```");
-										spec.setColor(Color.of(0xE84112));
-									});
-								}
+						   .createMessage(mspec -> mspec.addEmbed(
+							   spec -> {
+								   spec.setTitle("Exception in MessageCreateListener");
+								   spec.setDescription("```\n" + stackTrace + "\n```");
+								   spec.setColor(Color.of(0xE84112));
+							   })
 							).subscribe();
-						e.printStackTrace();
+						logger.error("Encountered exception while processing message receive event.", e);
 					}
 					// END
 				}
@@ -251,11 +253,6 @@ public class Bot {
 		return resourceManager;
 	}
 	
-	public DiscordUtils getUtils() {
-		
-		return utils;
-	}
-	
 	public String getUrl() {
 		
 		return url;
@@ -266,10 +263,9 @@ public class Bot {
 		listener.addCommands(this, command);
 	}
 	
-	public Poll addPoll(Poll poll) {
+	public void addPoll(Poll<?> poll) {
 		
 		listener.addPoll(poll);
-		return poll;
 	}
 	
 	public List<ICommand> getCommands() {
@@ -332,7 +328,7 @@ public class Bot {
 	
 	public static Bot getBotByName(String name) {
 		
-		if (bots.size() == 0) {
+		if (bots.isEmpty()) {
 			return null;
 		}
 		if (name.trim().equalsIgnoreCase("")) {

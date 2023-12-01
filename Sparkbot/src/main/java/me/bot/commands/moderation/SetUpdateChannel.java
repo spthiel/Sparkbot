@@ -14,6 +14,7 @@ import me.main.Prefixes;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class SetUpdateChannel implements ICommand, IDisabledCommand {
 	@Override
 	public CommandType getType() {
@@ -35,7 +36,7 @@ public class SetUpdateChannel implements ICommand, IDisabledCommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
-	private static List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_GUILD);
+	private static final List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_GUILD);
 
 	@Override
 	public List<Permission> getRequiredPermissions() {
@@ -48,7 +49,7 @@ public class SetUpdateChannel implements ICommand, IDisabledCommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 		ResourceManager manager = bot.getResourceManager();
 
 	}

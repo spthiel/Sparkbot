@@ -2,7 +2,6 @@ package me.bot.commands.admin;
 
 import discord4j.core.object.entity.*;
 import discord4j.core.object.entity.channel.TextChannel;
-import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import discord4j.rest.util.Permission;
 
@@ -14,6 +13,7 @@ import me.main.Prefixes;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class Test implements ICommand {
 	@Override
 	public CommandType getType() {
@@ -22,7 +22,7 @@ public class Test implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Testcommand";
+		return "Test command";
 	}
 
 	@Override
@@ -46,17 +46,18 @@ public class Test implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 		
-		channel.createMessage(mspec -> mspec.setEmbed(spec -> spec
+		channel.createMessage(mspec -> mspec.addEmbed(spec -> spec
 				.setColor(Color.of(0x2409E9))
-				.addField("Command",command,true)
+				.addField("Command", commandName, true)
 				.addField("Args", Arrays.toString(args),true)
 				.addField("Content","`" + content + "`",true)
 				.addField("Channel",channel.getName(),true)
 				.addField("Guild",guild.getName(),true)
 				.addField("Author", "<@" + author.getId().asLong() + ">",true)
 				.addField("Author name:", author.getUsername(),true)
+				.addField("Author display name:", author.getDisplayName(),true)
 				.addField("Author Nickname:", author.getNickname().orElse("null"),true))
 		).subscribe();
 

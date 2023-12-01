@@ -13,6 +13,7 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class Crash implements ICommand {
 	
 	@Override
@@ -21,6 +22,7 @@ public class Crash implements ICommand {
 		return CommandType.ADMIN;
 	}
 	
+	@SuppressWarnings("SpellCheckingInspection")
 	@Override
 	public String getHelp() {
 		
@@ -52,8 +54,8 @@ public class Crash implements ICommand {
 	}
 	
 	@Override
-	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
-		channel.createMessage(spec -> spec.setContent("Oh noe")).subscribe();
+	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
+		channel.createMessage("Oh noe").subscribe();
 		throw new RuntimeException("Manual Requested Crash");
 	}
 	

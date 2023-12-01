@@ -8,7 +8,6 @@ import discord4j.rest.util.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
@@ -16,6 +15,7 @@ import me.bot.base.ICommand;
 import me.bot.base.MessageBuilder;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class ModHelp implements ICommand {
 	@Override
 	public CommandType getType() {
@@ -24,7 +24,7 @@ public class ModHelp implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Lists the Helppage";
+		return "Lists the help page";
 	}
 
 	@Override
@@ -48,11 +48,12 @@ public class ModHelp implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 
 		ArrayList<String> out = new ArrayList<>();
-		final String serverprefix = Prefixes.getAdminPrefixFor(guild);
-		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.MOD)).collect(Collectors.toList()).forEach(iCommand -> out.add("`" + serverprefix + "" + iCommand.getNames()[0] + "` - " + iCommand.getHelp()));
+		final String serverPrefix = Prefixes.getAdminPrefixFor(guild);
+		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.MOD)).toList()
+		   .forEach(iCommand -> out.add("`" + serverPrefix + iCommand.getNames()[0] + "` - " + iCommand.getHelp()));
 
 		MessageBuilder builder = new MessageBuilder();
 

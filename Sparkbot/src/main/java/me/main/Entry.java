@@ -1,5 +1,6 @@
 package me.main;
 
+@SuppressWarnings("unused")
 public class Entry<K,V> {
 
 	private K key;

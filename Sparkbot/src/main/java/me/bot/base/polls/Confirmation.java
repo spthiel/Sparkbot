@@ -4,13 +4,11 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.MessageChannel;
 
-import me.bot.base.Bot;
-
 public class Confirmation extends Bool {
     
-    public Confirmation(Bot bot, User user, MessageChannel channel, String question, String tail, boolean skipable, long inactiveTime) {
+    public Confirmation(User user, MessageChannel channel, String question, String tail, boolean skippable, long inactiveTime) {
         
-        super(bot, user, channel, question, tail, skipable, inactiveTime);
+        super(user, channel, question, tail, skippable, inactiveTime);
         
     }
     
@@ -22,13 +20,13 @@ public class Confirmation extends Bool {
     public boolean onTrigger(Message message) {
         
         String content = message.getContent();
-        String lcase = content.toLowerCase();
+        String lowerCase = content.toLowerCase();
         
-        if(!lcase.matches(TRUE_REGEX) && !lcase.matches(FALSE_REGEX)) {
+        if(!lowerCase.matches(TRUE_REGEX) && !lowerCase.matches(FALSE_REGEX)) {
             return false;
         }
         
-        onEnd(lcase.matches(TRUE_REGEX));
+        onEnd(lowerCase.matches(TRUE_REGEX));
         message.delete().subscribe();
         return true;
     }

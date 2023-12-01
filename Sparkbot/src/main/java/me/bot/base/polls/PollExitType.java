@@ -5,6 +5,6 @@ public enum PollExitType {
 	SUCCESS,
 	EXIT,
 	SKIP,
-	INACTIVE;
-
+	INACTIVE
+	
 }

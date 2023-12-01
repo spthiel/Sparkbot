@@ -34,7 +34,7 @@ public interface ICommand {
 	String[] getPrefixes(final Guild guild);
 	List<Permission> getRequiredPermissions();
 	List<Permission> requiredBotPermissions();
-	void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandname, final String[] args, final String content);
+	void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content);
 	void onLoad(final Bot bot);
 
 }

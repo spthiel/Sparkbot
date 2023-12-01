@@ -12,12 +12,18 @@ import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class Moan implements ICommand {
+    
+    private static final Logger logger = LoggerFactory.getLogger(Moan.class);
     
     @Override
     public CommandType getType() {
@@ -49,7 +55,7 @@ public class Moan implements ICommand {
         return null;
     }
     
-    private static List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_MESSAGES);
+    private static final List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_MESSAGES);
     
     @Override
     public List<Permission> requiredBotPermissions() {
@@ -58,13 +64,13 @@ public class Moan implements ICommand {
     }
     
     @Override
-    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
         message.delete().subscribe();
         channel.createMessage(spec -> {
             try {
                 spec.addFile("moan.wav",new FileInputStream(new File(bot.getResourceManager().getBaseFolder(),"moan.wav")));
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                logger.error("Couldn't load file", e);
             }
         }).subscribe();
     }

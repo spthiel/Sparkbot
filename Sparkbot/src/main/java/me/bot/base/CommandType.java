@@ -4,6 +4,6 @@ public enum CommandType {
 
 	PUBLIC(),
 	MOD(),
-	ADMIN();
-
+	ADMIN()
+	
 }

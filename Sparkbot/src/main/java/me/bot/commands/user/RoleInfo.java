@@ -3,19 +3,19 @@ package me.bot.commands.user;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.rest.util.Permission;
-import reactor.core.publisher.Mono;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
 import me.bot.base.Bot;
 import me.bot.base.CommandType;
 import me.bot.base.ICommand;
+import me.bot.base.IDisabledCommand;
 import me.main.Prefixes;
 import me.main.utils.DiscordUtils;
 
-public class RoleInfo implements ICommand {
+@SuppressWarnings("unused")
+public class RoleInfo implements ICommand, IDisabledCommand {
     
     @Override
     public CommandType getType() {
@@ -29,6 +29,7 @@ public class RoleInfo implements ICommand {
         return "Shows id of a role";
     }
     
+    @SuppressWarnings("SpellCheckingInspection")
     @Override
     public String[] getNames() {
         
@@ -54,7 +55,7 @@ public class RoleInfo implements ICommand {
     }
     
     @Override
-    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
         
         if(args.length == 0) {
             channel.createMessage("<:red_cross:398120014974287873> **| Please specify a role by id, ping or name.**").subscribe();
@@ -68,13 +69,11 @@ public class RoleInfo implements ICommand {
     }
     
     private void printRole(TextChannel channel, Optional<Role> role) {
-        if(!role.isPresent()) {
+        if(role.isEmpty()) {
             channel.createMessage("Couldn't find a role matching that identifier").subscribe();
             return;
         }
-        channel.createMessage(spec -> {
-            spec.setContent("Role " + role.get().getName() + " has the id " + role.get().getId().asString());
-        }).subscribe();
+        channel.createMessage(spec -> spec.setContent("Role " + role.get().getName() + " has the id " + role.get().getId().asString())).subscribe();
     }
     
     @Override

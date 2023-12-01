@@ -3,6 +3,7 @@ package me.console.commands;
 import me.console.ConsoleCommand;
 import me.main.Main;
 
+@SuppressWarnings("unused")
 public class Stop implements ConsoleCommand {
 	@Override
 	public String[] getNames() {

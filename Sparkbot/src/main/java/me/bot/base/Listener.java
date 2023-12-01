@@ -2,17 +2,15 @@ package me.bot.base;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.guild.GuildCreateEvent;
-import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.lifecycle.ReconnectStartEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.event.domain.message.MessageDeleteEvent;
 import discord4j.core.object.entity.*;
 import discord4j.core.object.entity.channel.Channel;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
-import discord4j.core.object.presence.Activity;
-import discord4j.core.object.presence.Presence;
+import discord4j.core.object.presence.ClientActivity;
+import discord4j.core.object.presence.ClientPresence;
 import discord4j.rest.util.Permission;
 import reactor.core.publisher.Flux;
 
@@ -24,12 +22,11 @@ import java.time.Duration;
 import java.util.*;
 import java.util.function.Predicate;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
 public class Listener {
     
-    public  ArrayList<ICommand> commands = new ArrayList<>();
-    private List<Poll>          polls    = new ArrayList<>();
-    private Bot                 bot;
+    public final  ArrayList<ICommand> commands = new ArrayList<>();
+    private final List<Poll<?>>       polls    = new ArrayList<>();
+    private final Bot                 bot;
     
     public Listener(Bot bot) {
         
@@ -38,10 +35,10 @@ public class Listener {
             .subscribe(
                     l -> {
                         for (int i = 0 ; i < polls.size() ; i++) {
-                            Poll poll = polls.get(i);
+                            Poll<?> poll = polls.get(i);
                             if (poll.getTimeUntilInactive() > -1 && poll.getTimeUntilInactive() < System.currentTimeMillis() - poll
                                     .getLastInteraction()) {
-                                polls.remove(i).onInactiv();
+                                polls.remove(i).onInactive();
                             } else if (poll.ended()) {
                                 //noinspection SuspiciousListRemoveInLoop
                                 polls.remove(i);
@@ -66,33 +63,19 @@ public class Listener {
         });
     }
     
-    public void addPoll(Poll poll) {
+    public void addPoll(Poll<?> poll) {
         
         polls.add(poll);
         poll.sendMessage();
     }
     
-    public void onDelete(MessageDeleteEvent e) {
-        //		if (e.getAuthor().isBot()) {
-        //    		long guild = e.getGuild().getLongID();
-        //    		//bot.getResourceManager().isSet("configs")
-        //			//if()
-        //	    }
-    }
-    
-    public void onConnectEvent(ConnectEvent event) {
-    
-        System.out.println("Event: Connect");
-        updatePresence();
-    }
-    
-    public void onReconnectSartEvent(ReconnectStartEvent event) {
+    public void onReconnectStartEvent(@SuppressWarnings("unused") ReconnectStartEvent event) {
     
         System.out.println("Reconnect Start");
         updatePresence();
     }
     
-    public void onReadyEvent(ReadyEvent event) {
+    public void onReadyEvent(@SuppressWarnings("unused") ReadyEvent event) {
         
         System.out.println("Ready");
         updatePresence();
@@ -109,29 +92,26 @@ public class Listener {
         
         String message = "s!help";
         if (!bot.isStreaming()) {
-            bot.getGateway().updatePresence(Presence.online(Activity.playing(message))).subscribe(
-                    aVoid -> {
-                    },
-                    Throwable :: printStackTrace,
-                    () -> System.out.println("Changed playing presence")
-                                                                                                );
+            bot.getGateway().updatePresence(ClientPresence.online(ClientActivity.playing(message)))
+                .doOnSuccess((ignored) -> System.out.println("Changed playing presence"))
+                .doOnError(Throwable :: printStackTrace)
+               .subscribe();
         } else {
-            bot.getGateway().updatePresence(Presence.online(Activity.streaming(message, bot.getUrl()))).subscribe(
-                    aVoid -> System.out.println("Changed streaming presence"),
-                    Throwable :: printStackTrace,
-                    () -> System.out.println("Changed streaming presence")
-                                                                                                                );
+            bot.getGateway().updatePresence(ClientPresence.online(ClientActivity.streaming(message, bot.getUrl())))
+               .doOnSuccess((ignored) -> System.out.println("Changed streaming presence"))
+               .doOnError(Throwable :: printStackTrace)
+               .subscribe();
         }
         
     }
     
     public void onMessageReceivedEvent(final MessageCreateEvent event) {
         
-        Snowflake guildidsf = event.getGuildId().orElse(null);
-        if (guildidsf == null) {
+        Snowflake guildSnowflake = event.getGuildId().orElse(null);
+        if (guildSnowflake == null) {
             return;
         }
-        long guildid = guildidsf.asLong();
+        long guildId = guildSnowflake.asLong();
         
         event.getMessage().getChannel()
              .filter(messageChannel -> messageChannel instanceof TextChannel)
@@ -139,12 +119,13 @@ public class Listener {
              .zipWith(event.getMessage().getGuild())
              .subscribe(
                      objects -> {
+                         //noinspection OptionalGetWithoutIsPresent
                          Member      member  = event.getMember().get();
                          TextChannel channel = (TextChannel) objects.getT1();
                          Guild       guild   = objects.getT2();
                     
                          if (!processPoll(member, channel, event.getMessage())) {
-                             processCommand(member, guild, channel, event, isOnWhitelist(bot, guildid, channel));
+                             processCommand(member, guild, channel, event, isOnWhitelist(bot, guildId, channel));
                          }
                      }
                        );
@@ -152,19 +133,19 @@ public class Listener {
     
     private boolean processPoll(final Member member, final TextChannel channel, final Message message) {
         
-        final Poll poll = getPollOfPlayer(member.getId().asLong());
+        final Poll<?> poll = getPollOfPlayer(member.getId().asLong());
         if (poll != null) {
-            final String messagecontent = message.getContent();
+            final String messageContent = message.getContent();
             
-            if (messagecontent.startsWith("skip")) {
+            if (messageContent.startsWith("skip")) {
                 
-                if (!poll.isSkipable()) {
+                if (!poll.isSkippable()) {
                     sendNotAValidPollRespond(channel);
                 } else {
                     poll.onSkip();
                 }
                 
-            } else if (messagecontent.startsWith("exit")) {
+            } else if (messageContent.startsWith("exit")) {
                 poll.onExit();
             } else {
                 if (!poll.onTrigger(message)) {
@@ -181,7 +162,7 @@ public class Listener {
         
         String message = event.getMessage().getContent();
         
-        if (channel == null || message.length() == 0) {
+        if (channel == null || message.isEmpty()) {
             return;
         }
         
@@ -237,9 +218,9 @@ public class Listener {
                                }
                                return requiredPermissions(channel, command.requiredBotPermissions());
                            }).subscribe(list -> {
-                               if(list.size() != 0) {
+                               if(!list.isEmpty()) {
                                    System.out.println(member.getUsername() + " failed to issue " + message);
-                                   MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(list) + "` permissions to perfom that command.**", 5000L);
+                                   MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| I need `" + permsToString(list) + "` permissions to perform that command.**", 5000L);
                                } else {
                                    System.out.println(member.getUsername() + " issued " + message);
                                    command.run(bot, member, channel, guild, event.getMessage(), args[0], Arrays.copyOfRange(args, 1, args.length), message);
@@ -249,15 +230,15 @@ public class Listener {
                });
     }
     
-    private boolean isOnWhitelist(Bot bot, long guildid, Channel channel) {
+    private boolean isOnWhitelist(Bot bot, long guildId, Channel channel) {
         
-        List<String> whitelist = getWhitelist(bot, guildid);
-        return whitelist == null || whitelist.size() == 0 || whitelist.contains(channel.getId().asString());
+        List<String> whitelist = getWhitelist(bot, guildId);
+        return whitelist == null || whitelist.isEmpty() || whitelist.contains(channel.getId().asString());
     }
     
-    private List<String> getWhitelist(Bot bot, long guildid) {
+    private List<String> getWhitelist(Bot bot, long guildId) {
         
-        Map<String, Object> map = bot.getResourceManager().getConfig("configs/" + guildid, "whitelist.json");
+        Map<String, Object> map = bot.getResourceManager().getConfig("configs/" + guildId, "whitelist.json");
         
         if (!map.containsKey("channels")) {
             return null;
@@ -269,11 +250,11 @@ public class Listener {
             return null;
         }
         
-        if (((List) channels).size() == 0) {
+        if (((List<?>) channels).isEmpty()) {
             return null;
         }
         
-        if (!(((List) channels).get(0) instanceof String)) {
+        if (!(((List<?>) channels).get(0) instanceof String)) {
             return null;
         }
     
@@ -285,16 +266,16 @@ public class Listener {
         MessageAPI.sendAndDeleteMessageLater(channel, "<:red_cross:398120014974287873> **| That's not a valid response to the poll.", 5000L);
     }
     
-    private Poll getPollOfPlayer(long userid) {
+    private Poll<?> getPollOfPlayer(long userid) {
         
         long now = System.currentTimeMillis();
         for (int i = 0 ; i < polls.size() ; i++) {
-            Poll poll = polls.get(i);
+            Poll<?> poll = polls.get(i);
             if (poll.ended()) {
                 //noinspection SuspiciousListRemoveInLoop
                 polls.remove(i);
             } else if (now - poll.getLastInteraction() > poll.getTimeUntilInactive() && poll.getTimeUntilInactive() >= 0) {
-                polls.remove(i).onInactiv();
+                polls.remove(i).onInactive();
             } else if (poll.getUserID() == userid) {
                 return poll;
             }
@@ -314,7 +295,7 @@ public class Listener {
         return isAdmin.filter(Predicate.isEqual(Boolean.TRUE))
                       .flatMap((ignored) -> Mono.just(Collections.<Permission> emptyList()))
                       .switchIfEmpty(Mono.just(perms))
-                      .filterWhen(perm -> permissions.any(permission -> permissions.equals(perm)).map(bool -> !bool));
+                      .filterWhen(perm -> permissions.any(perm :: contains).map(bool -> !bool));
     }
     
     private String permsToString(List<Permission> perms) {

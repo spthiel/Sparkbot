@@ -7,12 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ResponseStruct {
     
-    private transient static ObjectMapper mapper = new ObjectMapper();
-    @SuppressWarnings("StaticInitializerReferencesSubClass")
-    public transient static  NullStruct   NULL   = new NullStruct();
+    private final static Logger logger = LoggerFactory.getLogger(ResponseStruct.class);
+    
+    private final static ObjectMapper mapper = new ObjectMapper();
 
     ResponseStruct() {}
 
@@ -72,6 +74,7 @@ public class ResponseStruct {
         return this;
     }
     
+    @SuppressWarnings({"CanBeFinal", "unused"})
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class Related {
         
@@ -86,6 +89,7 @@ public class ResponseStruct {
         
     }
     
+    @SuppressWarnings({"CanBeFinal", "unused"})
     public static class SinceVersion {
         
         public SinceVersion(@JsonProperty("name") String _name, @JsonProperty("major") int _major, @JsonProperty("minor") int _minor, @JsonProperty("patch") int _patch) {
@@ -111,14 +115,14 @@ public class ResponseStruct {
             if(o == null) {
                 return false;
             }
-            if(!(o instanceof SinceVersion)) {
+            if(!(o instanceof SinceVersion obj)) {
                 return false;
             }
-            SinceVersion obj = (SinceVersion)o;
             return major == obj.major && minor == obj.minor && patch == obj.patch;
         }
     }
     
+    @SuppressWarnings("unused")
     public static class Link {
         
         public String url;
@@ -126,6 +130,7 @@ public class ResponseStruct {
         
     }
 
+    @SuppressWarnings("unused")
     public static class Changelog {
 
         public SinceVersion version;
@@ -188,7 +193,7 @@ public class ResponseStruct {
         try {
             return mapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.error("Error stringing response struct", e);
             return "Error";
         }
     }

@@ -11,18 +11,11 @@ import discord4j.core.object.entity.channel.TextChannel;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public class DiscordUtils {
-	
-	private Bot bot;
-	
-	public DiscordUtils(Bot bot) {
-		
-		this.bot = bot;
-	}
 	
 	public static MessageChannel getMessageChannelOfChannel(Channel channel) {
 		
@@ -45,24 +38,22 @@ public class DiscordUtils {
 		Member contain            = null;
 		Member containInsensitive = null;
 		for (Member member : members) {
-			String discrim    = "#" + member.getDiscriminator();
-			String normalname = member.getUsername();
+			String username = member.getUsername();
+			String nickname   = member.getNickname().orElse("");
 			String name       = member.getDisplayName();
-			if ((normalname + discrim).equalsIgnoreCase(arg) || (name + discrim).equalsIgnoreCase(arg)) {
+			
+			if (nickname.equalsIgnoreCase(arg) || username.equalsIgnoreCase(arg) || name.equalsIgnoreCase(arg)) {
 				return Optional.of(member);
 			}
 			
-			if (normalname.equalsIgnoreCase(arg) || name.equalsIgnoreCase(arg)) {
-				return Optional.of(member);
-			}
-			
-			if (normalname.contains(arg) || name.contains(arg)) {
+			if (username.contains(arg) || name.contains(arg)) {
 				if (contain == null) {
 					contain = member;
 				}
-			} else if (normalname.toLowerCase().contains(arg.toLowerCase()) || name
-					.toLowerCase()
-					.contains(arg.toLowerCase())) {
+			} else if (username.toLowerCase()
+								 .contains(arg.toLowerCase()) || name
+				.toLowerCase()
+				.contains(arg.toLowerCase())) {
 				if (containInsensitive == null) {
 					containInsensitive = member;
 				}
@@ -81,41 +72,57 @@ public class DiscordUtils {
 		
 		if (arg.matches("<@(\\d{8,})>")) {
 			String id = arg.replaceAll("<@(\\d+)>", "$1");
-			return bot.getGateway().getMemberById(guild.getId(), Snowflake.of(id));
+			return bot.getGateway()
+					  .getMemberById(guild.getId(), Snowflake.of(id));
 		} else if (arg.matches("\\d{8,}")) {
-			return bot.getGateway().getMemberById(guild.getId(), Snowflake.of(arg));
+			return bot.getGateway()
+					  .getMemberById(guild.getId(), Snowflake.of(arg));
 		} else {
-			return guild.getMembers().collectList().flatMap(members -> Mono.justOrEmpty(getArgMember(members, arg)));
+			return guild.getMembers()
+						.collectList()
+						.flatMap(members -> Mono.justOrEmpty(getArgMember(members, arg)));
 		}
 	}
 	
-	public static Mono<Optional<Role>> getRoleByName(Bot bot, Guild guild, String rolename) {
+	public static Mono<Optional<Role>> getRoleByName(Bot bot, Guild guild, String roleName) {
 		
-		String lcase = rolename.toLowerCase();
-		return guild.getRoles().filter(role -> role.getName().equalsIgnoreCase(rolename.replace('_', ' ')))
-					.switchIfEmpty(guild.getRoles().filter(role -> role.getName().toLowerCase().startsWith(lcase)))
+		String lowerCase = roleName.toLowerCase();
+		return guild.getRoles()
+					.filter(role -> role.getName()
+										.equalsIgnoreCase(roleName.replace('_', ' ')))
+					.switchIfEmpty(guild.getRoles()
+										.filter(role -> role.getName()
+															.toLowerCase()
+															.startsWith(lowerCase)))
 					.map(Optional :: of)
-					.defaultIfEmpty(Optional.empty()).single();
+					.defaultIfEmpty(Optional.empty())
+					.single();
 	}
 	
 	public static Mono<Optional<Role>> getRoleById(Bot bot, Guild guild, String id) {
 		
-		return guild.getRoleById(Snowflake.of(id)).map(Optional :: of).defaultIfEmpty(Optional.empty());
+		return guild.getRoleById(Snowflake.of(id))
+					.map(Optional :: of)
+					.defaultIfEmpty(Optional.empty());
 	}
 	
 	public static Flux<Member> getRoleMembers(Guild guild, Optional<Role> oRole, final long count) {
 		
-		if (!oRole.isPresent()) {
+		if (oRole.isEmpty()) {
 			return Flux.empty();
 		}
 		Role role = oRole.get();
-		return guild.getMembers().filterWhen(member -> member.getRoles().any(r -> r.equals(role)))
+		return guild.getMembers()
+					.filterWhen(member -> member.getRoles()
+												.any(r -> r.equals(role)))
 					.take(count);
 	}
 	
 	public static Flux<Member> getRoleMembers(Guild guild, Role role, final long count) {
 		
-		return guild.getMembers().filterWhen(member -> member.getRoles().any(r -> r.equals(role)))
+		return guild.getMembers()
+					.filterWhen(member -> member.getRoles()
+												.any(r -> r.equals(role)))
 					.take(count);
 	}
 	

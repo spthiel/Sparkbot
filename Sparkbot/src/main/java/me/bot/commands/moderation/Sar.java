@@ -15,6 +15,7 @@ import me.bot.base.ICommand;
 import me.bot.base.IDisabledCommand;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class Sar implements ICommand, IDisabledCommand {
     
     @Override
@@ -29,6 +30,7 @@ public class Sar implements ICommand, IDisabledCommand {
         return "Self assignable roles";
     }
     
+    @SuppressWarnings("SpellCheckingInspection")
     private static final String[] names = {"selfroles","sar"};
     
     @Override
@@ -43,7 +45,7 @@ public class Sar implements ICommand, IDisabledCommand {
         return Prefixes.getAdminPrefixesFor(guild);
     }
     
-    private static List<Permission> PERMISSIONS = Arrays.asList(Permission.MANAGE_MESSAGES, Permission.MANAGE_GUILD, Permission.MANAGE_ROLES);
+    private static final List<Permission> PERMISSIONS = Arrays.asList(Permission.MANAGE_MESSAGES, Permission.MANAGE_GUILD, Permission.MANAGE_ROLES);
     
     @Override
     public List<Permission> getRequiredPermissions() {
@@ -58,7 +60,7 @@ public class Sar implements ICommand, IDisabledCommand {
     }
     
     @Override
-    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
     
     }
     

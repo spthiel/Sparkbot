@@ -2,6 +2,7 @@ package me.bot.base;
 
 import java.util.HashMap;
 
+@SuppressWarnings({"CanBeFinal", "SpellCheckingInspection"})
 public class BotConstruct {
 	
 	public String
@@ -11,11 +12,11 @@ public class BotConstruct {
 			LANGUAGEPATH = "CLASS",
 			TWITCHURL = "OPTIONAL";
 	
-	public HashMap<String,String> apikeys = new HashMap<>();
+	public HashMap<String,String> apiKeys = new HashMap<>();
 	
 	public BotConstruct() {
-		apikeys.put("example1","apikey");
-		apikeys.put("example2","apikey2");
+		apiKeys.put("example1", "apikey");
+		apiKeys.put("example2", "apikey2");
 	}
 	
 }

@@ -16,6 +16,7 @@ import me.bot.base.ICommand;
 import me.bot.base.MessageAPI;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class Count implements ICommand {
     
     @Override
@@ -44,7 +45,7 @@ public class Count implements ICommand {
         return Prefixes.getAdminPrefixesFor(guild);
     }
     
-    private static List<Permission> PERMISSIONS = Arrays.asList(Permission.MANAGE_MESSAGES, Permission.MANAGE_GUILD, Permission.MANAGE_ROLES);
+    private static final List<Permission> PERMISSIONS = Arrays.asList(Permission.MANAGE_MESSAGES, Permission.MANAGE_GUILD, Permission.MANAGE_ROLES);
     
     @Override
     public List<Permission> getRequiredPermissions() {
@@ -59,7 +60,7 @@ public class Count implements ICommand {
     }
     
     @Override
-    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
         if(args.length == 0 || !args[0].matches("^\\d+$")) {
             MessageAPI.sendAndDeleteMessageLater(channel, "s!count <message id>", 10000);
             return;
@@ -67,13 +68,11 @@ public class Count implements ICommand {
         try {
             long id = Long.parseLong(args[0]);
             channel.getMessagesAfter(Snowflake.of(id))
-                   .count().subscribe(c -> {
-                MessageAPI.sendAndDeleteMessageLater(
-                        channel,
-                        "There's " + (c + 2) + " messages until that message",
-                        10000
-                                                    );
-            });
+                   .count().subscribe(c -> MessageAPI.sendAndDeleteMessageLater(
+                           channel,
+                           "There's " + (c + 2) + " messages until that message",
+                           10000
+                                                       ));
         } catch(NumberFormatException e) {
             MessageAPI.sendAndDeleteMessageLater(channel, "s!count <message id>", 10000);
         }

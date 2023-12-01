@@ -2,17 +2,17 @@ package me.console.commands;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
+import reactor.core.publisher.Flux;
+
 import me.bot.base.Bot;
 import me.console.ConsoleCommand;
 import me.main.Entry;
-import me.main.Main;
-import me.bot.base.configs.PermissionManager;
-import reactor.core.publisher.Flux;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings("unused")
 public class Team implements ConsoleCommand {
 
 	@Override
@@ -22,16 +22,15 @@ public class Team implements ConsoleCommand {
 
 	@Override
 	public void run(String... args) {
-		if(args.length < 2) {
-			return;
-		}
+		
+		System.out.println("Team " + Arrays.toString(args));
 
 		if(args.length == 2) {
-
-
+			
+			//noinspection SwitchStatementWithTooFewBranches
 			switch(args[1]) {
 				case "get":
-					logGet(Bot.getBotByName(args[0]));
+					logGet(Objects.requireNonNull(Bot.getBotByName(args[0])));
 					break;
 				default:
 			}
@@ -40,31 +39,34 @@ public class Team implements ConsoleCommand {
 
 			Bot bot = Bot.getBotByName(args[0]);
 			String action = args[1];
+			String idstring;
+			long id;
+			boolean returned;
+			String out;
 
 			switch (action) {
 				case "get":
-					logGet(Bot.getBotByName(args[0]));
+					logGet(Objects.requireNonNull(Bot.getBotByName(args[0])));
 					break;
 				case "add":
-					String idstring = args[2];
+					idstring = args[2];
 
 					if (!idstring.matches("\\d+")) {
 						System.out.println("id is not a number");
 						return;
 					}
 
-					long id = Long.parseLong(idstring);
+					id = Long.parseLong(idstring);
 					if(Objects.requireNonNull(bot).getPermissionManager().isBotAdmin(id)) {
 						System.out.println("User is already moderation");
 						return;
 					}
 
-					boolean returned = bot.getPermissionManager().addBotOwner(id);
+					returned = bot.getPermissionManager().addBotOwner(id);
 
-					String out = (returned ? "Successfully added " + id + " to bot admins." : "Failed to add " + id + " to bot admins.");
+					out = (returned ? "Successfully added " + id + " to bot admins." : "Failed to add " + id + " to bot admins.");
 
 					System.out.println(out);
-
 					break;
 				case "remove":
 					bot = Bot.getBotByName(args[0]);
@@ -94,6 +96,7 @@ public class Team implements ConsoleCommand {
 
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
 	@Override
 	public String[] getNames() {
 		return new String[]{"team","botteam"};
@@ -108,9 +111,9 @@ public class Team implements ConsoleCommand {
 				.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
 				.collectList()
 				.zipWith(Flux.fromIterable(entry.getValue())
-						.flatMap(bot.getGateway()::getUserById)
-						.sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
-						.collectList()).subscribe(
+							 .flatMap(bot.getGateway()::getUserById)
+							 .sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getUsername(),o2.getUsername()))
+							 .collectList()).subscribe(
 				result -> {
 					java.util.List<User> owners = result.getT1();
 					List<User> admins = result.getT2();
@@ -122,7 +125,7 @@ public class Team implements ConsoleCommand {
 					owners.forEach(user -> ownerBuilder.append(user.getUsername()).append("\n"));
 
 
-					System.out.println("Owners:\n" + ownerBuilder.toString() + "\nAdmins:\n" + adminsBuilder.toString());
+					System.out.println("Owners:\n" + ownerBuilder + "\nAdmins:\n" + adminsBuilder);
 				}
 
 		);

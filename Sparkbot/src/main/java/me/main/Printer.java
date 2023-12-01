@@ -4,8 +4,8 @@ import java.io.PrintStream;
 
 public class Printer extends PrintStream {
 
-	private PrintStream norm;
-	private PrintStream file;
+	private final PrintStream norm;
+	private final PrintStream file;
 
 	public Printer(PrintStream out,PrintStream file) {
 		super(out);

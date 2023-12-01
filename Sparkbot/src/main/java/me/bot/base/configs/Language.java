@@ -1,5 +1,6 @@
 package me.bot.base.configs;
 
+@SuppressWarnings("unused")
 public class Language {
  
 	public Language() {

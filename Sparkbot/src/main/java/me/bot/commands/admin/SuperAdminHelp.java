@@ -9,8 +9,8 @@ import me.main.Prefixes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class SuperAdminHelp implements ICommand {
 	@Override
 	public CommandType getType() {
@@ -19,7 +19,7 @@ public class SuperAdminHelp implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Lists the Helppage";
+		return "Lists the help page";
 	}
 
 	@Override
@@ -44,15 +44,16 @@ public class SuperAdminHelp implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 		ArrayList<String> out = new ArrayList<>();
-		final String serverprefix = Prefixes.getSuperAdminPrefix();
-		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.ADMIN)).collect(Collectors.toList()).forEach(iCommand -> out.add("`" + serverprefix + "" + iCommand.getNames()[0] + "` - " + iCommand.getHelp()));
+		final String serverPrefix = Prefixes.getSuperAdminPrefix();
+		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.ADMIN)).toList()
+		   .forEach(iCommand -> out.add("`" + serverPrefix + iCommand.getNames()[0] + "` - " + iCommand.getHelp()));
 
 		MessageBuilder builder = new MessageBuilder();
 
 		builder.withChannel(channel);
-		builder.appendContent("Superadmin Commands:\n");
+		builder.appendContent("Super admin Commands:\n");
 		out.forEach(msg -> builder.appendContent(msg + "\n"));
 		builder.send().subscribe();
 

@@ -6,12 +6,11 @@ import me.main.Prefixes;
 
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.rest.util.Permission;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class UserHelp implements ICommand {
 	@Override
 	public CommandType getType() {
@@ -20,7 +19,7 @@ public class UserHelp implements ICommand {
 
 	@Override
 	public String getHelp() {
-		return "Lists the Helppage";
+		return "Lists the help page";
 	}
 
 	@Override
@@ -44,12 +43,11 @@ public class UserHelp implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 		ArrayList<String> out = new ArrayList<>();
-		final String serverprefix = Prefixes.getNormalPrefixFor(guild);
-		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.PUBLIC)).collect(Collectors.toList()).forEach(iCommand -> {
-			out.add("`" + serverprefix + "" + iCommand.getNames()[0] + "` ");
-		});
+		final String serverPrefix = Prefixes.getNormalPrefixFor(guild);
+		bot.getCommands().stream().filter(iCommand -> iCommand.getType().equals(CommandType.PUBLIC)).toList()
+		   .forEach(iCommand -> out.add("`" + serverPrefix + iCommand.getNames()[0] + "` "));
 
 		System.out.println(out);
 		MessageBuilder builder = new MessageBuilder();

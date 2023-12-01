@@ -18,6 +18,7 @@ import me.bot.base.ICommand;
 import me.bot.base.MessageAPI;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class Delete implements ICommand {
 
 	@Override
@@ -40,7 +41,7 @@ public class Delete implements ICommand {
 		return Prefixes.getAdminPrefixesFor(guild);
 	}
 
-	private static List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_MESSAGES);
+	private static final List<Permission> PERMISSIONS = Collections.singletonList(Permission.MANAGE_MESSAGES);
 
 	@Override
 	public List<Permission> getRequiredPermissions() {
@@ -55,7 +56,7 @@ public class Delete implements ICommand {
 	}
 
 	@Override
-	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String command, final String[] args, final String content) {
+	public void run(final Bot bot, final Member author, final TextChannel channel, final Guild guild, final Message message, final String commandName, final String[] args, final String content) {
 
 		if (args.length >= 1) {
 			if (args[0].equalsIgnoreCase("channel")) {

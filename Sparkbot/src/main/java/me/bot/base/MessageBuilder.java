@@ -10,7 +10,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class MessageBuilder {
@@ -30,12 +29,12 @@ public class MessageBuilder {
     /**
      * The embed in the message.
      */
-    private Consumer<EmbedCreateSpec> embed;
-    private Consumer<MessageCreateSpec> messagespec;
+    private EmbedCreateSpec   embed;
+    private MessageCreateSpec messageCreateSpec;
     /**
      * The input stream to read and attach.
      */
-    private InputStream stream;
+    private InputStream       stream;
     /**
      * The name of the attachment that should be shown in Discord.
      */
@@ -195,7 +194,7 @@ public class MessageBuilder {
      * @param embed The embed in the message.
      * @return The builder instance.
      */
-    public MessageBuilder withEmbed(Consumer<EmbedCreateSpec> embed) {
+    public MessageBuilder withEmbed(EmbedCreateSpec embed) {
         this.embed = embed;
         return this;
     }
@@ -264,7 +263,7 @@ public class MessageBuilder {
     /**
      * Gets the raw content of the message.
      *
-     * @return The The raw content of the message.
+     * @return The raw content of the message.
      */
     public String getContent() {
         return content;
@@ -282,41 +281,29 @@ public class MessageBuilder {
     /**
      * Builds the MessageCreateSpec
      *
-     * @return The built messagespec object.
+     * @return The built message-create-spec object.
      */
-    public Consumer<MessageCreateSpec> build() {
-        messagespec = (spec) -> {
-            spec.setContent(content);
-            if (stream != null)
-                spec.addFile(fileName, stream);
-            if (embed != null)
-                spec.setEmbed(embed);
-        };
-        return messagespec;
-    }
-
-    /**
-     * Builds the MessageCreateSpec
-     *
-     * @param next will be called after the the messagebuilders ones. Useful if you want to edit the message further without the builder
-     * @return The built messagespec object.
-     */
-    public Consumer<MessageCreateSpec> build(Consumer<MessageCreateSpec> next) {
-        return spec -> {
-            build().accept(spec);
-            next.accept(spec);
-        };
+    public MessageCreateSpec build() {
+        MessageCreateSpec.Builder builder = MessageCreateSpec.builder();
+        builder.content(content);
+        if (stream != null) {
+            builder.addFile(fileName, stream);
+        }
+        if (embed != null) {
+            builder.addEmbed(embed);
+        }
+        return messageCreateSpec = builder.build();
     }
 
     /**
      * Sends the message as configured by the builder.
      *
-     * @return The sent message object.
+     * @return Returns the sent message object.
      */
     public Mono<Message> send() {
-        if(messagespec == null)
+        if(messageCreateSpec == null)
             build();
-        return channel.createMessage(messagespec);
+        return channel.createMessage(messageCreateSpec);
     }
 
     /**
@@ -343,18 +330,18 @@ public class MessageBuilder {
         }
 
         /**
-         * Gets the markdown formatting for the style.
+         * Gets the Markdown formatting for the style.
          *
-         * @return The markdown formatting.
+         * @return The Markdown formatting.
          */
         public String getMarkdown() {
             return markdown;
         }
 
         /**
-         * Gets the reversed markdown formatting to be appended to the end of a formatted string.
+         * Gets the reversed Markdown formatting to be appended to the end of a formatted string.
          *
-         * @return The reversed markdown formatting.
+         * @return The reversed Markdown formatting.
          */
         public String getReverseMarkdown() {
             return reverseMarkdown;

@@ -17,11 +17,12 @@ import me.bot.base.CommandType;
 import me.bot.base.ICommand;
 import me.main.Prefixes;
 
+@SuppressWarnings("unused")
 public class SubmitBabamote implements ICommand {
     
     private Bot bot;
     
-    private Mono<TextChannel> getEmotechannel() {
+    private Mono<TextChannel> getEmoteChannel() {
         if(bot == null) {
             return Mono.empty();
         }
@@ -65,26 +66,27 @@ public class SubmitBabamote implements ICommand {
     }
     
     @Override
-    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
+    public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
         if(args.length >= 1 && args[0].matches("<a?:.+?:(\\d+)>")) {
             String emoji = args[0];
-            final String actualemoji = emoji.replaceAll("<a?:.+?:(\\d+)>", "$1");
-            final String emojiname = emoji.replaceAll("<a?:(.+?):\\d+>", "$1");
-            final String fileformat = emoji.matches("<a:.+?:(\\d+)>") ? "gif" : "png";
-            getEmotechannel()
+            final String actualEmoji = emoji.replaceAll("<a?:.+?:(\\d+)>", "$1");
+            final String emojiName = emoji.replaceAll("<a?:(.+?):\\d+>", "$1");
+            final String format = emoji.matches("<a:.+?:(\\d+)>") ? "gif" : "png";
+            getEmoteChannel()
                     .subscribe(c -> c
-                    .createMessage(s -> s.setEmbed(spec -> createEmbed(spec, actualemoji, emojiname, fileformat)))
+                    .createMessage(createEmbed(actualEmoji, emojiName, format))
                     .subscribe());
         }
     }
     
     private final Color color = Color.of(255, 142, 228);
     
-    private void createEmbed(EmbedCreateSpec spec, String emojiid, String emojiname, String fileformat) {
+    private EmbedCreateSpec createEmbed(String emojiId, String emojiName, String format) {
         
-        spec.setTitle(":" + emojiname + ":");
-        spec.setColor(color);
-        spec.setThumbnail("https://cdn.discordapp.com/emojis/" + emojiid + "." + fileformat + "?v=1");
+        return EmbedCreateSpec.builder()
+        .title(":" + emojiName + ":")
+        .color(color)
+        .thumbnail("https://cdn.discordapp.com/emojis/" + emojiId + "." + format + "?v=1").build();
         
     }
     

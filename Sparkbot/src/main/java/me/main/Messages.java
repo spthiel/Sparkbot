@@ -30,8 +30,8 @@ public class Messages {
 
 		private static final String FORMAT = "<$name$id>";
 
-		private String name;
-		private Long id;
+		private final String name;
+		private final Long   id;
 
 		Emoji(String name,Long id) {
 			this.name = name;

@@ -1,24 +1,20 @@
 package me.bot.base.configs;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import discord4j.common.util.Snowflake;
-import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.User;
 import me.bot.base.Bot;
-import me.bot.base.CommandType;
-import me.bot.base.configs.ResourceManager;
 import me.main.Entry;
-import me.main.Main;
 
 import discord4j.rest.util.Permission;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.logging.Logger;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings("unused")
 public class PermissionManager {
 	
 	public static Mono<Boolean> hasGuildPermissions(Member author, List<Permission> perms) {
@@ -31,12 +27,13 @@ public class PermissionManager {
 				  .hasElement();
 	}
 	
-	private Bot bot;
+	private final Bot bot;
 
 	public PermissionManager(Bot bot) {
 		this.bot = bot;
 	}
-
+	
+	@SuppressWarnings("SpellCheckingInspection")
 	private static final String
 			directory = "configs/main",
 			filename = "botowner.json"
@@ -44,31 +41,7 @@ public class PermissionManager {
 
 	private HashMap<String,Object> config;
 
-//	public Mono<EnumSet<Permission>> getPermissions(long guildId, long userId) {
-//		return bot.getClient().getMemberById(Snowflake.of(guildId), Snowflake.of(userId))
-//				.flatMapMany(Member::getRoles)
-//				.map(Role::getPermissions)
-//				.map(PermissionSet::asEnumSet)
-//				.reduce((set0, set1) -> {
-//					EnumSet<Permission> copy = EnumSet.copyOf(set0);
-//					copy.addAll(set1);
-//					return copy;
-//				});
-//	}
-//
-//	public Mono<EnumSet<Permission>> getPermissions(Guild guild, User user) {
-//		return bot.getClient().getMemberById(guild.getId(), user.getId())
-//				.flatMapMany(Member::getRoles)
-//				.map(Role::getPermissions)
-//				.map(PermissionSet::asEnumSet)
-//				.reduce((set0, set1) -> {
-//					EnumSet<Permission> copy = EnumSet.copyOf(set0);
-//					copy.addAll(set1);
-//					return copy;
-//				});
-//	}
-
-	public void setupPermfile() {
+	public void setupPermissionFile() {
 
 		if(updateConfigIfUnset()) {
 
@@ -90,8 +63,8 @@ public class PermissionManager {
 			final List<Snowflake> owners = new ArrayList<>();
 			final List<Snowflake> admins = new ArrayList<>();
 
-			getBotAdminsList().forEach(object -> admins.add(Snowflake.of((Long) object)));
-			getBotOwnersList().forEach(object -> owners.add(Snowflake.of((Long) object)));
+			getBotAdminsList().forEach(object -> admins.add(Snowflake.of(object)));
+			getBotOwnersList().forEach(object -> owners.add(Snowflake.of(object)));
 
 			return new Entry<>(owners,admins);
 		} else {
@@ -109,9 +82,11 @@ public class PermissionManager {
 	}
 
 	public boolean isBotAdmin(final long id) {
-
-		if(updateConfigIfUnset() && config.containsKey("Admins")) {
-			return ((ArrayList)config.get("Admins")).contains(id) || isBotOwner(id);
+		
+		if (isBotOwner(id)) {
+			return true;
+		} else if(config.containsKey("Admins")) {
+			return ((ArrayList<?>)config.get("Admins")).contains(id);
 		} else {
 			return false;
 		}
@@ -131,9 +106,8 @@ public class PermissionManager {
 		if(updateConfigIfUnset()) {
 			List<Long> admins;
 			if(config.containsKey("Admins")) {
-				if (config.get("Admins") instanceof List) {
-					List ad = ((List) config.get("Admins"));
-					if (ad.size() > 0 && ad.get(0) instanceof Long) {
+				if (config.get("Admins") instanceof List<?> ad) {
+					if (!ad.isEmpty() && ad.get(0) instanceof Long) {
 						//noinspection unchecked
 						admins = (List<Long>) ad;
 					} else {
@@ -165,23 +139,27 @@ public class PermissionManager {
 	public boolean removeBotAdmin(final long id) {
 
 		if(updateConfigIfUnset()) {
-			//noinspection unchecked
-			List<Object> toPut = (ArrayList)config.get("Admins");
-			for (int i = 0; i < toPut.size(); i++) {
-				Object object = toPut.get(i);
-				if (id == (Long) object) {
-					//noinspection Duplicates
-					toPut.remove(i);
-				}
-
-			}
-			updateConfig();
-			return true;
+			List<?> toPut = (ArrayList<?>)config.get("Admins");
+			return removeIdFromList(id, toPut);
 		} else {
 			return false;
 		}
 	}
+	
+	private boolean removeIdFromList(long id, List<?> toPut) {
+		
+		for (int i = 0; i < toPut.size(); i++) {
+			Object object = toPut.get(i);
+			if (id == (Long) object) {
+				toPut.remove(i);
+				i--;
+			}
 
+		}
+		updateConfig();
+		return true;
+	}
+	
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isBotOwner(User user) {
 
@@ -194,7 +172,7 @@ public class PermissionManager {
 	public boolean isBotOwner(final long id) {
 
 		if(updateConfigIfUnset() && config.containsKey("Owners")) {
-			return ((ArrayList)config.get("Owners")).contains(id);
+			return ((ArrayList<?>)config.get("Owners")).contains(id);
 		} else {
 			return false;
 		}
@@ -234,17 +212,8 @@ public class PermissionManager {
 	public boolean removeBotOwner(final long id) {
 
 		if(updateConfigIfUnset()) {
-			ArrayList toPut = (ArrayList)config.get("Owners");
-			for (int i = 0; i < toPut.size(); i++) {
-				Object object = toPut.get(i);
-				if (id == (Long) object) {
-					//noinspection Duplicates
-					toPut.remove(i);
-				}
-
-			}
-			updateConfig();
-			return true;
+			var toPut = (ArrayList<?>)config.get("Owners");
+			return removeIdFromList(id, toPut);
 		} else {
 			return false;
 		}
@@ -255,8 +224,13 @@ public class PermissionManager {
 		if(config != null) {
 			return true;
 		}
-
-		config = bot.getResourceManager().getConfig(directory,filename);
+		
+		try {
+			config = bot.getResourceManager().getConfig(directory,filename);
+		} catch (JsonProcessingException e) {
+			Logger.getLogger("PermissionManager").throwing("PermissionManager", "updateConfigIfUnset", e);
+			return false;
+		}
 		return true;
 	}
 
@@ -272,9 +246,8 @@ public class PermissionManager {
 	private List<Long> getBotAdminsList() {
 
 		if(config.containsKey("Admins")) {
-			if (config.get("Admins") instanceof List) {
-				List ad = ((List) config.get("Admins"));
-				if (ad.size() > 0 && ad.get(0) instanceof Long) {
+			if (config.get("Admins") instanceof List<?> ad) {
+				if (!ad.isEmpty() && ad.get(0) instanceof Long) {
 					//noinspection unchecked
 					return (List<Long>) ad;
 				} else {
@@ -291,9 +264,8 @@ public class PermissionManager {
 	private List<Long> getBotOwnersList() {
 
 		if(config.containsKey("Owners")) {
-			if (config.get("Owners") instanceof List) {
-				List ow = ((List) config.get("Owners"));
-				if (ow.size() > 0 && ow.get(0) instanceof Long) {
+			if (config.get("Owners") instanceof List<?> ow) {
+				if (!ow.isEmpty() && ow.get(0) instanceof Long) {
 					//noinspection unchecked
 					return (List<Long>) ow;
 				} else {

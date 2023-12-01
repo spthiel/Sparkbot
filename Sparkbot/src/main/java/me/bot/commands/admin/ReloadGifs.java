@@ -14,6 +14,7 @@ import me.main.Prefixes;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class ReloadGifs implements ICommand {
 	@Override
 	public CommandType getType() {
@@ -25,6 +26,7 @@ public class ReloadGifs implements ICommand {
 		return "Reloads the gifs";
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
 	@Override
 	public String[] getNames() {
 		return new String[]{"reloadgifs","rlgifs"};
@@ -46,9 +48,9 @@ public class ReloadGifs implements ICommand {
 	}
 
 	@Override
-	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandname, String[] args, String content) {
-		Gif.getInstance().loadGiffmanager(bot);
-		channel.createMessage("Reloaded gifmanagers").subscribe();
+	public void run(Bot bot, Member author, TextChannel channel, Guild guild, Message message, String commandName, String[] args, String content) {
+		Gif.getInstance().loadGifManager(bot);
+		channel.createMessage("Reloaded gif managers").subscribe();
 	}
 
 	@Override
